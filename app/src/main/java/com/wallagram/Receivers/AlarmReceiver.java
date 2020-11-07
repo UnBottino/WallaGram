@@ -1,0 +1,251 @@
+package com.wallagram.Receivers;
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.util.Log;
+import android.view.View;
+
+import androidx.annotation.RequiresApi;
+
+import com.wallagram.MainActivity;
+import com.wallagram.Model.Account;
+import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
+import com.wallagram.Utils.Functions;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class AlarmReceiver extends BroadcastReceiver
+{
+    private static Context mContext;
+    private static SQLiteDatabaseAdapter db;
+    private static SharedPreferences sharedPreferences;
+    private static SharedPreferences.Editor editor;
+
+    private static String mSearchName;
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        mContext = context;
+        db = new SQLiteDatabaseAdapter(context);
+        sharedPreferences = context.getSharedPreferences("SET_ACCOUNT", 0);
+        editor = context.getSharedPreferences("SET_ACCOUNT", 0).edit();
+        editor.apply();
+
+        mSearchName = sharedPreferences.getString("searchName", "NULL");
+
+        NewBgTask testAsyncTask = new NewBgTask(mSearchName);
+        testAsyncTask.execute();
+    }
+
+    public static class NewBgTask extends AsyncTask<String, String, String> {
+        private String mPostUrl;
+        private String mProfileUrl;
+
+        private Account account;
+        private String mSearchName;
+
+        public NewBgTask(String searchName) {
+            mSearchName = searchName;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            HttpURLConnection connection = null;
+            BufferedReader reader = null;
+            boolean error = false;
+
+            try {
+                String urlString = "https://www.instagram.com/" + mSearchName + "/?__a=1";
+
+                URL url = new URL(urlString);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+
+                InputStream stream = connection.getInputStream();
+
+                reader = new BufferedReader(new InputStreamReader(stream));
+
+                JSONObject jsonObject = new JSONObject(reader.readLine());
+                JSONObject graphqlObject = jsonObject.getJSONObject("graphql");
+                JSONObject userObject = graphqlObject.getJSONObject("user");
+
+                mProfileUrl = userObject.getString("profile_pic_url_hd");
+                account = new Account(mSearchName, mProfileUrl);
+
+                JSONObject timelineMediaObject = userObject.getJSONObject("edge_owner_to_timeline_media");
+                JSONArray edgesArray = timelineMediaObject.getJSONArray("edges");
+                JSONObject edgeObject = edgesArray.getJSONObject(0);
+                JSONObject nodeObject = edgeObject.getJSONObject("node");
+
+                mPostUrl = nodeObject.get("display_url").toString();
+            }
+            catch (JSONException | IOException e) {
+                error = true;
+            }
+            finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if(error) {
+                Log.v("NewBgTask", "Account Search Failed");
+                return "Error";
+            }
+
+            return "Success";
+        }
+
+        protected void onPostExecute(String result) {
+            MainActivity.mProgressBar.setVisibility(View.GONE);
+
+            if (result.equalsIgnoreCase("Error")) {
+                MainActivity.mSetAccountName.setText("Account is private or doesn't exist!");
+                editor.putString("setAccountName", "Not Set");
+                editor.commit();
+
+                Intent intent = new Intent(mContext, AlarmReceiver.class);
+                PendingIntent pendingIntent = PendingIntent
+                        .getBroadcast(mContext, 0, intent, PendingIntent.FLAG_NO_CREATE);
+
+                AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(mContext.ALARM_SERVICE);
+                if(pendingIntent != null) {
+                    alarmManager.cancel(pendingIntent);
+                }
+            }
+            else {
+                MainActivity.mSetAccountName.setText(mSearchName);
+
+                if(!db.checkIfAccountExists(account)) {
+                    Log.d("DB", "Adding new account name into db (" + mSearchName + ")");
+                    db.addAccount(account);
+
+                    MainActivity.mDBAccountList.add(0, account);
+                    MainActivity.mAdapter.notifyItemInserted(0);
+                    MainActivity.mAdapter.notifyDataSetChanged();
+                }
+                else{
+                    Log.d("DB", "Account name already in db (" + mSearchName + ")");
+
+                    for(Account a : MainActivity.mDBAccountList){
+                        if(a.getAccountName().equalsIgnoreCase(account.getAccountName())){
+                            MainActivity.mDBAccountList.remove(a);
+                            MainActivity.mAdapter.notifyItemRemoved(MainActivity.mDBAccountList.indexOf(a));
+
+                            MainActivity.mDBAccountList.add(0, account);
+                            MainActivity.mAdapter.notifyItemInserted(0);
+
+                            MainActivity.mAdapter.notifyDataSetChanged();
+
+                            db.deleteAccount(a.getAccountName());
+                            db.addAccount(account);
+
+                            break;
+                        }
+                    }
+                }
+
+                //Set displayed profile pic
+                Picasso.get()
+                        .load(Uri.parse(account.getProfilePicURL()))
+                        .into(MainActivity.mSetProfilePic);
+
+                if(!sharedPreferences.getString("setPostURL", "null").equalsIgnoreCase(mPostUrl)){
+                    //Set background and save to storage
+
+                    Functions.setWallpaper(mContext, mPostUrl);
+                    Functions.savePost(mContext, mPostUrl);
+
+                    /*Picasso.get()
+                            .load(mPostUrl)
+                            .into(new Target() {
+                                @RequiresApi(api = Build.VERSION_CODES.Q)
+                                @Override
+                                public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+
+                                    WallpaperManager wallpaperManager = WallpaperManager.getInstance(mContext);
+                                    try {
+                                        wallpaperManager.setBitmap(bitmap);
+                                    } catch (IOException ex) {
+                                        ex.printStackTrace();
+                                    }
+
+                                    try {
+                                        Functions.savePostToExternal(bitmap, mContext, mPostUrl.substring(mPostUrl.length() - 50));
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                @Override
+                                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                                }
+
+                                @Override
+                                public void onPrepareLoad(Drawable placeHolderDrawable) {
+                                }
+                            });*/
+                }
+                if(!sharedPreferences.getString("setProfilePic", "null").equalsIgnoreCase(mProfileUrl)) {
+                    //Save profile pic to storage
+                    Picasso.get()
+                            .load(mProfileUrl)
+                            .into(new Target() {
+                                @RequiresApi(api = Build.VERSION_CODES.Q)
+                                @Override
+                                public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+                                    try {
+                                        Functions.saveProfilePicToExternal(bitmap, mContext, mProfileUrl.substring(mProfileUrl.length() - 50));
+                                    } catch (IOException e) {
+                                        Log.e("setProfilePic", "onBitmapLoaded: ", e);
+                                    }
+                                }
+
+                                @Override
+                                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                                }
+
+                                @Override
+                                public void onPrepareLoad(Drawable placeHolderDrawable) {
+                                }
+                            });
+                }
+
+                editor.putString("setProfilePic", mProfileUrl);
+                editor.putString("setAccountName", account.getAccountName());
+                editor.putString("setPostURL", mPostUrl);
+                editor.commit();
+            }
+        }
+    }
+
+
+}
+
