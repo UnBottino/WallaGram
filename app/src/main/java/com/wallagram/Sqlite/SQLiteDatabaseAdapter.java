@@ -66,8 +66,7 @@ public class SQLiteDatabaseAdapter {
         return true;
     }
 
-    public void deleteAccount(String name)
-    {
+    public void deleteAccount(String name) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         db.delete(SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES, "account_name" + "='" + name + "'", null);
         db.close();

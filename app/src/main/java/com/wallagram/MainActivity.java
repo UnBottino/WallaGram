@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -32,12 +31,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
-    private Context mContext;
     private SharedPreferences mSharedPreferences;
     private SharedPreferences.Editor mEditor;
-
-    private Toolbar mToolbar;
 
     public static ImageView mSetProfilePic;
     public static TextView mSetAccountName;
@@ -54,9 +49,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Chrome DB
-        Functions.setupChromeDB(this);
-
         //Request Storage Access
         Functions.requestPermission(this);
 
@@ -64,21 +56,17 @@ public class MainActivity extends AppCompatActivity {
         pageSetup();
 
         //Run Continuously
-        Intent intent = new Intent(mContext, ForegroundService.class);
+        Intent intent = new Intent(getApplicationContext(), ForegroundService.class);
         intent.setAction(ForegroundService.ACTION_START_FOREGROUND_SERVICE);
         startService(intent);
     }
 
-    private void setupToolbar(){
-        mToolbar = findViewById(R.id.toolbar);
+    private void setupToolbar() {
+        Toolbar mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
     }
 
     @Override
@@ -89,8 +77,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void pageSetup(){
-        mContext = getApplicationContext();
-
         mSharedPreferences = getSharedPreferences("SET_ACCOUNT", 0);
         mEditor = getSharedPreferences("SET_ACCOUNT", 0).edit();
         mEditor.apply();
@@ -120,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         setupPreviousAccounts();
     }
 
-    private void setupSearchBar(){
+    private void setupSearchBar() {
         mSearchBar = findViewById(R.id.searchBar);
 
         //Removing Underline
@@ -129,12 +115,7 @@ public class MainActivity extends AppCompatActivity {
         View searchPlateView = mSearchBar.findViewById(searchPlateId);
         searchPlateView.setBackgroundResource(R.color.purple);
 
-        mSearchBar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSearchBar.setIconified(false);
-            }
-        });
+        mSearchBar.setOnClickListener(v -> mSearchBar.setIconified(false));
 
         mSearchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -171,13 +152,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateTrackList(){
-        runOnUiThread(new Thread() {
-            @Override
-            public void run() {
-                mAdapter = new AccountListAdapter(getApplicationContext(), mDBAccountList);
-                mRecyclerView.setAdapter(mAdapter);
-                mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-            }
-        });
+        runOnUiThread(new Thread(() -> {
+            mAdapter = new AccountListAdapter(getApplicationContext(), mDBAccountList);
+            mRecyclerView.setAdapter(mAdapter);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        }));
     }
 }

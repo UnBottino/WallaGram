@@ -179,63 +179,8 @@ public class AlarmReceiver extends BroadcastReceiver
 
                 if(!sharedPreferences.getString("setPostURL", "null").equalsIgnoreCase(mPostUrl)){
                     //Set background and save to storage
-
                     Functions.setWallpaper(mContext, mPostUrl);
                     Functions.savePost(mContext, mPostUrl);
-
-                    /*Picasso.get()
-                            .load(mPostUrl)
-                            .into(new Target() {
-                                @RequiresApi(api = Build.VERSION_CODES.Q)
-                                @Override
-                                public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-
-                                    WallpaperManager wallpaperManager = WallpaperManager.getInstance(mContext);
-                                    try {
-                                        wallpaperManager.setBitmap(bitmap);
-                                    } catch (IOException ex) {
-                                        ex.printStackTrace();
-                                    }
-
-                                    try {
-                                        Functions.savePostToExternal(bitmap, mContext, mPostUrl.substring(mPostUrl.length() - 50));
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-
-                                @Override
-                                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                                }
-
-                                @Override
-                                public void onPrepareLoad(Drawable placeHolderDrawable) {
-                                }
-                            });*/
-                }
-                if(!sharedPreferences.getString("setProfilePic", "null").equalsIgnoreCase(mProfileUrl)) {
-                    //Save profile pic to storage
-                    Picasso.get()
-                            .load(mProfileUrl)
-                            .into(new Target() {
-                                @RequiresApi(api = Build.VERSION_CODES.Q)
-                                @Override
-                                public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-                                    try {
-                                        Functions.saveProfilePicToExternal(bitmap, mContext, mProfileUrl.substring(mProfileUrl.length() - 50));
-                                    } catch (IOException e) {
-                                        Log.e("setProfilePic", "onBitmapLoaded: ", e);
-                                    }
-                                }
-
-                                @Override
-                                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                                }
-
-                                @Override
-                                public void onPrepareLoad(Drawable placeHolderDrawable) {
-                                }
-                            });
                 }
 
                 editor.putString("setProfilePic", mProfileUrl);

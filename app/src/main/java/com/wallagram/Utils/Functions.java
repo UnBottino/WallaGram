@@ -13,12 +13,9 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
-import com.facebook.stetho.Stetho;
-import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.wallagram.Model.Account;
 import com.wallagram.R;
 import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
@@ -29,8 +26,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
-import okhttp3.OkHttpClient;
-
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class Functions {
@@ -38,13 +33,6 @@ public class Functions {
         Log.d("DB","Getting all account names from DB");
         SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
         return db.getAllAccounts();
-    }
-
-    public static void setupChromeDB(Context context){
-        Stetho.initializeWithDefaults(context);
-        new OkHttpClient.Builder()
-                .addNetworkInterceptor(new StethoInterceptor())
-                .build();
     }
 
     public static void requestPermission(Activity activity){
@@ -66,54 +54,6 @@ public class Functions {
         cursor.close();
 
         return exist;
-    }
-
-    /*@RequiresApi(api = Build.VERSION_CODES.Q)
-    public static void savePostToExternal(Bitmap bitmap, Context context, @NonNull String imageName) throws IOException {
-        OutputStream fos;
-
-        String path = "DCIM/" + context.getResources().getString(R.string.app_name) + "/Posts";
-
-        ContentResolver resolver = context.getContentResolver();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, imageName);
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
-        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, path);
-
-        if(!Functions.checkImageExists(path, imageName, context)) {
-            Uri imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-
-            assert imageUri != null;
-            fos = resolver.openOutputStream(imageUri);
-
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-
-            assert fos != null;
-            fos.flush();
-            fos.close();
-        }
-    }*/
-
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    public static void saveProfilePicToExternal(Bitmap bitmap, Context context, @NonNull String imageName) throws IOException {
-        OutputStream fos;
-
-        String path = "DCIM/" + context.getResources().getString(R.string.app_name) + "/Profile Pics";
-
-        ContentResolver resolver = context.getContentResolver();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, imageName);
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
-        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, path);
-
-        if(!com.wallagram.Utils.Functions.checkImageExists(path, imageName, context)) {
-            Uri imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-            fos = resolver.openOutputStream(imageUri);
-
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.flush();
-            fos.close();
-        }
     }
 
     public static void setWallpaper(final Context context, final String postUrl){
@@ -151,7 +91,7 @@ public class Functions {
 
                         OutputStream fos;
 
-                        String path = "DCIM/" + context.getResources().getString(R.string.app_name) + "/Posts";
+                        String path = "DCIM/" + context.getResources().getString(R.string.app_name);
 
                         ContentResolver resolver = context.getContentResolver();
                         ContentValues contentValues = new ContentValues();

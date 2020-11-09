@@ -38,11 +38,4 @@ dependencies {
 
     //Picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
-
-    //DB Inspect
-    implementation 'com.facebook.stetho:stetho:1.5.1'
-    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.1'
-
-    //Work Manager
-    implementation "android.arch.work:work-runtime:1.0.1"
 }
