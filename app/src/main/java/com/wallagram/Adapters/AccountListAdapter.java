@@ -1,6 +1,7 @@
 package com.wallagram.Adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,18 +12,21 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.wallagram.AsyncTasks.NewBgTask;
 import com.wallagram.Model.Account;
 import com.wallagram.R;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.AccountListItemHolder> {
 
-    private List<Account> mAccountList;
-    private List<Account> mAccountListFull;
-    private LayoutInflater mInflater;
+    private final List<Account> mAccountList;
+    private final LayoutInflater mInflater;
+
+    private final Context mContext;
+    private final SharedPreferences mSharedPreferences;
+    private SharedPreferences.Editor mEditor;
 
     @NonNull
     @Override
@@ -42,6 +46,15 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
                 .into(holder.profilePicView);
 
         holder.accountNameView.setText(mAccountName);
+
+        holder.itemView.setOnClickListener(v -> {
+            mEditor = mContext.getSharedPreferences("SET_ACCOUNT", 0).edit();
+            mEditor.putString("searchName", mAccountName);
+            mEditor.apply();
+
+            NewBgTask testAsyncTask = new NewBgTask(mContext, mSharedPreferences.getString("searchName", "NULL"));
+            testAsyncTask.execute();
+        });
     }
 
     @Override
@@ -51,8 +64,10 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
     public AccountListAdapter(Context context, List<Account> accountList) {
         mInflater = LayoutInflater.from(context);
-        mAccountListFull = new ArrayList<>(accountList);
         this.mAccountList = accountList;
+
+        mContext = context;
+        mSharedPreferences = context.getSharedPreferences("SET_ACCOUNT", 0);
     }
 
     static class AccountListItemHolder extends RecyclerView.ViewHolder {
