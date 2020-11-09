@@ -73,7 +73,7 @@ public class SQLiteDatabaseAdapter {
     }
 
     static class SQLiteDatabaseHelper  extends SQLiteOpenHelper {
-        private static final int DATABASE_VERSION = 16;
+        private static final int DATABASE_VERSION = 21;
         private static final String DATABASE_NAME = "WallaGram";
         private static final String TABLE_ACCOUNT_NAMES = "walla_accounts";
 
@@ -88,7 +88,7 @@ public class SQLiteDatabaseAdapter {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS accounts");
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACCOUNT_NAMES);
             onCreate(db);
         }
     }
