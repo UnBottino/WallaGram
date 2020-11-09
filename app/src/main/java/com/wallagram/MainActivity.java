@@ -20,6 +20,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.wallagram.Adapters.AccountListAdapter;
+import com.wallagram.AsyncTasks.NewBgTask;
 import com.wallagram.Connectors.ForegroundService;
 import com.wallagram.Model.Account;
 import com.wallagram.Receivers.AlarmReceiver;
@@ -130,6 +131,9 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
                 PendingIntent pendingIntent = PendingIntent
                         .getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                NewBgTask testAsyncTask = new NewBgTask(getApplicationContext(), mSharedPreferences.getString("searchName", "NULL"));
+                testAsyncTask.execute();
 
                 AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
                 alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(), 900000, pendingIntent);
