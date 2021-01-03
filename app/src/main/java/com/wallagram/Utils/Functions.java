@@ -91,7 +91,7 @@ public class Functions {
 
                         OutputStream fos;
 
-                        String path = "DCIM/" + context.getResources().getString(R.string.app_name);
+                        String path = "Pictures/" + context.getResources().getString(R.string.app_name);
 
                         ContentResolver resolver = context.getContentResolver();
                         ContentValues contentValues = new ContentValues();

@@ -12,11 +12,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.wallagram.AdapterCallback;
 import com.wallagram.AsyncTasks.NewBgTask;
+import com.wallagram.MainActivity;
 import com.wallagram.Model.Account;
 import com.wallagram.R;
 import com.squareup.picasso.Picasso;
-
 import java.util.List;
 
 public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.AccountListItemHolder> {
@@ -25,7 +26,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
     private final LayoutInflater mInflater;
 
     private final Context mContext;
-    private final SharedPreferences mSharedPreferences;
+    private SharedPreferences mSharedPreferences;
     private SharedPreferences.Editor mEditor;
 
     @NonNull
@@ -48,12 +49,22 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
         holder.accountNameView.setText(mAccountName);
 
         holder.itemView.setOnClickListener(v -> {
+            MainActivity.mLoadingView.setVisibility(View.VISIBLE);
+
+            mSharedPreferences = mContext.getSharedPreferences("SET_ACCOUNT", 0);
             mEditor = mContext.getSharedPreferences("SET_ACCOUNT", 0).edit();
             mEditor.putString("searchName", mAccountName);
             mEditor.apply();
 
-            NewBgTask testAsyncTask = new NewBgTask(mContext, mSharedPreferences.getString("searchName", "NULL"));
+            NewBgTask testAsyncTask = new NewBgTask(mContext);
             testAsyncTask.execute();
+
+            if(!mSharedPreferences.getBoolean("alarmActive", false)){
+                System.out.println("Alarm active was false");
+                mEditor.putBoolean("alarmActive", true);
+                mEditor.commit();
+                MainActivity.callAlarm(mContext);
+            }
         });
     }
 
@@ -67,16 +78,15 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
         this.mAccountList = accountList;
 
         mContext = context;
-        mSharedPreferences = context.getSharedPreferences("SET_ACCOUNT", 0);
     }
 
     static class AccountListItemHolder extends RecyclerView.ViewHolder {
         final TextView accountNameView;
         final ImageView profilePicView;
 
-        final com.wallagram.Adapters.AccountListAdapter mAdapter;
+        final AccountListAdapter mAdapter;
 
-        AccountListItemHolder(View itemView, com.wallagram.Adapters.AccountListAdapter adapter) {
+        AccountListItemHolder(View itemView, AccountListAdapter adapter) {
             super(itemView);
 
             accountNameView = itemView.findViewById(R.id.accountName);

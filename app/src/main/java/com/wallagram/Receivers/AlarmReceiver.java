@@ -10,10 +10,7 @@ public class AlarmReceiver extends BroadcastReceiver
 {
     @Override
     public void onReceive(Context context, Intent intent) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("SET_ACCOUNT", 0);
-        String searchName = sharedPreferences.getString("searchName", "NULL");
-
-        NewBgTask testAsyncTask = new NewBgTask(context, searchName);
+        NewBgTask testAsyncTask = new NewBgTask(context);
         testAsyncTask.execute();
     }
 }

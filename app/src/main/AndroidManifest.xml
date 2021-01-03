@@ -8,7 +8,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
     <application
@@ -19,16 +20,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WallaGram">
 
-        <service android:name=".Connectors.ForegroundService"
-            android:enabled="true"/>
+        <service
+            android:name=".Connectors.ForegroundService"
+            android:enabled="true" />
 
         <receiver
             android:name=".Receivers.AlarmReceiver"
-            android:exported="false">
-        </receiver>
-
+            android:exported="false" />
         <receiver
             android:name=".Receivers.BootReceiver"
+            android:enabled="false"
             android:label="BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -37,14 +38,20 @@
 
         <activity
             android:name=".MainActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:theme="@style/Theme.WallaGram.NoActionBar">
+            android:theme="@style/Theme.WallaGram.NoActionBar"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".SettingsActivity"
+            android:theme="@style/Theme.WallaGram.NoActionBar">
+        </activity>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

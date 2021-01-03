@@ -5,11 +5,11 @@
     tools:context=".MainActivity">
 
     <group
-        android:id="@+id/deleteGroup">
+        android:id="@+id/settingsGroup">
         <item
-            android:id="@+id/action_delete"
+            android:id="@+id/action_settings"
             android:orderInCategory="300"
-            android:title="Delete"
+            android:title="Settings"
             android:icon="@drawable/ic_baseline_settings_24"
             app:showAsAction="ifRoom"/>
     </group>

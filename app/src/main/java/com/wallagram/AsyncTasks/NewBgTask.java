@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.squareup.picasso.Picasso;
+import com.wallagram.AdapterCallback;
 import com.wallagram.MainActivity;
 import com.wallagram.Model.Account;
 import com.wallagram.Receivers.AlarmReceiver;
@@ -29,7 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class NewBgTask extends AsyncTask<String, String, String> {
-    private static Context mContext;
+    private Context mContext;
     private static String mSearchName;
 
     private static SQLiteDatabaseAdapter db;
@@ -41,14 +42,15 @@ public class NewBgTask extends AsyncTask<String, String, String> {
 
     private Account account;
 
-    public NewBgTask(Context context, String searchName) {
-        mContext = context;
-        mSearchName = searchName;
+    public NewBgTask(Context context) {
+        this.mContext = context;
 
         db = new SQLiteDatabaseAdapter(context);
         sharedPreferences = context.getSharedPreferences("SET_ACCOUNT", 0);
         editor = context.getSharedPreferences("SET_ACCOUNT", 0).edit();
         editor.apply();
+
+        mSearchName = sharedPreferences.getString("searchName", "NULL");
     }
 
     @Override
@@ -107,8 +109,6 @@ public class NewBgTask extends AsyncTask<String, String, String> {
     }
 
     protected void onPostExecute(String result) {
-        MainActivity.mProgressBar.setVisibility(View.GONE);
-
         if (result.equalsIgnoreCase("Error")) {
             MainActivity.mSetAccountName.setText("Account is private or doesn't exist!");
             editor.putString("setAccountName", "Not Set");
@@ -119,7 +119,7 @@ public class NewBgTask extends AsyncTask<String, String, String> {
                     .getBroadcast(mContext, 0, intent, PendingIntent.FLAG_NO_CREATE);
 
             AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-            if(pendingIntent != null) {
+            if (alarmManager!= null) {
                 alarmManager.cancel(pendingIntent);
             }
         }
@@ -171,5 +171,7 @@ public class NewBgTask extends AsyncTask<String, String, String> {
             editor.putString("setPostURL", mPostUrl);
             editor.commit();
         }
+
+        MainActivity.mLoadingView.setVisibility(View.INVISIBLE);
     }
 }
