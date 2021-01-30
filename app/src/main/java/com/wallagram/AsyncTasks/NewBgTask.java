@@ -1,6 +1,5 @@
 package com.wallagram.AsyncTasks;
 
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +10,6 @@ import android.util.Log;
 import android.view.View;
 
 import com.squareup.picasso.Picasso;
-import com.wallagram.AdapterCallback;
 import com.wallagram.MainActivity;
 import com.wallagram.Model.Account;
 import com.wallagram.Receivers.AlarmReceiver;
@@ -62,6 +60,8 @@ public class NewBgTask extends AsyncTask<String, String, String> {
         try {
             String urlString = "https://www.instagram.com/" + mSearchName + "/?__a=1";
 
+            System.out.println(urlString);
+
             URL url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
             connection.connect();
@@ -86,6 +86,7 @@ public class NewBgTask extends AsyncTask<String, String, String> {
         }
         catch (JSONException | IOException e) {
             error = true;
+            System.out.println(e.getMessage());
         }
         finally {
             if (connection != null) {
@@ -117,11 +118,6 @@ public class NewBgTask extends AsyncTask<String, String, String> {
             Intent intent = new Intent(mContext, AlarmReceiver.class);
             PendingIntent pendingIntent = PendingIntent
                     .getBroadcast(mContext, 0, intent, PendingIntent.FLAG_NO_CREATE);
-
-            AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-            if (alarmManager!= null) {
-                alarmManager.cancel(pendingIntent);
-            }
         }
         else {
             MainActivity.mSetAccountName.setText(mSearchName);

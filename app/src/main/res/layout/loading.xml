@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSecondary"
+    android:background="?attr/colorPrimary"
     tools:context=".MainActivity" >
 
     <LinearLayout
@@ -32,7 +32,7 @@
             android:layout_weight="1"
 
             app:nsidedProg_primaryColor="@color/grey"
-            app:nsidedProg_secondaryColor="?attr/colorPrimary"
+            app:nsidedProg_secondaryColor="?attr/colorSecondary"
 
             app:nsidedProg_baseSpeed="5"
             app:nsidedProg_clockwise="true"

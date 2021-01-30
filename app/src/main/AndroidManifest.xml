@@ -19,6 +19,19 @@
         android:roundIcon="@mipmap/walla_logo_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WallaGram">
+        <activity android:name=".MultiImageActivity"></activity>
+        <activity
+            android:name=".DurationActivity"
+            android:theme="@style/Theme.WallaGram"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".LocationActivity"
+            android:theme="@style/Theme.WallaGram"
+            android:windowSoftInputMode="adjustPan" />
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
 
         <service
             android:name=".Connectors.ForegroundService"
@@ -37,8 +50,12 @@
         </receiver>
 
         <activity
+            android:name=".Login.LoginActivity"
+            android:theme="@style/Theme.WallaGram"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
             android:name=".MainActivity"
-            android:theme="@style/Theme.WallaGram.NoActionBar"
+            android:theme="@style/Theme.WallaGram"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,11 +63,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name=".SettingsActivity"
-            android:theme="@style/Theme.WallaGram.NoActionBar">
-        </activity>
+            android:name=".ActiveActivity"
+            android:theme="@style/Theme.WallaGram"
+            android:windowSoftInputMode="adjustPan" />
 
         <meta-data
             android:name="preloaded_fonts"

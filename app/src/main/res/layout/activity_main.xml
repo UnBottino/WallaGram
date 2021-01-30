@@ -6,24 +6,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSecondary"
+    android:background="?attr/colorPrimary"
     tools:context=".MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mainContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
+        <RelativeLayout
+            android:id="@+id/settingsBtn"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="20dp"
-
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:padding="25dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_baseline_settings_24"
+                android:layout_centerInParent="true" />
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/currentLayout"
@@ -53,7 +59,7 @@
                     android:id="@+id/view2"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
-                    app:cardBackgroundColor="?attr/colorSecondaryVariant"
+                    app:cardBackgroundColor="?attr/colorPrimaryVariant"
                     app:cardCornerRadius="150dp">
 
                     <ImageView
@@ -78,7 +84,7 @@
 
                 android:text="No Account Set"
                 android:textAlignment="center"
-                android:textColor="?attr/colorPrimary"
+                android:textColor="?attr/colorSecondary"
                 android:textSize="22dp" />
 
         </LinearLayout>
@@ -97,32 +103,38 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:context=".Main_Frag_Holder">
 
-            <SearchView
+            <androidx.appcompat.widget.SearchView
                 android:id="@+id/searchBar"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginHorizontal="20dp"
 
-                android:background="@drawable/search_purple"
+                android:background="@drawable/serach_bar"
 
                 android:inputType="textCapSentences"
                 android:paddingStart="10dp"
+                android:paddingEnd="10dp"
 
-                android:queryHint="Set New Account" />
+                app:defaultQueryHint="Set New Account">
+
+            </androidx.appcompat.widget.SearchView>
 
         </LinearLayout>
 
+
         <RelativeLayout
+            android:id="@+id/accountNameContainer"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_margin="22dp"
 
-            android:layout_margin="20dp"
+            android:background="@drawable/rounded_rectangle"
 
-            android:background="@drawable/round"
-
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintTop_toBottomOf="@id/searchLayout">
 
             <LinearLayout
@@ -155,20 +167,6 @@
 
             </LinearLayout>
 
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_margin="22dp"
-
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-
-            app:layout_constraintTop_toBottomOf="@id/searchLayout">
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/accountNameList"
                 android:layout_width="match_parent"
@@ -192,8 +190,9 @@
         android:layout_height="match_parent"
         android:layout_width="wrap_content"
         app:headerLayout="@layout/nav_header_main"
-        android:background="@color/dark_black"
-        app:itemTextColor="@color/white"
+        android:background="?attr/colorSecondaryVariant"
+        app:itemTextColor="?attr/colorOnPrimary"
+        app:itemIconTint="?attr/colorSecondary"
         app:menu="@menu/main_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

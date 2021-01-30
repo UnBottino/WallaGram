@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorPrimary"
+    tools:context=".MultiImageActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/multiInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:fontFamily="@font/roboto"
+        android:paddingHorizontal="20dp"
+
+        android:paddingTop="20dp"
+        android:text="@string/multiInfo"
+        android:textAlignment="center"
+        android:textColor="?attr/colorOnSecondary"
+        android:textSize="18sp"
+
+        app:layout_constraintBottom_toTopOf="@id/btnContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/toolbar" />
+
+    <LinearLayout
+        android:id="@+id/btnContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:orientation="horizontal"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/multiInfo">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:orientation="vertical">
+
+            <CheckedTextView
+                android:id="@+id/btn1"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_margin="15dp"
+
+                android:background="@drawable/multi_btn"
+
+                android:gravity="center"
+                android:textAlignment="center"
+
+                android:fontFamily="@font/roboto"
+                android:text="1"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="25sp" />
+
+            <CheckedTextView
+                android:id="@+id/btn3"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_margin="15dp"
+
+                android:background="@drawable/multi_btn"
+
+                android:gravity="center"
+                android:textAlignment="center"
+
+                android:fontFamily="@font/roboto"
+                android:text="3"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="25sp" />
+
+            <CheckedTextView
+                android:id="@+id/btn5"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_margin="15dp"
+
+                android:background="@drawable/multi_btn"
+
+                android:gravity="center"
+                android:textAlignment="center"
+
+                android:fontFamily="@font/roboto"
+                android:text="5"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="25sp" />
+
+            <CheckedTextView
+                android:id="@+id/btn7"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_margin="15dp"
+
+                android:background="@drawable/multi_btn"
+
+                android:gravity="center"
+                android:textAlignment="center"
+
+                android:fontFamily="@font/roboto"
+                android:text="7"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="25sp" />
+
+            <CheckedTextView
+                android:id="@+id/btn9"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_margin="15dp"
+
+                android:background="@drawable/multi_btn"
+
+                android:gravity="center"
+                android:textAlignment="center"
+
+                android:fontFamily="@font/roboto"
+                android:text="9"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="25sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:orientation="vertical">
+
+            <CheckedTextView
+                android:id="@+id/btn2"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_margin="15dp"
+
+                android:background="@drawable/multi_btn"
+
+                android:gravity="center"
+                android:textAlignment="center"
+
+                android:fontFamily="@font/roboto"
+                android:text="2"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="25sp" />
+
+            <CheckedTextView
+                android:id="@+id/btn4"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_margin="15dp"
+
+                android:background="@drawable/multi_btn"
+
+                android:gravity="center"
+                android:textAlignment="center"
+
+                android:fontFamily="@font/roboto"
+                android:text="4"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="25sp" />
+
+            <CheckedTextView
+                android:id="@+id/btn6"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_margin="15dp"
+
+                android:background="@drawable/multi_btn"
+
+                android:gravity="center"
+                android:textAlignment="center"
+
+                android:fontFamily="@font/roboto"
+                android:text="6"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="25sp" />
+
+            <CheckedTextView
+                android:id="@+id/btn8"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_margin="15dp"
+
+                android:background="@drawable/multi_btn"
+
+                android:gravity="center"
+                android:textAlignment="center"
+
+                android:fontFamily="@font/roboto"
+                android:text="8"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="25sp" />
+
+            <CheckedTextView
+                android:id="@+id/btn10"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_margin="15dp"
+
+                android:background="@drawable/multi_btn"
+
+                android:gravity="center"
+                android:textAlignment="center"
+
+                android:fontFamily="@font/roboto"
+                android:text="10"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="25sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/applyBtn"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="20dp"
+
+        android:background="@drawable/button"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_centerInParent="true"
+
+            android:fontFamily="@font/roboto"
+            android:text="Apply"
+            android:textColor="?attr/colorOnPrimary"
+            android:textSize="18sp" />
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

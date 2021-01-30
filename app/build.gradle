@@ -28,7 +28,6 @@ android {
 }
 
 dependencies {
-
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
@@ -45,4 +44,12 @@ dependencies {
 
     //Drawer
     implementation 'com.google.android.material:material:1.2.1'
+
+    //Insta
+    implementation 'com.facebook.android:facebook-android-sdk:4.42.0'
+
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.squareup.okhttp:okhttp:2.3.0'
+    implementation 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
 }

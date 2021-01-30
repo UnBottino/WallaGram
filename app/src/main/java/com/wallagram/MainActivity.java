@@ -1,15 +1,16 @@
 package com.wallagram;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -17,13 +18,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
-import android.widget.SearchView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
@@ -45,12 +47,10 @@ public class MainActivity extends AppCompatActivity {
     public static ConstraintLayout mLoadingView;
 
     private DrawerLayout mDrawerLayout;
-    private NavigationView mNavigationView;
-    private Toolbar mToolbar;
 
     public static ImageView mSetProfilePic;
     public static TextView mSetAccountName;
-    public SearchView mSearchBar;
+    public androidx.appcompat.widget.SearchView mSearchBar;
 
     public static RecyclerView mRecyclerView;
     public static AccountListAdapter mAdapter;
@@ -73,25 +73,45 @@ public class MainActivity extends AppCompatActivity {
         startService(intent);*/
     }
 
-    private void setupToolbar() {
-        Toolbar mToolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
-        if(getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-        }
-    }
-
-    public void setUpDrawer(){
+    public void setUpDrawer() {
         mDrawerLayout = findViewById(R.id.drawerLayout);
+        RelativeLayout settingsBtn = findViewById(R.id.settingsBtn);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        mDrawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
+        settingsBtn.setOnClickListener(v -> mDrawerLayout.openDrawer(GravityCompat.END));
 
-        mNavigationView = findViewById(R.id.nav_view);
+        NavigationView mNavigationView = findViewById(R.id.nav_view);
+        mNavigationView.getBackground().setAlpha(235);
         mNavigationView.setNavigationItemSelectedListener(menuItem -> {
-            if (menuItem.getItemId() == R.id.nav_active) {
+            mDrawerLayout.closeDrawer(GravityCompat.END);
 
+            if (menuItem.getItemId() == R.id.nav_active) {
+                Intent intent = new Intent(MainActivity.this, ActiveActivity.class);
+                startActivity(intent);
+            } else if (menuItem.getItemId() == R.id.nav_location) {
+                Intent intent = new Intent(MainActivity.this, LocationActivity.class);
+                startActivity(intent);
+            } else if (menuItem.getItemId() == R.id.nav_duration) {
+                Intent intent = new Intent(MainActivity.this, DurationActivity.class);
+                startActivity(intent);
+            } else if (menuItem.getItemId() == R.id.nav_multi) {
+                Intent intent = new Intent(MainActivity.this, MultiImageActivity.class);
+                startActivity(intent);
+            } else if (menuItem.getItemId() == R.id.nav_recent) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogCustom);
+                builder.setCancelable(true);
+                builder.setTitle("Clear Recent Accounts");
+                builder.setMessage("Are you sure?");
+                builder.setPositiveButton("Confirm", (dialog, which) -> {
+                    mDBAccountList.clear();
+                    // TODO: 27/01/2021 Remove from DB
+                    updateTrackList();
+                });
+                builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                    //Do nothing
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
 
             return false;
@@ -107,19 +127,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                if (mDrawerLayout.isDrawerOpen((GravityCompat.END))) {
-                    mDrawerLayout.closeDrawer(GravityCompat.END);
-                } else {
-                    mDrawerLayout.openDrawer(GravityCompat.END);
-                }
-                break;
+        if (item.getItemId() == R.id.action_settings) {
+            if (mDrawerLayout.isDrawerOpen((GravityCompat.END))) {
+                mDrawerLayout.closeDrawer(GravityCompat.END);
+            } else {
+                mDrawerLayout.openDrawer(GravityCompat.END);
+            }
         }
         return true;
     }
 
-    private void pageSetup(){
+    private void pageSetup() {
         //Loading View
         mLoadingView = findViewById(R.id.loadingView);
         mLoadingView.setOnClickListener(v -> {
@@ -130,16 +148,13 @@ public class MainActivity extends AppCompatActivity {
         mEditor = getSharedPreferences("SET_ACCOUNT", 0).edit();
         mEditor.apply();
 
-        //Toolbar
-        setupToolbar();
-
         //Drawer
         setUpDrawer();
 
         //Set Profile Information
         mSetProfilePic = findViewById(R.id.setProfilePic);
 
-        if(!mSharedPreferences.getString("setProfilePic", "").equalsIgnoreCase("No Account Set")) {
+        if (!mSharedPreferences.getString("setProfilePic", "").equalsIgnoreCase("No Account Set")) {
             Picasso.get()
                     .load(Uri.parse(mSharedPreferences.getString("setProfilePic", "")))
                     .into(mSetProfilePic);
@@ -159,10 +174,8 @@ public class MainActivity extends AppCompatActivity {
         mSearchBar = findViewById(R.id.searchBar);
 
         //Removing Underline
-        int searchPlateId = mSearchBar.getContext().getResources()
-                .getIdentifier("android:id/search_plate", null, null);
-        View searchPlateView = mSearchBar.findViewById(searchPlateId);
-        searchPlateView.setBackgroundResource(R.color.dark_black);
+        View view = mSearchBar.findViewById(R.id.search_plate);
+        view.setBackground(null);
 
         mSearchBar.setOnClickListener(v -> mSearchBar.setIconified(false));
 
@@ -179,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                 NewBgTask testAsyncTask = new NewBgTask(getApplicationContext());
                 testAsyncTask.execute();
 
-                if(!mSharedPreferences.getBoolean("alarmActive", false)){
+                if (!mSharedPreferences.getBoolean("alarmActive", false)) {
                     mEditor.putBoolean("alarmActive", true);
                     mEditor.commit();
                     callAlarm(getApplicationContext());
@@ -192,9 +205,36 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        setupHideSearch();
     }
 
-    private void setupPreviousAccounts(){
+    @SuppressLint("ClickableViewAccessibility")
+    public void setupHideSearch() {
+        RelativeLayout settingsBtn = findViewById(R.id.settingsBtn);
+        ConstraintLayout mainContainer = findViewById(R.id.mainContainer);
+
+        mainContainer.setOnTouchListener(new hideKeyboardListener());
+        settingsBtn.setOnTouchListener(new hideKeyboardListener());
+    }
+
+    class hideKeyboardListener implements View.OnTouchListener {
+        @SuppressLint("ClickableViewAccessibility")
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+
+            mSearchBar.setIconified(true);
+
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
+            getWindow().getDecorView().clearFocus();
+
+            return false;
+        }
+    }
+
+    private void setupPreviousAccounts() {
         mAdapter = new AccountListAdapter(getApplicationContext(), mDBAccountList/*, this*/);
         mRecyclerView = findViewById(R.id.accountNameList);
         mDBAccountList = Functions.getDBAccounts(this);
@@ -202,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
         updateTrackList();
     }
 
-    private void updateTrackList(){
+    private void updateTrackList() {
         runOnUiThread(new Thread(() -> {
             mAdapter = new AccountListAdapter(getApplicationContext(), mDBAccountList/*, this*/);
             mRecyclerView.setAdapter(mAdapter);
@@ -210,12 +250,12 @@ public class MainActivity extends AppCompatActivity {
         }));
     }
 
-    public static void callAlarm(Context context){
+    public static void callAlarm(Context context) {
         Intent intent = new Intent(context, AlarmReceiver.class);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent pendingIntent = PendingIntent
                 .getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        if(alarmManager != null) {
+        if (alarmManager != null) {
             alarmManager.cancel(pendingIntent);
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 900000, pendingIntent);
         }

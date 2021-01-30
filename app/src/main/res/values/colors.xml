@@ -3,9 +3,12 @@
     <color name="white">#FFFFFF</color>
     <color name="purple">#9C3AD1</color>
     <color name="grey">#3B3B3B</color>
-    <color name="black">#202020</color>
-    <color name="dark_black">#101010</color>
+    <color name="light_black">#202020</color>
+    <color name="dark_black">#181818</color>
     <color name="pitch_black">#000000</color>
+
+    <color name="power_dull">#AEAEAE</color>
+    <color name="power_green">#44D13A</color>
 
 
 

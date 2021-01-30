@@ -4,4 +4,13 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="client_id">781706699086950</string>
+    <string name="redirect_url">https://instagram.com/</string>
+    <string name="base_url">https://api.instagram.com/</string>
+    <string name="get_user_info_url">https://api.instagram.com/v1/users/self/?access_token=</string>
+    <string name="title_activity_test">test</string>
+
+    <string name="durationInfo">Select how often WallaGram searches for your next background</string>
+    <string name="multiInfo">Place a priority on which image in a multi-image post is selected for your new background</string>
 </resources>
