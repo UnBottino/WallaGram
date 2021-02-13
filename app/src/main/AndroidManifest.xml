@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
@@ -19,7 +20,7 @@
         android:roundIcon="@mipmap/walla_logo_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WallaGram">
-        <activity android:name=".MultiImageActivity"></activity>
+        <activity android:name=".MultiImageActivity" />
         <activity
             android:name=".DurationActivity"
             android:theme="@style/Theme.WallaGram"
@@ -34,16 +35,24 @@
             android:required="false" />
 
         <service
-            android:name=".Connectors.ForegroundService"
-            android:enabled="true" />
+            android:name="com.wallagram.Connectors.ForegroundService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
+            android:name="com.wallagram.Connectors.IntentService"
+            android:exported="true" />
 
         <receiver
-            android:name=".Receivers.AlarmReceiver"
-            android:exported="false" />
+            android:name="com.wallagram.Receivers.AlarmReceiver"
+            android:exported="true" />
+
         <receiver
-            android:name=".Receivers.BootReceiver"
-            android:enabled="false"
-            android:label="BootReceiver">
+            android:name="com.wallagram.Receivers.BootReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="BootReceiver"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -53,6 +62,7 @@
             android:name=".Login.LoginActivity"
             android:theme="@style/Theme.WallaGram"
             android:windowSoftInputMode="adjustPan" />
+
         <activity
             android:name=".MainActivity"
             android:theme="@style/Theme.WallaGram"
@@ -63,8 +73,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".ActiveActivity"
+            android:name=".StateActivity"
             android:theme="@style/Theme.WallaGram"
             android:windowSoftInputMode="adjustPan" />
 

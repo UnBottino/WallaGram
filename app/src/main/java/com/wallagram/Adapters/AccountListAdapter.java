@@ -1,6 +1,7 @@
 package com.wallagram.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -12,12 +13,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.wallagram.AdapterCallback;
-import com.wallagram.AsyncTasks.NewBgTask;
+import com.wallagram.Connectors.ForegroundService;
 import com.wallagram.MainActivity;
 import com.wallagram.Model.Account;
 import com.wallagram.R;
 import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.AccountListItemHolder> {
@@ -51,20 +52,14 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
         holder.itemView.setOnClickListener(v -> {
             MainActivity.mLoadingView.setVisibility(View.VISIBLE);
 
-            mSharedPreferences = mContext.getSharedPreferences("SET_ACCOUNT", 0);
-            mEditor = mContext.getSharedPreferences("SET_ACCOUNT", 0).edit();
+            mSharedPreferences = mContext.getSharedPreferences("Settings", 0);
+            mEditor = mContext.getSharedPreferences("Settings", 0).edit();
             mEditor.putString("searchName", mAccountName);
             mEditor.apply();
 
-            NewBgTask testAsyncTask = new NewBgTask(mContext);
-            testAsyncTask.execute();
-
-            if(!mSharedPreferences.getBoolean("alarmActive", false)){
-                System.out.println("Alarm active was false");
-                mEditor.putBoolean("alarmActive", true);
-                mEditor.commit();
-                MainActivity.callAlarm(mContext);
-            }
+            Intent i = new Intent(mContext, ForegroundService.class);
+            i.setAction(ForegroundService.ACTION_START_FOREGROUND_SERVICE);
+            mContext.startForegroundService(i);
         });
     }
 

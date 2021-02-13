@@ -5,26 +5,25 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.SystemClock;
-
-import com.wallagram.Connectors.ForegroundService;
+import android.widget.Toast;
 
 public class BootReceiver extends BroadcastReceiver {
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            /*Intent serviceIntent = new Intent(context, ForegroundService.class);
-            context.startService(serviceIntent);*/
+    public void onReceive(Context context, Intent i) {
+        if (Intent.ACTION_BOOT_COMPLETED.equals(i.getAction())) {
+            Toast.makeText(context, "Boot received!", Toast.LENGTH_LONG).show();
 
-            Intent alarmIntent = new Intent(context, AlarmReceiver.class);
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            PendingIntent pendingIntent = PendingIntent
-                    .getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-            if(alarmManager != null) {
-                alarmManager.cancel(pendingIntent);
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 900000, pendingIntent);
+            try {
+                Intent intent = new Intent(context, AlarmReceiver.class);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123, intent, 0);
+                AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, pendingIntent);
+            } catch (Exception e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
             }
+
+            Toast.makeText(context, "Alarm complete!", Toast.LENGTH_LONG).show();
         }
     }
 }

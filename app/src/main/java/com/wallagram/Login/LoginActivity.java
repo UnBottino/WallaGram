@@ -1,6 +1,8 @@
 package com.wallagram.Login;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,35 +29,51 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class LoginActivity extends AppCompatActivity
-        implements AuthenticationListener {
+public class LoginActivity extends AppCompatActivity implements AuthenticationListener {
+
+    private SharedPreferences sharedPreferences;
+    private Button loginBtn;
+    private Button switchBtn;
 
     private String token = null;
     private AppPreferences appPreferences = null;
     private AuthenticationDialog authenticationDialog = null;
-    private Button button = null;
-    private View info = null;
+    private View info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        button = findViewById(R.id.btn_login);
+        dumbButtonSetup();
+        sharedPreferences = getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
+
         info = findViewById(R.id.info);
         appPreferences = new AppPreferences(this);
 
-        //check already have access token
-        token = appPreferences.getString(AppPreferences.TOKEN);
+        /*//check already have access token
+        token = sharedPreferences.getString("access_token", null);
 
         if (token != null) {
-            getUserInfoByAccessToken(token);
-        }
+            getUserInfoByAccessToken();
+        }*/
     }
 
+    private void dumbButtonSetup(){
+        loginBtn = findViewById(R.id.btn_login);
+        switchBtn = findViewById(R.id.btn_switch);
+
+        loginBtn.setOnClickListener(v -> {
+            loginFunc();
+        });
+
+        switchBtn.setOnClickListener(v -> {
+            switchFunc();
+        });
+    }
 
     public void login() {
-        button.setText("LOGOUT");
+        loginBtn.setText("LOGOUT");
         info.setVisibility(View.VISIBLE);
         ImageView pic = findViewById(R.id.pic);
         Picasso.get().load(appPreferences.getString(AppPreferences.PROFILE_PIC)).into(pic);
@@ -66,7 +84,7 @@ public class LoginActivity extends AppCompatActivity
     }
 
     public void logout() {
-        button.setText("INSTAGRAM LOGIN");
+        loginBtn.setText("INSTAGRAM LOGIN");
         token = null;
         info.setVisibility(View.GONE);
         appPreferences.clear();
@@ -80,11 +98,11 @@ public class LoginActivity extends AppCompatActivity
         token = auth_token;
 
         System.out.println("Received = " + token);
-        getUserInfoByAccessToken(token);
+        getUserInfoByAccessToken();
     }
 
-    public void onClick(View view) {
-        if(token!=null)
+    public void loginFunc() {
+        if(token != null)
         {
             logout();
         }
@@ -95,12 +113,12 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
-    public void onClick2(View view) {
+    public void switchFunc() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
     }
 
-    private void getUserInfoByAccessToken(String token) {
+    private void getUserInfoByAccessToken() {
         new RequestInstagramAPI().execute();
     }
 
@@ -109,7 +127,7 @@ public class LoginActivity extends AppCompatActivity
         @Override
         protected String doInBackground(Void... params) {
             HttpClient httpClient = new DefaultHttpClient();
-            HttpGet httpGet = new HttpGet(getResources().getString(R.string.get_user_info_url) + token);
+            HttpGet httpGet = new HttpGet(getResources().getString(R.string.get_user_info_url) + sharedPreferences.getString("access_token", ""));
             try {
                 System.out.println("Trying");
                 HttpResponse response = httpClient.execute(httpGet);
@@ -137,7 +155,6 @@ public class LoginActivity extends AppCompatActivity
                         appPreferences.putString(AppPreferences.USER_NAME, jsonData.getString("username"));
                         appPreferences.putString(AppPreferences.PROFILE_PIC, jsonData.getString("profile_picture"));
 
-                        //TODO: сохранить еще данные
                         login();
                     }
                 } catch (JSONException e) {

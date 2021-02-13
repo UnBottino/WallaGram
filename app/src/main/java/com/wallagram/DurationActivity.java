@@ -4,13 +4,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import java.util.Objects;
 
 public class DurationActivity extends AppCompatActivity {
 
-    private String newNumber = "";
+    private String mDuration = "";
+    private int mMetric = -1;
+    private SharedPreferences sharedPreferences;
+
+    private TextView bigNum;
+    private TextView daysBtn;
+    private TextView hoursBtn;
+    private RelativeLayout applyBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,39 +31,81 @@ public class DurationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_duration);
 
         toolbarSetup();
+        initValues();
         metricSetup();
-        numpadSetup();
+
+        sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
+
+        initChoices();
+
+        buttonSetup();
+
     }
 
     private void toolbarSetup(){
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle("Duration");
 
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
-    private void metricSetup(){
-        TextView daysBtn = findViewById(R.id.days);
-        TextView hoursBtn = findViewById(R.id.hours);
+    private void initValues(){
+        bigNum = findViewById(R.id.bigNum);
+        daysBtn = findViewById(R.id.days);
+        hoursBtn = findViewById(R.id.hours);
+        applyBtn = findViewById(R.id.applyBtn);
+    }
 
+    private void metricSetup(){
         daysBtn.setOnClickListener(v -> {
             hoursBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.pitch_black)));
             daysBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
+
+            mMetric = 0;
+
+            enableApply();
         });
 
         hoursBtn.setOnClickListener(v -> {
             hoursBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
             daysBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.pitch_black)));
+
+            mMetric = 1;
+
+            enableApply();
         });
     }
 
-    private void numpadSetup(){
-        TextView bigNum = findViewById(R.id.bigNum);
+    private void enableApply(){
+        applyBtn.setAlpha(1);
+        applyBtn.setEnabled(true);
+    }
 
+    private void disableApply(){
+        applyBtn.setAlpha((float)0.5);
+        applyBtn.setEnabled(false);
+    }
+
+    private void initChoices(){
+        int setDuration = sharedPreferences.getInt("duration", 0);
+        int setMetric = sharedPreferences.getInt("metric", 0);
+
+        bigNum.setText(String.valueOf(setDuration));
+
+        if(setMetric == 0){
+            daysBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
+        }
+        else{
+            hoursBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
+        }
+
+    }
+
+    private void buttonSetup(){
         TextView btn1 = findViewById(R.id.btn1);
         TextView btn2 = findViewById(R.id.btn2);
         TextView btn3 = findViewById(R.id.btn3);
@@ -64,70 +119,108 @@ public class DurationActivity extends AppCompatActivity {
         TextView btnClear = findViewById(R.id.btnClear);
 
         btn1.setOnClickListener(v -> {
-            if(newNumber.length() != 3)
-                newNumber = newNumber + "1";
+            if(mDuration.length() != 3)
+                mDuration = mDuration + "1";
+            bigNum.setText(mDuration);
 
-            bigNum.setText(newNumber);
+            enableApply();
         });
 
         btn2.setOnClickListener(v -> {
-            if(newNumber.length() != 3)
-                newNumber = newNumber + "2";
-            bigNum.setText(newNumber);
+            if(mDuration.length() != 3)
+                mDuration = mDuration + "2";
+            bigNum.setText(mDuration);
+
+            enableApply();
         });
 
         btn3.setOnClickListener(v -> {
-            if(newNumber.length() != 3)
-                newNumber = newNumber + "3";
-            bigNum.setText(newNumber);
+            if(mDuration.length() != 3)
+                mDuration = mDuration + "3";
+            bigNum.setText(mDuration);
+
+            enableApply();
         });
 
         btn4.setOnClickListener(v -> {
-            if(newNumber.length() != 3)
-                newNumber = newNumber + "4";
-            bigNum.setText(newNumber);
+            if(mDuration.length() != 3)
+                mDuration = mDuration + "4";
+            bigNum.setText(mDuration);
+
+            enableApply();
         });
 
         btn5.setOnClickListener(v -> {
-            if(newNumber.length() != 3)
-                newNumber = newNumber + "5";
-            bigNum.setText(newNumber);
+            if(mDuration.length() != 3)
+                mDuration = mDuration + "5";
+            bigNum.setText(mDuration);
+
+            enableApply();
         });
 
         btn6.setOnClickListener(v -> {
-            if(newNumber.length() != 3)
-                newNumber = newNumber + "6";
-            bigNum.setText(newNumber);
+            if(mDuration.length() != 3)
+                mDuration = mDuration + "6";
+            bigNum.setText(mDuration);
+
+            enableApply();
         });
 
         btn7.setOnClickListener(v -> {
-            if(newNumber.length() != 3)
-                newNumber = newNumber + "7";
-            bigNum.setText(newNumber);
+            if(mDuration.length() != 3)
+                mDuration = mDuration + "7";
+            bigNum.setText(mDuration);
+
+            enableApply();
         });
 
         btn8.setOnClickListener(v -> {
-            if(newNumber.length() != 3)
-                newNumber = newNumber + "8";
-            bigNum.setText(newNumber);
+            if(mDuration.length() != 3)
+                mDuration = mDuration + "8";
+            bigNum.setText(mDuration);
+
+            enableApply();
         });
 
         btn9.setOnClickListener(v -> {
-            if(newNumber.length() != 3)
-                newNumber = newNumber + "9";
-            bigNum.setText(newNumber);
+            if(mDuration.length() != 3)
+                mDuration = mDuration + "9";
+            bigNum.setText(mDuration);
+
+            enableApply();
         });
 
         btn0.setOnClickListener(v -> {
-            if(newNumber.length() != 3)
-                newNumber = newNumber +"0";
-            bigNum.setText(newNumber);
+            if(applyBtn.isEnabled()) {
+                if (mDuration.length() != 3)
+                    mDuration = mDuration + "0";
+                bigNum.setText(mDuration);
+            }
         });
 
         btnClear.setOnClickListener(v -> {
-            System.out.println(newNumber);
-            newNumber = "";
-            bigNum.setText("1");
+            mDuration = "";
+            bigNum.setText("000");
+
+            disableApply();
+        });
+
+        applyBtn.setOnClickListener(v -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+            if(mMetric != sharedPreferences.getInt("metric", 0) && mMetric != -1) {
+                editor.putInt("metric", mMetric);
+                Log.i("Duration", "Global metric value updated to: " + mMetric);
+            }
+
+            if(!mDuration.equals("")){
+                editor.putInt("duration", Integer.parseInt(mDuration));
+                Log.i("Duration", "Global duration value updated to: " + mDuration);
+            }
+
+            editor.apply();
+
+            finish();
         });
     }
 }

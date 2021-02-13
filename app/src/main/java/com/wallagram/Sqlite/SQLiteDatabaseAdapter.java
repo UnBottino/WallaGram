@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.wallagram.Model.Account;
 
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SQLiteDatabaseAdapter {
+    private static final String TAG = "SQLITE_DATABASE_ADAPTER";
 
     SQLiteDatabaseHelper dbHelper;
 
@@ -20,6 +22,8 @@ public class SQLiteDatabaseAdapter {
     }
 
     public void addAccount(Account account) {
+        Log.d(TAG, "Adding account '" + account.getAccountName() + " into DB");
+
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put("account_name", account.getAccountName());
@@ -30,16 +34,18 @@ public class SQLiteDatabaseAdapter {
     }
 
     public List<Account> getAllAccounts() {
+        Log.d(TAG, "Getting all account names from DB");
+
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String query = SQLiteQueries.getAllAccounts();
         Cursor cursor = db.rawQuery(query, null);
         List<Account> accountList = new ArrayList<>();
 
-        if(cursor != null){
+        if (cursor != null) {
             cursor.moveToNext();
-            for(int i = 0; i < cursor.getCount(); i++){
+            for (int i = 0; i < cursor.getCount(); i++) {
                 Account account = new Account(cursor.getString(0),
-                cursor.getString(1));
+                        cursor.getString(1));
                 accountList.add(account);
                 cursor.moveToNext();
             }
@@ -51,28 +57,40 @@ public class SQLiteDatabaseAdapter {
         return null;
     }
 
-    public boolean checkIfAccountExists(Account account){
+    public boolean checkIfAccountExists(Account account) {
+        Log.d(TAG, "Checking if account exists");
+
+        boolean exists = false;
+
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String query = SQLiteQueries.getAccountNameByName(account.getAccountName());
         Cursor cursor = db.rawQuery(query, null);
 
-        if(cursor.getCount() <= 0){
-            cursor.close();
-            return false;
-        }
+        if (cursor.getCount() > 0)
+            exists = true;
 
         cursor.close();
         db.close();
-        return true;
+        return exists;
     }
 
     public void deleteAccount(String name) {
+        Log.d(TAG, "Deleting account by name");
+
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         db.delete(SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES, "account_name" + "='" + name + "'", null);
         db.close();
     }
 
-    static class SQLiteDatabaseHelper  extends SQLiteOpenHelper {
+    public void deleteAll() {
+        Log.d(TAG, "Removing all accounts from table '" + SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES + "'");
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.delete(SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES, null, null);
+        db.close();
+    }
+
+    static class SQLiteDatabaseHelper extends SQLiteOpenHelper {
         private static final int DATABASE_VERSION = 23;
         private static final String DATABASE_NAME = "WallaGram";
         private static final String TABLE_ACCOUNT_NAMES = "walla_accounts";
