@@ -1,29 +1,25 @@
 package com.wallagram.Receivers;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
+import android.content.SharedPreferences;
+import android.util.Log;
+
+import com.wallagram.Utils.Functions;
 
 public class BootReceiver extends BroadcastReceiver {
+    private static final String TAG = "BOOT_RECEIVER";
 
     @Override
     public void onReceive(Context context, Intent i) {
         if (Intent.ACTION_BOOT_COMPLETED.equals(i.getAction())) {
-            Toast.makeText(context, "Boot received!", Toast.LENGTH_LONG).show();
+            SharedPreferences sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
-            try {
-                Intent intent = new Intent(context, AlarmReceiver.class);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123, intent, 0);
-                AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, pendingIntent);
-            } catch (Exception e) {
-                Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+            if (sharedPreferences.getInt("state", 1) == 1) {
+                Log.d(TAG, "Activating Alarm");
+                Functions.callAlarm(context);
             }
-
-            Toast.makeText(context, "Alarm complete!", Toast.LENGTH_LONG).show();
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.wallagram.Utils;
 
 import android.app.Activity;
-import android.app.Notification;
+import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,29 +13,26 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.media.AudioAttributes;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
-import com.wallagram.MainActivity;
 import com.wallagram.Model.Account;
 import com.wallagram.R;
+import com.wallagram.Receivers.AlarmReceiver;
 import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -50,30 +47,50 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 public class Functions {
     private static final String TAG = "FUNCTIONS";
 
-    public static List<Account> getDBAccounts(Context context){
+    public static void callAlarm(Context context) {
+        Log.d(TAG, "Activating Alarm");
+
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager != null) {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, pendingIntent);
+        }
+    }
+
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager conn = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = null;
+        if (conn != null) {
+            networkInfo = conn.getActiveNetworkInfo();
+        }
+        return null != networkInfo && networkInfo.isConnected();
+    }
+
+    public static List<Account> getDBAccounts(Context context) {
         SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
         return db.getAllAccounts();
     }
 
-    public static void removeDBAccounts(Context context){
-        Log.d("DB","Remove all account names from DB");
+    public static void removeDBAccounts(Context context) {
+        Log.d("DB", "Remove all account names from DB");
         SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
         db.deleteAll();
     }
 
-    public static void requestPermission(Activity activity){
+    public static void requestPermission(Activity activity) {
         ActivityCompat.requestPermissions(activity, new String[]{WRITE_EXTERNAL_STORAGE}, 1);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
-    public static boolean checkImageExists(String path, String imageName, Context context){
-        String selection = MediaStore.Files.FileColumns.RELATIVE_PATH + " like ? and "+ MediaStore.Files.FileColumns.DISPLAY_NAME + " like ?";
+    public static boolean checkImageExists(String path, String imageName, Context context) {
+        String selection = MediaStore.Files.FileColumns.RELATIVE_PATH + " like ? and " + MediaStore.Files.FileColumns.DISPLAY_NAME + " like ?";
         String[] selectionArgs = {"%" + path + "%", "%" + imageName + "%"};
 
         Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, selection, selectionArgs, null);
 
         boolean exist = false;
-        if(cursor != null && cursor.getCount() > 0)
+        if (cursor != null && cursor.getCount() > 0)
             exist = true;
 
         assert cursor != null;
@@ -82,7 +99,7 @@ public class Functions {
         return exist;
     }
 
-    public static void setWallpaper(final Context context, final String postUrl){
+    public static void setWallpaper(final Context context, final String postUrl) {
         Handler uiHandler = new Handler(Looper.getMainLooper());
         uiHandler.post(() -> Picasso.get()
                 .load(postUrl)
@@ -99,16 +116,16 @@ public class Functions {
 
                             Bitmap bm = scaleCrop(bitmap, 0, screenHeight, screenWidth);
 
-                            if(sharedPreferences.getInt("location", 0) == 0){
+                            if (sharedPreferences.getInt("location", 0) == 0) {
                                 wallpaperManager.setBitmap(bitmap, null, true, WallpaperManager.FLAG_SYSTEM);
-                            }
-                            else  if(sharedPreferences.getInt("location", 0) == 1){
+                            } else if (sharedPreferences.getInt("location", 0) == 1) {
                                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_LOCK);
-                            }
-                            else {
+                            } else {
                                 wallpaperManager.setBitmap(bitmap);
                             }
-                        } catch (IOException ex) { ex.printStackTrace(); }
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
                     }
 
                     @Override
@@ -141,7 +158,7 @@ public class Functions {
         float left;
         float top;
 
-        if(pos == 0){
+        if (pos == 0) {
             left = 0;
             top = 0;
         } else {
@@ -164,7 +181,7 @@ public class Functions {
         return dest;
     }
 
-    public static void savePost(final Context context, final String postUrl){
+    public static void savePost(final Context context, final String postUrl) {
         Handler uiHandler = new Handler(Looper.getMainLooper());
         uiHandler.post(() -> Picasso.get()
                 .load(postUrl)
@@ -210,30 +227,28 @@ public class Functions {
                 }));
     }
 
-    public static void showNotification(Context context){
-        String CHANNEL_ID = "com.wallagram.testnofication";
-        String CHANNEL_NAME = "Notification";
+    public static void showNotification(Context context, String title, String text) {
+        Log.d(TAG, "Showing Notification");
+
+        String CHANNEL_ID = "com.wallagram.nofication";
+        String CHANNEL_NAME = "WallaGram Notification";
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
         channel.enableVibration(true);
-        channel.setLightColor(Color.WHITE);
         channel.enableLights(true);
 
-        notificationManager.createNotificationChannel(channel);
+        Objects.requireNonNull(notificationManager).createNotificationChannel(channel);
 
         NotificationCompat.Builder notificationBuilder;
 
         notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setVibrate(new long[]{0, 100})
-                .setPriority(NotificationManager.IMPORTANCE_HIGH)
-                .setLights(Color.BLUE, 3000, 3000)
+                .setPriority(NotificationManager.IMPORTANCE_DEFAULT)
                 .setAutoCancel(true)
-                .setSmallIcon(R.drawable.frown_straight)
-                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
-                        R.drawable.frown_straight))
-                .setContentTitle("title")
-                .setContentText("text");
+                .setColor(ContextCompat.getColor(context, R.color.purple))
+                .setSmallIcon(R.drawable.notification)
+                .setContentTitle(title)
+                .setContentText(text);
 
         notificationManager.notify(CHANNEL_ID, 421, notificationBuilder.build());
     }

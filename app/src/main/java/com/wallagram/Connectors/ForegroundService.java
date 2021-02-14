@@ -7,7 +7,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -25,12 +24,16 @@ import com.wallagram.R;
 import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
 import com.wallagram.Utils.Functions;
 
+import java.util.Objects;
+
 public class ForegroundService extends Service {
 
     public static final String ACTION_START_FOREGROUND_SERVICE = "ACTION_START_FOREGROUND_SERVICE";
     public static final String ACTION_STOP_FOREGROUND_SERVICE = "ACTION_STOP_FOREGROUND_SERVICE";
 
     private static final String TAG = "FOREGROUND_SERVICE";
+
+    private static boolean error;
 
     @Nullable
     @Override
@@ -39,12 +42,21 @@ public class ForegroundService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null) {
-            String action = intent.getAction();
+    public void onCreate() {
+        super.onCreate();
+        startForeground();
+    }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        error = intent.getBooleanExtra("error", false);
+
+        String action = intent.getAction();
+
+        if (action != null) {
             switch (action) {
                 case ACTION_START_FOREGROUND_SERVICE:
+                    Log.d(TAG, "Starting Foreground");
                     startForeground();
 
                     Intent serviceIntent = new Intent(this, IntentService.class);
@@ -55,6 +67,8 @@ public class ForegroundService extends Service {
                     stopForegroundService();
                     break;
             }
+        } else {
+            Log.e(TAG, "Foreground intent has no action");
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -62,20 +76,17 @@ public class ForegroundService extends Service {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startForeground() {
-        Log.d(TAG, "Starting Foreground");
-
         String NOTIFICATION_CHANNEL_ID = "com.wallagram.foregroundservice";
         String channelName = "WallaGram Foreground Service";
         NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_LOW);
-        chan.setLightColor(Color.WHITE);
         NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         assert manager != null;
         manager.createNotificationChannel(chan);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
         Notification notification = notificationBuilder.setOngoing(true)
-                .setSmallIcon(R.drawable.frown_big)
-                .setContentTitle("You can disable app notifications")
+                .setSmallIcon(R.drawable.notification)
+                .setContentTitle("Updating wallpaper")
                 .setPriority(NotificationManager.IMPORTANCE_LOW)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .build();
@@ -85,60 +96,88 @@ public class ForegroundService extends Service {
     private void stopForegroundService() {
         SharedPreferences sharedPreferences = this.getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
-        String setAccountName = sharedPreferences.getString("setAccountName", "");
-        String setProfilePic = sharedPreferences.getString("setProfilePic", "");
-        String setPostURL = sharedPreferences.getString("setPostURL", "");
+        if (!error) {
+            String setAccountName = sharedPreferences.getString("setAccountName", "");
+            String setProfilePic = sharedPreferences.getString("setProfilePic", "");
+            String setPostURL = sharedPreferences.getString("setPostURL", "");
 
-        Account account = new Account(setAccountName, setProfilePic);
+            Account account = new Account(setAccountName, setProfilePic);
 
-        Log.d(TAG, "Setting Wallpaper and Saving Post");
-        Functions.setWallpaper(this, setPostURL);
-        Functions.savePost(this, setPostURL);
+            Log.d(TAG, "Setting Wallpaper and Saving Post");
+            Functions.setWallpaper(this, setPostURL);
+            Functions.savePost(this, setPostURL);
 
+            if (MainActivity.IS_APP_IN_FOREGROUND) {
+                Log.d(TAG, "Setting Profile Pic");
+                Picasso.get()
+                        .load(Uri.parse(setProfilePic))
+                        .into(MainActivity.mSetProfilePic);
 
-        if (MainActivity.IS_APP_IN_FOREGROUND) {
-            Log.d(TAG, "Setting Profile Pic");
-            Picasso.get()
-                    .load(Uri.parse(setProfilePic))
-                    .into(MainActivity.mSetProfilePic);
+                Log.d(TAG, "Setting Display Name");
+                MainActivity.mSetAccountName.setText(setAccountName);
 
-            Log.d(TAG, "Setting Display Name");
-            MainActivity.mSetAccountName.setText(setAccountName);
-            
-            SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(this);
+                SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(this);
 
-            if (!db.checkIfAccountExists(account)) {
-                db.addAccount(account);
+                if (!db.checkIfAccountExists(account)) {
+                    db.addAccount(account);
 
-                MainActivity.mDBAccountList.add(0, account);
-                MainActivity.mAdapter.notifyItemInserted(0);
-                MainActivity.mAdapter.notifyDataSetChanged();
-            } else {
-                Log.d(TAG, "Account name already in db (" + setAccountName + ")");
+                    MainActivity.mDBAccountList.add(0, account);
+                    MainActivity.mAdapter.notifyItemInserted(0);
+                    MainActivity.mAdapter.notifyDataSetChanged();
+                } else {
+                    Log.d(TAG, "Account name already in db (" + setAccountName + ")");
 
-                for (Account a : MainActivity.mDBAccountList) {
-                    if (a.getAccountName().equalsIgnoreCase(account.getAccountName())) {
-                        db.deleteAccount(a.getAccountName());
-                        db.addAccount(account);
+                    //int position =  0;
+                    for (Account a : MainActivity.mDBAccountList) {
+                        if (a.getAccountName().equalsIgnoreCase(account.getAccountName())) {
+                            db.deleteAccount(a.getAccountName());
+                            db.addAccount(account);
 
-                        // TODO: 12/02/2021 Make shorted with better code
-                        MainActivity.mDBAccountList.remove(a);
-                        MainActivity.mAdapter.notifyItemRemoved(MainActivity.mDBAccountList.indexOf(a));
-                        MainActivity.mDBAccountList.add(0, account);
-                        MainActivity.mAdapter.notifyItemInserted(0);
-                        MainActivity.mAdapter.notifyDataSetChanged();
+                            //Cleaner code but items loading in is visible to user
+                            /*MainActivity.mDBAccountList.remove(a);
+                            MainActivity.mDBAccountList.add(0, account);
+                            MainActivity.mAdapter.notifyItemMoved(position, 0);*/
 
-                        break;
+                            MainActivity.mDBAccountList.remove(a);
+                            MainActivity.mAdapter.notifyItemRemoved(MainActivity.mDBAccountList.indexOf(a));
+                            MainActivity.mDBAccountList.add(0, account);
+                            MainActivity.mAdapter.notifyItemInserted(0);
+                            MainActivity.mAdapter.notifyDataSetChanged();
+                            break;
+                        }
+                        //position++;
                     }
                 }
-            }
 
-            //Removing loading screen
-            MainActivity.mLoadingView.setVisibility(View.INVISIBLE);
+                Objects.requireNonNull(MainActivity.mRecyclerView.getLayoutManager()).scrollToPosition(0);
+            }
+        }
+        else {
+            if (MainActivity.IS_APP_IN_FOREGROUND) {
+                Log.d(TAG, "Setting Error Profile Pic");
+                Picasso.get()
+                        .load(R.drawable.frown_straight)
+                        .into(MainActivity.mSetProfilePic);
+
+                Log.d(TAG, "Setting Error Display Name");
+                String setAccountName = sharedPreferences.getString("setAccountName", "");
+                MainActivity.mSetAccountName.setText(setAccountName);
+            }
         }
 
+        MainActivity.mLoadingView.setVisibility(View.INVISIBLE);
+
         Log.d(TAG, "Stopping foreground service.");
+        waitALittle();
         stopForeground(true);
         stopSelf();
+    }
+
+    private void waitALittle() {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

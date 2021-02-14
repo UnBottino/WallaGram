@@ -7,7 +7,6 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.wallagram.Model.Account;
-import com.wallagram.Utils.Functions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +18,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Objects;
 
 public class IntentService extends android.app.IntentService {
 
@@ -72,11 +72,11 @@ public class IntentService extends android.app.IntentService {
             try {
                 childrenObject = nodeObject.getJSONObject("edge_sidecar_to_children");
             } catch (Exception e) {
-                Log.v("Intent Service", "Post has NO children");
+                Log.d(TAG, "Post has NO children");
             }
 
             if (childrenObject != null) {
-                Log.v("Intent Service", "Post HAS children");
+                Log.d(TAG, "Children found");
 
                 JSONArray childEdgesArray = childrenObject.getJSONArray("edges");
 
@@ -87,7 +87,7 @@ public class IntentService extends android.app.IntentService {
                 try {
                     childEdgeObject = childEdgesArray.getJSONObject(imageNumber);
                 } catch (Exception e) {
-                    Log.v("Intent Service", "Multi-post is not that long");
+                    Log.d(TAG, "Multi-post is not long enough");
                 }
 
                 JSONObject childNodeObject = childEdgeObject.getJSONObject("node");
@@ -96,8 +96,8 @@ public class IntentService extends android.app.IntentService {
                 mPostUrl = nodeObject.get("display_url").toString();
             }
         } catch (JSONException | IOException e) {
+            Log.d(TAG, Objects.requireNonNull(e.getMessage()));
             error = true;
-            Log.w("Intent Service", e.getMessage());
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -111,9 +111,16 @@ public class IntentService extends android.app.IntentService {
             }
         }
 
+        Intent i = new Intent(this, ForegroundService.class);
+        i.setAction(ForegroundService.ACTION_STOP_FOREGROUND_SERVICE);
+
         if (error) {
-            Log.v("NewBgTask", "Account Search Failed");
-            editor.putString("setAccountName", "Not Set");
+            Log.d(TAG, "Account Search Failed");
+
+            i.putExtra("error", true);
+
+            editor.putString("setAccountName", "Account doesn't exist or is set private");
+            editor.putString("setProfilePic", "");
             editor.apply();
         } else {
             editor.putString("setAccountName", account.getAccountName());
@@ -122,10 +129,6 @@ public class IntentService extends android.app.IntentService {
             editor.commit();
         }
 
-        //Functions.showNotification(this);
-
-        Intent i = new Intent(this, ForegroundService.class);
-        i.setAction(ForegroundService.ACTION_STOP_FOREGROUND_SERVICE);
         startForegroundService(i);
     }
 }

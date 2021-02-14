@@ -3,9 +3,11 @@ package com.wallagram;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -16,10 +18,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.wallagram.Receivers.AlarmReceiver;
+import com.wallagram.Utils.Functions;
 
 import java.util.Objects;
 
 public class StateActivity extends AppCompatActivity {
+    private static final String TAG = "STATE_ACTIVITY";
 
     private RelativeLayout onBtn;
     private RelativeLayout offBtn;
@@ -27,6 +32,7 @@ public class StateActivity extends AppCompatActivity {
     private TextView offText;
 
     private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +45,9 @@ public class StateActivity extends AppCompatActivity {
 
         initState();
         buttonSetup();
-
     }
 
-    private void toolbarSetup(){
+    private void toolbarSetup() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -53,15 +58,13 @@ public class StateActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
-    private void initState(){
+    private void initState() {
         onBtn = findViewById(R.id.onBtn);
         offBtn = findViewById(R.id.offBtn);
         onText = findViewById(R.id.onText);
         offText = findViewById(R.id.offText);
 
-        int setState = sharedPreferences.getInt("state", 1);
-
-        if(setState == 0){
+        if (sharedPreferences.getInt("state", 1) == 0) {
             offBtn.setVisibility(View.VISIBLE);
             offText.setVisibility(View.VISIBLE);
             onBtn.setVisibility(View.INVISIBLE);
@@ -69,7 +72,7 @@ public class StateActivity extends AppCompatActivity {
         }
     }
 
-    private void buttonSetup(){
+    private void buttonSetup() {
         Animation btnBlink = AnimationUtils.loadAnimation(StateActivity.this, R.anim.blink);
         Animation textFadeIn = AnimationUtils.loadAnimation(StateActivity.this, R.anim.fade_in);
         Animation textFadeOut = AnimationUtils.loadAnimation(StateActivity.this, R.anim.fade_out);
@@ -91,19 +94,27 @@ public class StateActivity extends AppCompatActivity {
                 offBtn.setEnabled(true);
             }, 1000);
 
-            //Set displayed profile pic
+
+            // TODO: 13/02/2021 Hide set profile pic but not remove
             Picasso.get()
                     .load(R.drawable.frown_straight)
                     .into(MainActivity.mSetProfilePic);
 
             MainActivity.mSetAccountName.setText("State disabled");
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-
+            editor = sharedPreferences.edit();
             editor.putInt("state", 0);
-            Log.i("State", "Global state value updated to: Off");
-
             editor.apply();
+
+            Log.d(TAG, "State value updated to: Off");
+            Log.d(TAG, "Deactivating Alarm");
+
+            Intent intent = new Intent(this, AlarmReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 123, intent, 0);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            if (alarmManager != null) {
+                alarmManager.cancel(pendingIntent);
+            }
         });
 
         offBtn.setOnClickListener(v -> {
@@ -123,12 +134,12 @@ public class StateActivity extends AppCompatActivity {
                 onBtn.setEnabled(true);
             }, 1000);
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-
+            editor = sharedPreferences.edit();
             editor.putInt("state", 1);
-            Log.i("State", "Global state value updated to: On");
-
             editor.apply();
+
+            Log.d(TAG, "State value updated to: On");
+            Functions.callAlarm(getApplicationContext());
         });
     }
 }

@@ -15,8 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -39,7 +37,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.wallagram.Adapters.AccountListAdapter;
 import com.wallagram.Connectors.ForegroundService;
 import com.wallagram.Model.Account;
-import com.wallagram.Receivers.AlarmReceiver;
 import com.wallagram.Utils.Functions;
 import com.squareup.picasso.Picasso;
 
@@ -85,7 +82,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         pageSetup();
 
         //Run Continuously
-        callAlarm(this);
+        if (sharedPreferences.getInt("state", 1) == 1)
+            Functions.callAlarm(this);
     }
 
     private void setUpDrawer() {
@@ -165,9 +163,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         //Set Profile Information
         mSetProfilePic = findViewById(R.id.setProfilePic);
 
-        if (!sharedPreferences.getString("setProfilePic", "").equalsIgnoreCase("No Account Set")) {
+        String setProfilePic = sharedPreferences.getString("setProfilePic", "");
+
+        if (!setProfilePic.equalsIgnoreCase("")) {
             Picasso.get()
-                    .load(Uri.parse(sharedPreferences.getString("setProfilePic", "")))
+                    .load(Uri.parse(setProfilePic))
                     .into(mSetProfilePic);
         }
 
@@ -202,6 +202,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 editor.apply();
 
                 mSearchBar.setQuery("", false);
+                mSearchBar.setIconified(true);
+                mSearchBar.clearFocus();
 
                 Intent i = new Intent(getApplicationContext(), ForegroundService.class);
                 i.setAction(ForegroundService.ACTION_START_FOREGROUND_SERVICE);
@@ -235,15 +237,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             mRecyclerView.setAdapter(mAdapter);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         }));
-    }
-
-    public static void callAlarm(Context context) {
-        Log.d(TAG, "Initialising Alarm");
-
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123, intent, 0);
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, pendingIntent);
     }
 
     @SuppressLint("ClickableViewAccessibility")
