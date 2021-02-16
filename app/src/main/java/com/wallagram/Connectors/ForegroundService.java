@@ -150,6 +150,8 @@ public class ForegroundService extends Service {
                 }
 
                 Objects.requireNonNull(MainActivity.mRecyclerView.getLayoutManager()).scrollToPosition(0);
+
+                MainActivity.mLoadingView.setVisibility(View.INVISIBLE);
             }
         }
         else {
@@ -162,10 +164,12 @@ public class ForegroundService extends Service {
                 Log.d(TAG, "Setting Error Display Name");
                 String setAccountName = sharedPreferences.getString("setAccountName", "");
                 MainActivity.mSetAccountName.setText(setAccountName);
-            }
-        }
 
-        MainActivity.mLoadingView.setVisibility(View.INVISIBLE);
+                MainActivity.mLoadingView.setVisibility(View.INVISIBLE);
+            }
+
+            Functions.cancelAlarm(this);
+        }
 
         Log.d(TAG, "Stopping foreground service.");
         waitALittle();

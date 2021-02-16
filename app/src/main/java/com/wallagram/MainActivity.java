@@ -20,6 +20,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -81,9 +83,41 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         //General page setup
         pageSetup();
 
-        //Run Continuously
-        if (sharedPreferences.getInt("state", 1) == 1)
-            Functions.callAlarm(this);
+        /*//Run Continuously
+        if (sharedPreferences.getInt("state", 1) == 1) {
+            Functions.callAlarm(getApplicationContext());
+        }*/
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
+        if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
+            Log.e(TAG, "Using Optimization");
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogCustom);
+            builder.setCancelable(false);
+            builder.setTitle("Important");
+            builder.setMessage("This application requires battery optimization to be disabled to function correctly.");
+            builder.setPositiveButton("Continue", (dialog, which) -> {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                startActivity(intent);
+
+                /*Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                intent.setData(uri);
+                startActivity(intent);*/
+            });
+            builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                finish();
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
     }
 
     private void setUpDrawer() {

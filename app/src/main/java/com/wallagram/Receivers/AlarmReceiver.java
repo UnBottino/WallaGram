@@ -8,12 +8,14 @@ import android.util.Log;
 import com.wallagram.Connectors.ForegroundService;
 import com.wallagram.Utils.Functions;
 
+import java.util.Calendar;
+
 public class AlarmReceiver extends BroadcastReceiver {
     private static final String TAG = "ALARM_RECEIVER";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "Alarm Received");
+        Log.d(TAG, "Alarm Received: " + Calendar.getInstance().getTime());
 
         if (Functions.isNetworkAvailable(context)) {
             Intent i = new Intent(context, ForegroundService.class);

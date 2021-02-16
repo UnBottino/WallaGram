@@ -26,5 +26,6 @@
         <item name="android:textColorHint">@color/white</item>
         <!-- Used for the background -->
         <item name="android:background">@color/light_black</item>
+        <item name="android:fontFamily">@font/roboto</item>
     </style>
 </resources>

@@ -3,10 +3,7 @@ package com.wallagram;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,7 +15,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
-import com.wallagram.Receivers.AlarmReceiver;
 import com.wallagram.Utils.Functions;
 
 import java.util.Objects;
@@ -109,12 +105,7 @@ public class StateActivity extends AppCompatActivity {
             Log.d(TAG, "State value updated to: Off");
             Log.d(TAG, "Deactivating Alarm");
 
-            Intent intent = new Intent(this, AlarmReceiver.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 123, intent, 0);
-            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-            if (alarmManager != null) {
-                alarmManager.cancel(pendingIntent);
-            }
+            Functions.cancelAlarm(getApplicationContext());
         });
 
         offBtn.setOnClickListener(v -> {

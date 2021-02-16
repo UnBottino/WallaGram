@@ -54,7 +54,18 @@ public class Functions {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123, intent, 0);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager != null) {
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, pendingIntent);
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000*60*60, pendingIntent); // Millisec * Second * Minute
+        }
+    }
+
+    public static void cancelAlarm(Context context) {
+        Log.d(TAG, "Deactivating Alarm");
+
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(context.ALARM_SERVICE);
+        if (alarmManager != null) {
+            alarmManager.cancel(pendingIntent);
         }
     }
 
