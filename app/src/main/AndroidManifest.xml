@@ -56,12 +56,6 @@
             android:theme="@style/Theme.WallaGram"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".StateActivity"
-            android:theme="@style/Theme.WallaGram" />
-        <activity
-            android:name=".LocationActivity"
-            android:theme="@style/Theme.WallaGram" />
-        <activity
             android:name=".DurationActivity"
             android:theme="@style/Theme.WallaGram" />
         <activity

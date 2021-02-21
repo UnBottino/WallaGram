@@ -103,8 +103,6 @@ public class ForegroundService extends Service {
 
             boolean settingsUpdated = sharedPreferences.getBoolean("settingsUpdated", false);
 
-            Log.e(TAG, "stopForegroundService: " + settingsUpdated + ", " + !previousPostURL.equalsIgnoreCase(setPostURL));
-
             if (!previousPostURL.equalsIgnoreCase(setPostURL) || settingsUpdated) {
                 Log.d(TAG, "Setting Wallpaper");
                 Functions.setWallpaper(this, setPostURL);
