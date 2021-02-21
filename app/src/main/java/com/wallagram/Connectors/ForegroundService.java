@@ -112,7 +112,7 @@ public class ForegroundService extends Service {
                 editor.putBoolean("settingsUpdated", false);
                 editor.apply();
 
-                if (sharedPreferences.getInt("saveWallpaper", 1) == 1) {
+                if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
                     Log.d(TAG, "Saving Post");
                     Functions.savePost(this, setPostURL);
                 }

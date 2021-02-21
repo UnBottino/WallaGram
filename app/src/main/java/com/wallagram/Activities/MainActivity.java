@@ -265,6 +265,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         final int screenWidth = metrics.widthPixels;
         final int screenHeight = metrics.heightPixels;
 
+        Log.d(TAG, "Screen Width: " + screenWidth);
+        Log.d(TAG, "Screen Height: " + screenHeight);
+
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("screenWidth", screenWidth);
         editor.putInt("screenHeight", screenHeight);
