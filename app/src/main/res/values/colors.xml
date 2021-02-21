@@ -2,6 +2,7 @@
 <resources>
     <color name="white">#FFFFFF</color>
     <color name="purple">#9C3AD1</color>
+    <color name="light_grey">#555555</color>
     <color name="grey">#3B3B3B</color>
     <color name="light_black">#202020</color>
     <color name="dark_black">#181818</color>
@@ -9,7 +10,6 @@
 
     <color name="power_dull">#AEAEAE</color>
     <color name="power_green">#44D13A</color>
-
 
 
     <color name="red">#FF0000</color>

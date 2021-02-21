@@ -90,7 +90,6 @@ public class StateActivity extends AppCompatActivity {
                 offBtn.setEnabled(true);
             }, 1000);
 
-
             // TODO: 13/02/2021 Hide set profile pic but not remove
             Picasso.get()
                     .load(R.drawable.frown_straight)

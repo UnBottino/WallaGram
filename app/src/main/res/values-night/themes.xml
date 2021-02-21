@@ -13,19 +13,81 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
 
+        <item name="android:textColorPrimary">?attr/colorOnPrimary</item>
+        <item name="android:textColorHint">?attr/colorOnPrimary</item>
+        <item name="android:editTextColor">?attr/colorOnPrimary</item>
+
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
+    <style name="checkedNumber">
+        <item name="android:layout_width">75dp</item>
+        <item name="android:layout_height">75dp</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:background">@drawable/multi_btn</item>
+        <item name="android:fontFamily">@font/roboto</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textSize">25sp</item>
+    </style>
+
     <style name="AlertDialogCustom" parent="Theme.MaterialComponents.Dialog.Alert">
         <!-- Used for the buttons -->
         <item name="colorAccent">@color/purple</item>
-        <!-- Used for the title and text -->
-        <item name="android:textColorPrimary">@color/white</item>
-        <item name="android:textColorHint">@color/white</item>
-        <!-- Used for the background -->
-        <item name="android:background">@color/light_black</item>
         <item name="android:fontFamily">@font/roboto</item>
+        <!-- Used for the background -->
+        <item name="android:background">@drawable/rounded_alert_dialog</item>
+    </style>
+
+    <style name="SettingsListItemText" parent="Theme.WallaGram">
+        <item name="fontFamily">@font/roboto</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:paddingHorizontal">20dp</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+    </style>
+
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="searchIcon">@drawable/ic_baseline_search_24</item>
+        <item name="closeIcon">@drawable/ic_baseline_close_24</item>
+        <item name="searchHintIcon">@drawable/ic_baseline_search_24</item>
+
+        <item name="android:fontFamily">@font/roboto</item>
+
+        <!-- Gets rid of the "underline" in the text -->
+        <item name="queryBackground">@null</item>
+        <!-- The hint text that appears when the user has not typed anything -->
+        <item name="queryHint">Set New Account</item>
+
+        <item name="android:inputType">textCapSentences</item>
+    </style>
+
+    <style name="NumpadBtn">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginHorizontal">5dp</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:clickable">true</item>
+        <item name="android:fontFamily">@font/roboto</item>
+        <item name="android:paddingHorizontal">40dp</item>
+        <item name="android:paddingVertical">20dp</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="ApplyButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_margin">20dp</item>
+        <item name="android:alpha">0.5</item>
+        <item name="android:background">@drawable/button</item>
+        <item name="fontFamily">@font/roboto</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:text">Apply</item>
     </style>
 </resources>

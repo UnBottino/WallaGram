@@ -50,7 +50,6 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
         holder.accountNameView.setText(mAccountName);
 
-        // TODO: 14/02/2021 Add Long press delete function
         holder.itemView.setOnClickListener(v -> {
             Log.d(TAG, "RecyclerView item clicked: (" + mAccountName + ")");
 
@@ -68,6 +67,16 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
                 Log.d(TAG, "No Network Connection");
                 Functions.showNotification(mContext, "Search Failure", "No network connection found");
             }
+        });
+
+        holder.itemView.setOnLongClickListener(v -> {
+            Log.d(TAG, "RecyclerView item long clicked: (" + mAccountName + ")");
+
+            if (mOnDataChangeListener != null) {
+                mOnDataChangeListener.updateAccountList(mAccountName);
+            }
+
+            return true;
         });
     }
 
@@ -97,5 +106,15 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
             this.mAdapter = adapter;
         }
+    }
+
+    public interface OnDataChangeListener {
+        void updateAccountList(String accountName);
+    }
+
+    OnDataChangeListener mOnDataChangeListener;
+
+    public void setOnDataChangeListener(OnDataChangeListener onDataChangeListener) {
+        mOnDataChangeListener = onDataChangeListener;
     }
 }

@@ -21,7 +21,6 @@ import java.net.URL;
 import java.util.Objects;
 
 public class IntentService extends android.app.IntentService {
-
     private static final String TAG = "INTENT_SERVICE";
 
     private String mPostUrl;
@@ -80,7 +79,7 @@ public class IntentService extends android.app.IntentService {
 
                 JSONArray childEdgesArray = childrenObject.getJSONArray("edges");
 
-                int imageNumber = sharedPreferences.getInt("multi-image", 0);
+                int imageNumber = sharedPreferences.getInt("multiImage", 0) - 1;
 
                 JSONObject childEdgeObject = childEdgesArray.getJSONObject(0);
 
@@ -125,6 +124,7 @@ public class IntentService extends android.app.IntentService {
         } else {
             editor.putString("setAccountName", account.getAccountName());
             editor.putString("setProfilePic", mProfileUrl);
+            editor.putString("previousPostURL", sharedPreferences.getString("setPostURL", ""));
             editor.putString("setPostURL", mPostUrl);
             editor.commit();
         }

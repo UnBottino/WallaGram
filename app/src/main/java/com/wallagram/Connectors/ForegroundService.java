@@ -27,7 +27,6 @@ import com.wallagram.Utils.Functions;
 import java.util.Objects;
 
 public class ForegroundService extends Service {
-
     public static final String ACTION_START_FOREGROUND_SERVICE = "ACTION_START_FOREGROUND_SERVICE";
     public static final String ACTION_STOP_FOREGROUND_SERVICE = "ACTION_STOP_FOREGROUND_SERVICE";
 
@@ -99,62 +98,80 @@ public class ForegroundService extends Service {
         if (!error) {
             String setAccountName = sharedPreferences.getString("setAccountName", "");
             String setProfilePic = sharedPreferences.getString("setProfilePic", "");
+            String previousPostURL = sharedPreferences.getString("previousPostURL", "");
             String setPostURL = sharedPreferences.getString("setPostURL", "");
 
-            Account account = new Account(setAccountName, setProfilePic);
+            boolean settingsUpdated = sharedPreferences.getBoolean("settingsUpdated", false);
 
-            Log.d(TAG, "Setting Wallpaper and Saving Post");
-            Functions.setWallpaper(this, setPostURL);
-            Functions.savePost(this, setPostURL);
+            Log.e(TAG, "stopForegroundService: " + settingsUpdated + ", " + !previousPostURL.equalsIgnoreCase(setPostURL));
 
-            if (MainActivity.IS_APP_IN_FOREGROUND) {
-                Log.d(TAG, "Setting Profile Pic");
-                Picasso.get()
-                        .load(Uri.parse(setProfilePic))
-                        .into(MainActivity.mSetProfilePic);
+            if (!previousPostURL.equalsIgnoreCase(setPostURL) || settingsUpdated) {
+                Log.d(TAG, "Setting Wallpaper");
+                Functions.setWallpaper(this, setPostURL);
 
-                Log.d(TAG, "Setting Display Name");
-                MainActivity.mSetAccountName.setText(setAccountName);
+                //Resetting settings update check
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("settingsUpdated", false);
+                editor.apply();
 
-                SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(this);
-
-                if (!db.checkIfAccountExists(account)) {
-                    db.addAccount(account);
-
-                    MainActivity.mDBAccountList.add(0, account);
-                    MainActivity.mAdapter.notifyItemInserted(0);
-                    MainActivity.mAdapter.notifyDataSetChanged();
-                } else {
-                    Log.d(TAG, "Account name already in db (" + setAccountName + ")");
-
-                    //int position =  0;
-                    for (Account a : MainActivity.mDBAccountList) {
-                        if (a.getAccountName().equalsIgnoreCase(account.getAccountName())) {
-                            db.deleteAccount(a.getAccountName());
-                            db.addAccount(account);
-
-                            //Cleaner code but items loading in is visible to user
-                            /*MainActivity.mDBAccountList.remove(a);
-                            MainActivity.mDBAccountList.add(0, account);
-                            MainActivity.mAdapter.notifyItemMoved(position, 0);*/
-
-                            MainActivity.mDBAccountList.remove(a);
-                            MainActivity.mAdapter.notifyItemRemoved(MainActivity.mDBAccountList.indexOf(a));
-                            MainActivity.mDBAccountList.add(0, account);
-                            MainActivity.mAdapter.notifyItemInserted(0);
-                            MainActivity.mAdapter.notifyDataSetChanged();
-                            break;
-                        }
-                        //position++;
-                    }
+                if (sharedPreferences.getInt("saveWallpaper", 1) == 1) {
+                    Log.d(TAG, "Saving Post");
+                    Functions.savePost(this, setPostURL);
                 }
 
-                Objects.requireNonNull(MainActivity.mRecyclerView.getLayoutManager()).scrollToPosition(0);
+                if (MainActivity.IS_APP_IN_FOREGROUND) {
+                    Log.d(TAG, "Setting Profile Pic");
+                    Picasso.get()
+                            .load(Uri.parse(setProfilePic))
+                            .into(MainActivity.mSetProfilePic);
 
+                    Log.d(TAG, "Setting Display Name");
+                    MainActivity.mSetAccountName.setText(setAccountName);
+
+                    SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(this);
+
+                    Account account = new Account(setAccountName, setProfilePic);
+
+                    if (!db.checkIfAccountExists(account)) {
+                        db.addAccount(account);
+
+                        MainActivity.mDBAccountList.add(0, account);
+                        MainActivity.mAdapter.notifyItemInserted(0);
+                        MainActivity.mAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.d(TAG, "Account name already in db (" + setAccountName + ")");
+
+                        //int position =  0;
+                        for (Account a : MainActivity.mDBAccountList) {
+                            if (a.getAccountName().equalsIgnoreCase(account.getAccountName())) {
+                                //Not using update because of the ordering in recyclerView
+                                db.deleteAccount(a.getAccountName());
+                                db.addAccount(account);
+
+                                //Cleaner code but items loading in is visible to user as process is slower
+                                /*MainActivity.mDBAccountList.remove(a);
+                                MainActivity.mDBAccountList.add(0, account);
+                                MainActivity.mAdapter.notifyItemMoved(position, 0);*/
+
+                                MainActivity.mDBAccountList.remove(a);
+                                MainActivity.mAdapter.notifyItemRemoved(MainActivity.mDBAccountList.indexOf(a));
+                                MainActivity.mDBAccountList.add(0, account);
+                                MainActivity.mAdapter.notifyItemInserted(0);
+                                MainActivity.mAdapter.notifyDataSetChanged();
+                                break;
+                            }
+                            //position++;
+                        }
+                    }
+
+                    Objects.requireNonNull(MainActivity.mRecyclerView.getLayoutManager()).scrollToPosition(0);
+                }
+            }
+
+            if (MainActivity.IS_APP_IN_FOREGROUND) {
                 MainActivity.mLoadingView.setVisibility(View.INVISIBLE);
             }
-        }
-        else {
+        } else {
             if (MainActivity.IS_APP_IN_FOREGROUND) {
                 Log.d(TAG, "Setting Error Profile Pic");
                 Picasso.get()

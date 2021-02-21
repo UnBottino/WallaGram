@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
@@ -50,11 +51,23 @@ public class Functions {
     public static void callAlarm(Context context) {
         Log.d(TAG, "Activating Alarm");
 
+        SharedPreferences sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        String metric = sharedPreferences.getString("metric", "hours");
+
+        int convertedDuration;
+
+        if (metric.equalsIgnoreCase("hours")) {
+            convertedDuration = sharedPreferences.getInt("duration", 1) * 60;
+        } else {
+            convertedDuration = sharedPreferences.getInt("duration", 1) * 60 * 24;
+        }
+
         Intent intent = new Intent(context, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager != null) {
-            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000*60*60, pendingIntent); // Millisec * Second * Minute
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 60 * convertedDuration, pendingIntent); // Millisec * Second * Minute
         }
     }
 
@@ -63,7 +76,7 @@ public class Functions {
 
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123, intent, 0);
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(context.ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager != null) {
             alarmManager.cancel(pendingIntent);
         }
@@ -87,6 +100,12 @@ public class Functions {
         Log.d("DB", "Remove all account names from DB");
         SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
         db.deleteAll();
+    }
+
+    public static void removeDBAccountByName(Context context, String accountName) {
+        Log.d("DB", "Remove all account names from DB");
+        SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
+        db.deleteAccount(accountName);
     }
 
     public static void requestPermission(Activity activity) {
@@ -125,10 +144,12 @@ public class Functions {
                             int screenWidth = sharedPreferences.getInt("screenWidth", 0);
                             int screenHeight = sharedPreferences.getInt("screenHeight", 0);
 
-                            Bitmap bm = scaleCrop(bitmap, 0, screenHeight, screenWidth);
+                            int imageAlign = sharedPreferences.getInt("align", 1);
+
+                            Bitmap bm = scaleCrop(bitmap, imageAlign, screenHeight, screenWidth);
 
                             if (sharedPreferences.getInt("location", 0) == 0) {
-                                wallpaperManager.setBitmap(bitmap, null, true, WallpaperManager.FLAG_SYSTEM);
+                                wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_SYSTEM);
                             } else if (sharedPreferences.getInt("location", 0) == 1) {
                                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_LOCK);
                             } else {
@@ -147,11 +168,9 @@ public class Functions {
                     public void onPrepareLoad(Drawable placeHolderDrawable) {
                     }
                 }));
-
-
     }
 
-    public static Bitmap scaleCrop(Bitmap source, int pos, int newHeight, int newWidth) {
+    public static Bitmap scaleCrop(Bitmap source, int imageAlign, int newHeight, int newWidth) {
         int sourceWidth = source.getWidth();
         int sourceHeight = source.getHeight();
 
@@ -166,17 +185,24 @@ public class Functions {
         float scaledWidth = scale * sourceWidth;
         float scaledHeight = scale * sourceHeight;
 
+        // Let's find out the upper left coordinates if the scaled bitmap
+        // should be centered in the new size give by the parameters
         float left;
         float top;
 
-        if (pos == 0) {
-            left = 0;
-            top = 0;
-        } else {
-            // Let's find out the upper left coordinates if the scaled bitmap
-            // should be centered in the new size give by the parameters
-            left = (newWidth - scaledWidth) / 2;
-            top = (newHeight - scaledHeight) / 2;
+        switch (imageAlign) {
+            case 0:
+                left = 0;
+                top = 0;
+                break;
+            case 2:
+                left = (newWidth - scaledWidth);
+                top = (newHeight - scaledHeight);
+                break;
+            default:
+                left = (newWidth - scaledWidth) / 2;
+                top = (newHeight - scaledHeight) / 2;
+                break;
         }
 
         // The target rectangle for the new, scaled version of the source bitmap will now
@@ -236,6 +262,16 @@ public class Functions {
                     public void onPrepareLoad(Drawable placeHolderDrawable) {
                     }
                 }));
+    }
+
+    public static void enableApply(View v) {
+        v.setAlpha(1);
+        v.setEnabled(true);
+    }
+
+    public static void disableApply(View v) {
+        v.setAlpha((float) 0.5);
+        v.setEnabled(false);
     }
 
     public static void showNotification(Context context, String title, String text) {

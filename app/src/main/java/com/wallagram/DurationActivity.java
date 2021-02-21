@@ -5,25 +5,30 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.RelativeLayout;
+import android.view.View;
 import android.widget.TextView;
+
+import com.wallagram.Utils.Functions;
 
 import java.util.Objects;
 
 public class DurationActivity extends AppCompatActivity {
+    private int setDuration;
+    private String setMetric;
 
     private String mDuration = "";
-    private int mMetric = -1;
+    private String mMetric = "";
     private SharedPreferences sharedPreferences;
 
     private TextView bigNum;
     private TextView daysBtn;
     private TextView hoursBtn;
-    private RelativeLayout applyBtn;
+    private androidx.appcompat.widget.AppCompatButton applyBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,81 +36,56 @@ public class DurationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_duration);
 
         toolbarSetup();
-        initValues();
-        metricSetup();
+
+        bigNum = findViewById(R.id.bigNum);
+        daysBtn = findViewById(R.id.days);
+        hoursBtn = findViewById(R.id.hours);
+        applyBtn = findViewById(R.id.applyBtn);
 
         sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
         initChoices();
 
+        metricSetup();
         buttonSetup();
-
     }
 
-    private void toolbarSetup(){
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+    private void initChoices() {
+        setDuration = sharedPreferences.getInt("duration", 1);
+        setMetric = sharedPreferences.getString("metric", "Hours");
 
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setTitle("Duration");
+        mMetric = setMetric;
 
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        bigNum.setText(String.valueOf(setDuration));
+
+        if (setMetric.equalsIgnoreCase("Hours")) {
+            hoursBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
+        } else {
+            daysBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
+        }
     }
 
-    private void initValues(){
-        bigNum = findViewById(R.id.bigNum);
-        daysBtn = findViewById(R.id.days);
-        hoursBtn = findViewById(R.id.hours);
-        applyBtn = findViewById(R.id.applyBtn);
-    }
-
-    private void metricSetup(){
+    private void metricSetup() {
         daysBtn.setOnClickListener(v -> {
             hoursBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.pitch_black)));
             daysBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
 
-            mMetric = 0;
+            mMetric = "Days";
 
-            enableApply();
+            checkChange();
         });
 
         hoursBtn.setOnClickListener(v -> {
             hoursBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
             daysBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.pitch_black)));
 
-            mMetric = 1;
+            mMetric = "Hours";
 
-            enableApply();
+            checkChange();
         });
     }
 
-    private void enableApply(){
-        applyBtn.setAlpha(1);
-        applyBtn.setEnabled(true);
-    }
-
-    private void disableApply(){
-        applyBtn.setAlpha((float)0.5);
-        applyBtn.setEnabled(false);
-    }
-
-    private void initChoices(){
-        int setDuration = sharedPreferences.getInt("duration", 0);
-        int setMetric = sharedPreferences.getInt("metric", 0);
-
-        bigNum.setText(String.valueOf(setDuration));
-
-        if(setMetric == 0){
-            daysBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
-        }
-        else{
-            hoursBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
-        }
-
-    }
-
-    private void buttonSetup(){
+    private void buttonSetup() {
         TextView btn1 = findViewById(R.id.btn1);
         TextView btn2 = findViewById(R.id.btn2);
         TextView btn3 = findViewById(R.id.btn3);
@@ -118,109 +98,108 @@ public class DurationActivity extends AppCompatActivity {
         TextView btn0 = findViewById(R.id.btn0);
         TextView btnClear = findViewById(R.id.btnClear);
 
-        btn1.setOnClickListener(v -> {
-            if(mDuration.length() != 3)
-                mDuration = mDuration + "1";
-            bigNum.setText(mDuration);
+        View.OnClickListener buttonClickListener = v -> {
+            boolean update = true;
 
-            enableApply();
-        });
-
-        btn2.setOnClickListener(v -> {
-            if(mDuration.length() != 3)
-                mDuration = mDuration + "2";
-            bigNum.setText(mDuration);
-
-            enableApply();
-        });
-
-        btn3.setOnClickListener(v -> {
-            if(mDuration.length() != 3)
-                mDuration = mDuration + "3";
-            bigNum.setText(mDuration);
-
-            enableApply();
-        });
-
-        btn4.setOnClickListener(v -> {
-            if(mDuration.length() != 3)
-                mDuration = mDuration + "4";
-            bigNum.setText(mDuration);
-
-            enableApply();
-        });
-
-        btn5.setOnClickListener(v -> {
-            if(mDuration.length() != 3)
-                mDuration = mDuration + "5";
-            bigNum.setText(mDuration);
-
-            enableApply();
-        });
-
-        btn6.setOnClickListener(v -> {
-            if(mDuration.length() != 3)
-                mDuration = mDuration + "6";
-            bigNum.setText(mDuration);
-
-            enableApply();
-        });
-
-        btn7.setOnClickListener(v -> {
-            if(mDuration.length() != 3)
-                mDuration = mDuration + "7";
-            bigNum.setText(mDuration);
-
-            enableApply();
-        });
-
-        btn8.setOnClickListener(v -> {
-            if(mDuration.length() != 3)
-                mDuration = mDuration + "8";
-            bigNum.setText(mDuration);
-
-            enableApply();
-        });
-
-        btn9.setOnClickListener(v -> {
-            if(mDuration.length() != 3)
-                mDuration = mDuration + "9";
-            bigNum.setText(mDuration);
-
-            enableApply();
-        });
-
-        btn0.setOnClickListener(v -> {
-            if(applyBtn.isEnabled()) {
-                if (mDuration.length() != 3)
-                    mDuration = mDuration + "0";
-                bigNum.setText(mDuration);
+            if (mDuration.length() != 3) {
+                if (btn0.equals(v)) {
+                    if (applyBtn.isEnabled() || mDuration.equalsIgnoreCase(String.valueOf(setDuration))) {
+                        mDuration = mDuration + "0";
+                    } else {
+                        update = false;
+                    }
+                } else if (btn1.equals(v)) {
+                    mDuration = mDuration + "1";
+                } else if (btn2.equals(v)) {
+                    mDuration = mDuration + "2";
+                } else if (btn3.equals(v)) {
+                    mDuration = mDuration + "3";
+                } else if (btn4.equals(v)) {
+                    mDuration = mDuration + "4";
+                } else if (btn5.equals(v)) {
+                    mDuration = mDuration + "5";
+                } else if (btn6.equals(v)) {
+                    mDuration = mDuration + "6";
+                } else if (btn7.equals(v)) {
+                    mDuration = mDuration + "7";
+                } else if (btn8.equals(v)) {
+                    mDuration = mDuration + "8";
+                } else if (btn9.equals(v)) {
+                    mDuration = mDuration + "9";
+                }
             }
-        });
+
+            if (update) {
+                bigNum.setText(mDuration);
+                bigNum.setTextColor(ContextCompat.getColor(this, R.color.white));
+            }
+
+            checkChange();
+        };
+
+        btn0.setOnClickListener(buttonClickListener);
+        btn1.setOnClickListener(buttonClickListener);
+        btn2.setOnClickListener(buttonClickListener);
+        btn3.setOnClickListener(buttonClickListener);
+        btn4.setOnClickListener(buttonClickListener);
+        btn5.setOnClickListener(buttonClickListener);
+        btn6.setOnClickListener(buttonClickListener);
+        btn7.setOnClickListener(buttonClickListener);
+        btn8.setOnClickListener(buttonClickListener);
+        btn9.setOnClickListener(buttonClickListener);
 
         btnClear.setOnClickListener(v -> {
             mDuration = "";
-            bigNum.setText("000");
+            bigNum.setText(String.valueOf(setDuration));
+            bigNum.setTextColor(ContextCompat.getColor(this, R.color.light_grey));
 
-            disableApply();
+            Functions.disableApply(applyBtn);
         });
 
         applyBtn.setOnClickListener(v -> {
             SharedPreferences.Editor editor = sharedPreferences.edit();
 
-            if(mMetric != sharedPreferences.getInt("metric", 0) && mMetric != -1) {
-                editor.putInt("metric", mMetric);
-                Log.i("Duration", "Global metric value updated to: " + mMetric);
+            if (!mMetric.equalsIgnoreCase(sharedPreferences.getString("metric", "Hours"))) {
+                editor.putString("metric", mMetric);
+                Log.d("Duration", "Metric value updated to: " + mMetric);
             }
 
-            if(!mDuration.equals("")){
+            if (!mDuration.equals("")) {
                 editor.putInt("duration", Integer.parseInt(mDuration));
-                Log.i("Duration", "Global duration value updated to: " + mDuration);
+                Log.d("Duration", "Duration value updated to: " + mDuration);
             }
 
             editor.apply();
 
+            Functions.callAlarm(getApplicationContext());
+
+            Intent intent = new Intent();
+            setResult(111, intent);
+
             finish();
         });
+    }
+
+    private void checkChange() {
+        int tempDuration = 0;
+        if (!mDuration.equalsIgnoreCase("")) {
+            tempDuration = Integer.parseInt(mDuration);
+        }
+
+        if ((setDuration == tempDuration && setMetric.equalsIgnoreCase(mMetric)) || tempDuration == 0) {
+            Functions.disableApply(applyBtn);
+        } else {
+            Functions.enableApply(applyBtn);
+        }
+    }
+
+    private void toolbarSetup() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 }

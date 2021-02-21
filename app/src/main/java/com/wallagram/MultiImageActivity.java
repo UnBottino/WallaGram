@@ -4,22 +4,31 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+
+import com.wallagram.Utils.Functions;
 
 import java.util.Objects;
 
 public class MultiImageActivity extends AppCompatActivity {
 
+    private static final String TAG = "MULTI_IMAGE_ACTIVITY";
     private SharedPreferences sharedpreferences;
+
+    private String setChecked;
+    private androidx.appcompat.widget.AppCompatButton applyBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multi_image);
+
+        applyBtn = findViewById(R.id.applyBtn);
 
         toolbarSetup();
         buttonSetup();
@@ -28,7 +37,7 @@ public class MultiImageActivity extends AppCompatActivity {
         initCheck();
     }
 
-    private void toolbarSetup(){
+    private void toolbarSetup() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -51,63 +60,76 @@ public class MultiImageActivity extends AppCompatActivity {
         CheckedTextView btn9 = findViewById(R.id.btn9);
         CheckedTextView btn10 = findViewById(R.id.btn10);
 
-        RelativeLayout applyBtn = findViewById(R.id.applyBtn);
-
         btn1.setOnClickListener(v -> {
             uncheckAll();
             btn1.setChecked(true);
+            checkChange();
         });
 
         btn2.setOnClickListener(v -> {
             uncheckAll();
             btn2.setChecked(true);
+            checkChange();
         });
 
         btn3.setOnClickListener(v -> {
             uncheckAll();
             btn3.setChecked(true);
+            checkChange();
         });
 
         btn4.setOnClickListener(v -> {
             uncheckAll();
             btn4.setChecked(true);
+            checkChange();
         });
 
         btn5.setOnClickListener(v -> {
             uncheckAll();
             btn5.setChecked(true);
+            checkChange();
         });
 
         btn6.setOnClickListener(v -> {
             uncheckAll();
             btn6.setChecked(true);
+            checkChange();
         });
 
         btn7.setOnClickListener(v -> {
             uncheckAll();
             btn7.setChecked(true);
+            checkChange();
         });
 
         btn8.setOnClickListener(v -> {
             uncheckAll();
             btn8.setChecked(true);
+            checkChange();
         });
 
         btn9.setOnClickListener(v -> {
             uncheckAll();
             btn9.setChecked(true);
+            checkChange();
         });
 
         btn10.setOnClickListener(v -> {
             uncheckAll();
             btn10.setChecked(true);
+            checkChange();
         });
 
         applyBtn.setOnClickListener(v -> {
+            Log.d(TAG, "Setting multi image pref to: " + findChecked());
+
             SharedPreferences.Editor editor = sharedpreferences.edit();
 
-            editor.putInt("multi-image", findChecked() -1);
+            editor.putInt("multiImage", findChecked());
             editor.apply();
+
+            Intent intent = new Intent();
+            setResult(222, intent);
 
             finish();
         });
@@ -130,8 +152,8 @@ public class MultiImageActivity extends AppCompatActivity {
         }
     }
 
-    private void initCheck(){
-        String checkedVal = String.valueOf(sharedpreferences.getInt("multi-image", 0) + 1);
+    private void initCheck() {
+        setChecked = String.valueOf(sharedpreferences.getInt("multiImage", 1));
 
         LinearLayout linearLayout = findViewById(R.id.btnContainer);
 
@@ -143,7 +165,7 @@ public class MultiImageActivity extends AppCompatActivity {
                     if (linearLayout2.getChildAt(k) instanceof CheckedTextView) {
                         CheckedTextView view = (CheckedTextView) linearLayout2.getChildAt(k);
 
-                        if(view.getText().toString().equalsIgnoreCase(checkedVal)){
+                        if (view.getText().toString().equalsIgnoreCase(setChecked)) {
                             view.setChecked(true);
                         }
                     }
@@ -152,7 +174,7 @@ public class MultiImageActivity extends AppCompatActivity {
         }
     }
 
-    private int findChecked(){
+    private int findChecked() {
         LinearLayout linearLayout = findViewById(R.id.btnContainer);
 
         for (int i = 0; i < linearLayout.getChildCount(); i++) {
@@ -163,7 +185,7 @@ public class MultiImageActivity extends AppCompatActivity {
                     if (linearLayout2.getChildAt(k) instanceof CheckedTextView) {
                         CheckedTextView view = (CheckedTextView) linearLayout2.getChildAt(k);
 
-                        if(view.isChecked()){
+                        if (view.isChecked()) {
                             return Integer.parseInt(view.getText().toString());
                         }
                     }
@@ -171,6 +193,14 @@ public class MultiImageActivity extends AppCompatActivity {
             }
         }
 
-        return -1;
+        return 1;
+    }
+
+    private void checkChange() {
+        if (setChecked.equalsIgnoreCase(String.valueOf(findChecked()))) {
+            Functions.disableApply(applyBtn);
+        } else {
+            Functions.enableApply(applyBtn);
+        }
     }
 }

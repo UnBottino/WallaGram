@@ -22,7 +22,7 @@ public class SQLiteDatabaseAdapter {
     }
 
     public void addAccount(Account account) {
-        Log.d(TAG, "Adding account '" + account.getAccountName() + " into DB");
+        Log.d(TAG, "Adding account into DB (" + account.getAccountName() + ")");
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         ContentValues values = new ContentValues();
@@ -75,7 +75,7 @@ public class SQLiteDatabaseAdapter {
     }
 
     public void deleteAccount(String name) {
-        Log.d(TAG, "Deleting account by name");
+        Log.d(TAG, "Deleting account from DB (" + name + ")");
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         db.delete(SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES, "account_name" + "='" + name + "'", null);

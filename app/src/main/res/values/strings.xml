@@ -11,6 +11,13 @@
     <string name="get_user_info_url">https://api.instagram.com/v1/users/self/?access_token=</string>
     <string name="title_activity_test">test</string>
 
-    <string name="durationInfo">Select how often WallaGram searches for your next background</string>
-    <string name="multiInfo">Place a priority on which image in a multi-image post is selected for your new background</string>
+    <string name="empty_recent_searches">No Recent Searches</string>
+
+    <string name="stateInfoMsg">When active, WallaGram will periodically update your selected wallpaper</string>
+    <string name="durationInfoMsg">Allows you to set how often WallaGram searches for a new wallpaper</string>
+    <string name="locationInfoMsg">Allows you to set which wallpaper WallaGram updates\n(Home Screen / Lock Screen)</string>
+    <string name="multiImagePostInfoMsg">Allows you to place a priority on which image in a multi-image post is selected for your new wallpaper</string>
+    <string name="saveWallpaperInfoMsg">When active, WallaGram saves new posts into an album in your gallery</string>
+    <string name="imageAlignInfoMsg">As posts do not have a uniform size, WallaGram needs to crop each post to fit your screen. Image Align allows you to set a preference for the positioning</string>
+    <string name="clearRecentInfoMsg">Allows you to clear all accounts from the\nRecent Searches List</string>
 </resources>

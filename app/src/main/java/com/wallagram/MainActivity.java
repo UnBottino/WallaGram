@@ -18,6 +18,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -83,10 +85,10 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         //General page setup
         pageSetup();
 
-        /*//Run Continuously
+        //Run Continuously
         if (sharedPreferences.getInt("state", 1) == 1) {
             Functions.callAlarm(getApplicationContext());
-        }*/
+        }
     }
 
     @Override
@@ -111,9 +113,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 intent.setData(uri);
                 startActivity(intent);*/
             });
-            builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                finish();
-            });
+            builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> finish());
 
             AlertDialog dialog = builder.create();
             dialog.show();
@@ -124,7 +124,13 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         mDrawerLayout = findViewById(R.id.drawerLayout);
         RelativeLayout settingsBtn = findViewById(R.id.settingsBtn);
 
-        settingsBtn.setOnClickListener(v -> mDrawerLayout.openDrawer(GravityCompat.END));
+        //settingsBtn.setOnClickListener(v -> mDrawerLayout.openDrawer(GravityCompat.END));
+
+        settingsBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivityForResult(intent, 59);
+        });
 
         NavigationView mNavigationView = findViewById(R.id.nav_view);
         mNavigationView.getBackground().setAlpha(235);
@@ -149,9 +155,12 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 builder.setTitle("Clear Recent Accounts");
                 builder.setMessage("Are you sure?");
                 builder.setPositiveButton("Confirm", (dialog, which) -> {
-                    mDBAccountList.clear();
                     Functions.removeDBAccounts(this);
-                    updateAccountList();
+
+                    mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
+                    mAdapter.notifyDataSetChanged();
+
+                    mDBAccountList.clear();
                 });
                 builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                     //Do nothing
@@ -188,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         //Loading View
         mLoadingView = findViewById(R.id.loadingView);
         mLoadingView.setOnClickListener(v -> {
-            // TODO: 09/11/2020 Find a better solution
+            //Do nothing
         });
 
         //Drawer
@@ -217,10 +226,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
     private void setupSearchBar() {
         mSearchBar = findViewById(R.id.searchBar);
-
-        //Removing Underline
-        View view = mSearchBar.findViewById(R.id.search_plate);
-        view.setBackground(null);
 
         mSearchBar.setOnClickListener(v -> mSearchBar.setIconified(false));
 
@@ -255,22 +260,56 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         setupHideSearch();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 59) {
+            if (resultCode == 111) {
+                Log.d(TAG, "Update RecyclerView Received (Clear Recent Searches)");
+                mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
+                mAdapter.notifyDataSetChanged();
+                mDBAccountList.clear();
+            }
+        }
+    }
+
     private void setupPreviousAccounts() {
-        mAdapter = new AccountListAdapter(getApplicationContext(), mDBAccountList);
         mRecyclerView = findViewById(R.id.accountNameList);
         mDBAccountList = Functions.getDBAccounts(this);
         Collections.reverse(mDBAccountList);
-        updateAccountList();
-    }
 
-    private void updateAccountList() {
-        Log.d(TAG, "Updating RecyclerView (Account List)");
+        mAdapter = new AccountListAdapter(getApplicationContext(), mDBAccountList);
 
-        runOnUiThread(new Thread(() -> {
-            mAdapter = new AccountListAdapter(getApplicationContext(), mDBAccountList);
-            mRecyclerView.setAdapter(mAdapter);
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        }));
+        mAdapter.setOnDataChangeListener(accountName -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogCustom);
+            builder.setCancelable(true);
+            builder.setTitle("Remove '" + accountName + "' from list");
+            builder.setMessage("Are you sure?");
+            builder.setPositiveButton("Confirm", (dialog, which) -> {
+                Functions.removeDBAccountByName(MainActivity.this, accountName);
+
+                int pos = 0;
+                for (Account a : mDBAccountList) {
+                    if (a.getAccountName().equalsIgnoreCase(accountName)) {
+                        mDBAccountList.remove(a);
+                        mAdapter.notifyItemRemoved(pos);
+                        mAdapter.notifyDataSetChanged();
+                        break;
+                    }
+                    pos++;
+                }
+            });
+            builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                //Do nothing
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.show();
+        });
+
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -290,7 +329,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             mSearchBar.setIconified(true);
 
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            }
 
             getWindow().getDecorView().clearFocus();
 

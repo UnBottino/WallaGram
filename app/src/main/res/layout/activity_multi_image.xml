@@ -15,7 +15,9 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:title="Multi-Image Posts"
         tools:ignore="MissingConstraints" />
 
     <TextView
@@ -24,10 +26,8 @@
         android:layout_height="wrap_content"
 
         android:fontFamily="@font/roboto"
-        android:paddingHorizontal="20dp"
-
-        android:paddingTop="20dp"
-        android:text="@string/multiInfo"
+        android:paddingHorizontal="40dp"
+        android:text="@string/multiImagePostInfoMsg"
         android:textAlignment="center"
         android:textColor="?attr/colorOnSecondary"
         android:textSize="18sp"
@@ -35,7 +35,7 @@
         app:layout_constraintBottom_toTopOf="@id/btnContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <LinearLayout
         android:id="@+id/btnContainer"
@@ -44,211 +44,87 @@
 
         android:orientation="horizontal"
 
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/applyBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/multiInfo">
+        app:layout_constraintTop_toBottomOf="@id/multiInfo">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
 
             android:orientation="vertical">
 
             <CheckedTextView
                 android:id="@+id/btn1"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_margin="15dp"
-
-                android:background="@drawable/multi_btn"
-
-                android:gravity="center"
-                android:textAlignment="center"
-
-                android:fontFamily="@font/roboto"
-                android:text="1"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="25sp" />
+                style="@style/checkedNumber"
+                android:text="1" />
 
             <CheckedTextView
                 android:id="@+id/btn3"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_margin="15dp"
-
-                android:background="@drawable/multi_btn"
-
-                android:gravity="center"
-                android:textAlignment="center"
-
-                android:fontFamily="@font/roboto"
-                android:text="3"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="25sp" />
+                style="@style/checkedNumber"
+                android:text="3" />
 
             <CheckedTextView
                 android:id="@+id/btn5"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_margin="15dp"
-
-                android:background="@drawable/multi_btn"
-
-                android:gravity="center"
-                android:textAlignment="center"
-
-                android:fontFamily="@font/roboto"
-                android:text="5"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="25sp" />
+                style="@style/checkedNumber"
+                android:text="5" />
 
             <CheckedTextView
                 android:id="@+id/btn7"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_margin="15dp"
-
-                android:background="@drawable/multi_btn"
-
-                android:gravity="center"
-                android:textAlignment="center"
-
-                android:fontFamily="@font/roboto"
-                android:text="7"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="25sp" />
+                style="@style/checkedNumber"
+                android:text="7" />
 
             <CheckedTextView
                 android:id="@+id/btn9"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_margin="15dp"
-
-                android:background="@drawable/multi_btn"
-
-                android:gravity="center"
-                android:textAlignment="center"
-
-                android:fontFamily="@font/roboto"
-                android:text="9"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="25sp" />
+                style="@style/checkedNumber"
+                android:text="9" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
 
             android:orientation="vertical">
 
             <CheckedTextView
                 android:id="@+id/btn2"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_margin="15dp"
-
-                android:background="@drawable/multi_btn"
-
-                android:gravity="center"
-                android:textAlignment="center"
-
-                android:fontFamily="@font/roboto"
-                android:text="2"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="25sp" />
+                style="@style/checkedNumber"
+                android:text="2" />
 
             <CheckedTextView
                 android:id="@+id/btn4"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_margin="15dp"
-
-                android:background="@drawable/multi_btn"
-
-                android:gravity="center"
-                android:textAlignment="center"
-
-                android:fontFamily="@font/roboto"
-                android:text="4"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="25sp" />
+                style="@style/checkedNumber"
+                android:text="4" />
 
             <CheckedTextView
                 android:id="@+id/btn6"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_margin="15dp"
-
-                android:background="@drawable/multi_btn"
-
-                android:gravity="center"
-                android:textAlignment="center"
-
-                android:fontFamily="@font/roboto"
-                android:text="6"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="25sp" />
+                style="@style/checkedNumber"
+                android:text="6" />
 
             <CheckedTextView
                 android:id="@+id/btn8"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_margin="15dp"
-
-                android:background="@drawable/multi_btn"
-
-                android:gravity="center"
-                android:textAlignment="center"
-
-                android:fontFamily="@font/roboto"
-                android:text="8"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="25sp" />
+                style="@style/checkedNumber"
+                android:text="8" />
 
             <CheckedTextView
                 android:id="@+id/btn10"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_margin="15dp"
-
-                android:background="@drawable/multi_btn"
-
-                android:gravity="center"
-                android:textAlignment="center"
-
-                android:fontFamily="@font/roboto"
-                android:text="10"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="25sp" />
-
+                style="@style/checkedNumber"
+                android:text="10" />
         </LinearLayout>
-
     </LinearLayout>
 
-    <RelativeLayout
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/applyBtn"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_margin="20dp"
+        style="@style/ApplyButton"
 
-        android:background="@drawable/button"
+        android:enabled="false"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-
-            android:layout_centerInParent="true"
-
-            android:fontFamily="@font/roboto"
-            android:text="Apply"
-            android:textColor="?attr/colorOnPrimary"
-            android:textSize="18sp" />
-    </RelativeLayout>
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

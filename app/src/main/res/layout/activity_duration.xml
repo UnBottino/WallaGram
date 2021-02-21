@@ -11,31 +11,33 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-
-        tools:ignore="MissingConstraints"
         android:background="?attr/colorPrimary"
+
+        android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        android:elevation="4dp"/>
+        app:title="Duration"
+        tools:ignore="MissingConstraints" />
 
     <TextView
-        android:id="@+id/info"
-        android:layout_width="match_parent"
+        android:id="@+id/durationInfo"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        android:layout_marginHorizontal="50dp"
-        android:layout_marginBottom="20dp"
-
-        android:text="@string/durationInfo"
-        android:textColor="?attr/colorOnPrimary"
         android:fontFamily="@font/roboto"
-        android:textSize="18sp"
-        android:textAlignment="center"
 
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintBottom_toTopOf="@id/numpad"
+        android:paddingHorizontal="40dp"
+
+        android:text="@string/durationInfoMsg"
+        android:textAlignment="center"
+        android:textColor="?attr/colorOnSecondary"
+        android:textSize="18sp"
+
+        app:layout_constraintBottom_toTopOf="@+id/numpad"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <LinearLayout
         android:id="@+id/numpad"
@@ -44,23 +46,17 @@
         android:layout_margin="20dp"
         android:orientation="vertical"
 
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/applyBtn"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/durationInfo">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:orientation="vertical"
 
-            android:layout_marginBottom="40dp"
-
-            app:layout_constraintTop_toBottomOf="@id/info"
-            app:layout_constraintBottom_toTopOf="@+id/numpad"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/bigNum"
@@ -71,42 +67,38 @@
                 android:fontFamily="@font/roboto"
 
                 android:gravity="center"
+                android:maxLength="3"
                 android:text="000"
-                android:textColor="?attr/colorOnPrimary"
-                android:textSize="70sp"
-                android:maxLength="3"/>
+                android:textColor="@color/light_grey"
+                android:textSize="60sp" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
                 android:layout_gravity="center"
-                android:orientation="horizontal"
-                android:layout_marginTop="40dp"
 
-                app:layout_constraintTop_toBottomOf="@id/info"
-                app:layout_constraintBottom_toTopOf="@+id/numpad"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:layout_marginVertical="30dp"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/days"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
 
-                    android:paddingVertical="5dp"
-                    android:paddingHorizontal="20dp"
                     android:background="@drawable/button"
-
                     android:backgroundTint="@color/pitch_black"
-
-                    android:text="Days"
                     android:fontFamily="@font/roboto"
+
+                    android:paddingHorizontal="30dp"
+
+                    android:paddingVertical="15dp"
+                    android:text="Days"
                     android:textColor="?attr/colorOnPrimary"
                     android:textSize="20sp"
 
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/hours"
+                    app:layout_constraintStart_toStartOf="parent"
                     tools:ignore="MissingConstraints" />
 
                 <TextView
@@ -114,260 +106,36 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
 
-                    android:paddingVertical="5dp"
-                    android:paddingHorizontal="20dp"
                     android:background="@drawable/button"
                     android:backgroundTint="@color/pitch_black"
-
-                    android:text="Hours"
                     android:fontFamily="@font/roboto"
+                    android:paddingHorizontal="30dp"
+
+                    android:paddingVertical="15dp"
+                    android:text="Hours"
                     android:textColor="?attr/colorOnPrimary"
                     android:textSize="20sp"
 
-                    app:layout_constraintStart_toEndOf="@id/days"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/days"
                     tools:ignore="MissingConstraints" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/btn1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-
-                    android:layout_margin="0dp"
-
-                    android:paddingHorizontal="40dp"
-                    android:paddingVertical="20dp"
-                    android:layout_marginVertical="15dp"
-                    android:layout_weight="1"
-
-                    android:text="1"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20dp"
-                    android:fontFamily="@font/roboto"/>
-
-                <TextView
-                    android:id="@+id/btn4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-
-                    android:layout_marginVertical="15dp"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/roboto"
-                    android:paddingHorizontal="40dp"
-
-                    android:paddingVertical="20dp"
-                    android:text="4"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20dp" />
-
-                <TextView
-                    android:id="@+id/btn7"
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="15dp"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/roboto"
-
-                    android:paddingHorizontal="40dp"
-                    android:paddingVertical="20dp"
-                    android:layout_margin="0dp"
-
-                    android:text="7"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20dp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/btn2"
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="15dp"
-                    android:layout_weight="2"
-                    android:fontFamily="@font/roboto"
-
-                    android:paddingHorizontal="40dp"
-                    android:paddingVertical="20dp"
-                    android:layout_margin="0dp"
-
-                    android:text="2"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20dp" />
-
-                <TextView
-                    android:id="@+id/btn5"
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="15dp"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/roboto"
-
-                    android:paddingHorizontal="40dp"
-                    android:paddingVertical="20dp"
-                    android:text="5"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20dp" />
-
-                <TextView
-                    android:id="@+id/btn8"
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="15dp"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/roboto"
-
-                    android:paddingHorizontal="40dp"
-                    android:paddingVertical="20dp"
-                    android:layout_margin="0dp"
-
-                    android:text="8"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20dp" />
-
-                <TextView
-                    android:id="@+id/btn0"
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="15dp"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/roboto"
-
-                    android:paddingHorizontal="40dp"
-                    android:paddingVertical="20dp"
-                    android:text="0"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20dp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/btn3"
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="15dp"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/roboto"
-
-                    android:paddingHorizontal="40dp"
-                    android:paddingVertical="20dp"
-                    android:layout_margin="0dp"
-
-                    android:text="3"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20dp" />
-
-                <TextView
-                    android:id="@+id/btn6"
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="15dp"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/roboto"
-
-                    android:paddingHorizontal="40dp"
-                    android:paddingVertical="20dp"
-                    android:text="6"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20dp" />
-
-                <TextView
-                    android:id="@+id/btn9"
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="15dp"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/roboto"
-
-                    android:paddingHorizontal="40dp"
-                    android:paddingVertical="20dp"
-                    android:layout_margin="0dp"
-
-                    android:text="9"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20dp" />
-
-                <TextView
-                    android:id="@+id/btnClear"
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="15dp"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/roboto_thin"
-
-                    android:paddingHorizontal="20dp"
-                    android:paddingVertical="20dp"
-                    android:text="CLEAR"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="18dp" />
-
-            </LinearLayout>
-
-        </LinearLayout>
+        <include layout="@layout/numpad" />
 
     </LinearLayout>
 
-    <RelativeLayout
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/applyBtn"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_margin="20dp"
+        style="@style/ApplyButton"
 
-        android:background="@drawable/button"
-        android:alpha="0.5"
+        android:enabled="false"
 
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-
-            android:layout_centerInParent="true"
-
-            android:text="Apply"
-            android:textSize="18sp"
-            android:fontFamily="@font/roboto"
-            android:textColor="?attr/colorOnPrimary" />
-    </RelativeLayout>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
