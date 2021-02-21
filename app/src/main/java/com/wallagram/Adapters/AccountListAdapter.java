@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.wallagram.Connectors.ForegroundService;
-import com.wallagram.MainActivity;
+import com.wallagram.Activities.MainActivity;
 import com.wallagram.Model.Account;
 import com.wallagram.R;
 import com.squareup.picasso.Picasso;

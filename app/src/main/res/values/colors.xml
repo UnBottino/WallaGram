@@ -8,13 +8,5 @@
     <color name="dark_black">#181818</color>
     <color name="pitch_black">#000000</color>
 
-    <color name="power_dull">#AEAEAE</color>
-    <color name="power_green">#44D13A</color>
 
-
-    <color name="red">#FF0000</color>
-    <color name="green">#00FF00</color>
-    <color name="blue">#0000FF</color>
-    <color name="pink">#FF10FF</color>
-    <color name="yellow">#FFFF00</color>
 </resources>

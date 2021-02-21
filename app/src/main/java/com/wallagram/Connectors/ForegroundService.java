@@ -18,7 +18,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.squareup.picasso.Picasso;
-import com.wallagram.MainActivity;
+import com.wallagram.Activities.MainActivity;
 import com.wallagram.Model.Account;
 import com.wallagram.R;
 import com.wallagram.Sqlite.SQLiteDatabaseAdapter;

@@ -7,7 +7,7 @@
     android:layout_marginHorizontal="10dp"
     android:theme="@style/Theme.WallaGram"
     android:background="?attr/colorPrimaryVariant"
-    tools:context=".MainActivity">
+    tools:context=".Activities.MainActivity">
 
     <LinearLayout
         android:layout_width="wrap_content"

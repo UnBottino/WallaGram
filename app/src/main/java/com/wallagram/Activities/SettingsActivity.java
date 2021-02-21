@@ -1,4 +1,4 @@
-package com.wallagram;
+package com.wallagram.Activities;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.wallagram.R;
 import com.wallagram.Utils.Functions;
 
 import java.util.Objects;

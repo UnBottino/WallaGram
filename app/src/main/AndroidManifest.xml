@@ -43,7 +43,7 @@
         </receiver>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".Activities.MainActivity"
             android:theme="@style/Theme.WallaGram"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -52,14 +52,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".Activities.SettingsActivity"
             android:theme="@style/Theme.WallaGram"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".DurationActivity"
+            android:name=".Activities.DurationActivity"
             android:theme="@style/Theme.WallaGram" />
         <activity
-            android:name=".MultiImageActivity"
+            android:name=".Activities.MultiImageActivity"
             android:theme="@style/Theme.WallaGram" />
 
         <meta-data

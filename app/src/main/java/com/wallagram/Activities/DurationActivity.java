@@ -1,4 +1,4 @@
-package com.wallagram;
+package com.wallagram.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.wallagram.R;
 import com.wallagram.Utils.Functions;
 
 import java.util.Objects;

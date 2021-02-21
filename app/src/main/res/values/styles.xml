@@ -1,16 +1,3 @@
 <resources>
-    <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
-        <!-- Customize color of navigation drawer icon and back arrow -->
-        <item name="colorControlNormal">@color/pitch_black</item>
-    </style>
 
-    <style name="NumberPicker" parent="Theme.AppCompat.Light.NoActionBar" >
-        <item name="android:textColorPrimary">@color/white</item>
-        <item name="android:textSize">20sp</item>
-    </style>
-
-    <style name="Switch" parent="Theme.AppCompat.Light.NoActionBar" >
-        <item name="colorAccent">@color/purple</item>
-        <item name="colorSwitchThumbNormal">@color/white</item>
-    </style>
 </resources>
