@@ -22,7 +22,6 @@
         android:roundIcon="@mipmap/walla_logo_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WallaGram">
-        <activity android:name=".SettingsActivity"></activity>
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -44,19 +43,18 @@
         </receiver>
 
         <activity
-            android:name=".Login.LoginActivity"
-            android:theme="@style/Theme.WallaGram"
-            android:windowSoftInputMode="adjustPan" />
-        <activity
             android:name=".MainActivity"
             android:theme="@style/Theme.WallaGram"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:theme="@style/Theme.WallaGram"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".StateActivity"
             android:theme="@style/Theme.WallaGram" />
