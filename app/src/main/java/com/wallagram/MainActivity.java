@@ -57,8 +57,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
     public static ConstraintLayout mLoadingView;
 
-    private DrawerLayout mDrawerLayout;
-
     // TODO: 13/02/2021 Create a broadcast receiver for static
     public static ImageView mSetProfilePic;
     public static TextView mSetAccountName;
@@ -107,90 +105,12 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 Intent intent = new Intent();
                 intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
                 startActivity(intent);
-
-                /*Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                Uri uri = Uri.fromParts("package", getPackageName(), null);
-                intent.setData(uri);
-                startActivity(intent);*/
             });
             builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> finish());
 
             AlertDialog dialog = builder.create();
             dialog.show();
         }
-    }
-
-    private void setUpDrawer() {
-        mDrawerLayout = findViewById(R.id.drawerLayout);
-        RelativeLayout settingsBtn = findViewById(R.id.settingsBtn);
-
-        //settingsBtn.setOnClickListener(v -> mDrawerLayout.openDrawer(GravityCompat.END));
-
-        settingsBtn.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivityForResult(intent, 59);
-        });
-
-        NavigationView mNavigationView = findViewById(R.id.nav_view);
-        mNavigationView.getBackground().setAlpha(235);
-        mNavigationView.setNavigationItemSelectedListener(menuItem -> {
-            mDrawerLayout.closeDrawer(GravityCompat.END);
-
-            if (menuItem.getItemId() == R.id.nav_active) {
-                Intent intent = new Intent(MainActivity.this, StateActivity.class);
-                startActivity(intent);
-            } else if (menuItem.getItemId() == R.id.nav_location) {
-                Intent intent = new Intent(MainActivity.this, LocationActivity.class);
-                startActivity(intent);
-            } else if (menuItem.getItemId() == R.id.nav_duration) {
-                Intent intent = new Intent(MainActivity.this, DurationActivity.class);
-                startActivity(intent);
-            } else if (menuItem.getItemId() == R.id.nav_multi) {
-                Intent intent = new Intent(MainActivity.this, MultiImageActivity.class);
-                startActivity(intent);
-            } else if (menuItem.getItemId() == R.id.nav_recent) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogCustom);
-                builder.setCancelable(true);
-                builder.setTitle("Clear Recent Accounts");
-                builder.setMessage("Are you sure?");
-                builder.setPositiveButton("Confirm", (dialog, which) -> {
-                    Functions.removeDBAccounts(this);
-
-                    mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
-                    mAdapter.notifyDataSetChanged();
-
-                    mDBAccountList.clear();
-                });
-                builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                    //Do nothing
-                });
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-
-            return false;
-        });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.settings_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
-            if (mDrawerLayout.isDrawerOpen((GravityCompat.END))) {
-                mDrawerLayout.closeDrawer(GravityCompat.END);
-            } else {
-                mDrawerLayout.openDrawer(GravityCompat.END);
-            }
-        }
-        return true;
     }
 
     private void pageSetup() {
@@ -200,8 +120,13 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             //Do nothing
         });
 
-        //Drawer
-        setUpDrawer();
+        //Settings Button
+        RelativeLayout settingsBtn = findViewById(R.id.settingsBtn);
+        settingsBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivityForResult(intent, 59);
+        });
 
         //Set Profile Information
         mSetProfilePic = findViewById(R.id.setProfilePic);
