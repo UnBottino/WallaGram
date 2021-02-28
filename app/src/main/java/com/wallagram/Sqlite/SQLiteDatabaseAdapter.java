@@ -91,7 +91,7 @@ public class SQLiteDatabaseAdapter {
     }
 
     static class SQLiteDatabaseHelper extends SQLiteOpenHelper {
-        private static final int DATABASE_VERSION = 23;
+        private static final int DATABASE_VERSION = 24;
         private static final String DATABASE_NAME = "WallaGram";
         private static final String TABLE_ACCOUNT_NAMES = "walla_accounts";
 

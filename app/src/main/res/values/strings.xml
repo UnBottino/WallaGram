@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">WallaGram</string>
 
+    <string name="optimise_msg">This application requires battery optimization to be disabled (Don\'t Optimise) to function correctly.</string>
+
     <string name="empty_recent_searches">No Recent Searches</string>
 
     <string name="stateInfoMsg">When active, WallaGram will periodically update your selected wallpaper</string>

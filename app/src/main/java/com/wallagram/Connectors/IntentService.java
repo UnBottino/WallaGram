@@ -38,7 +38,7 @@ public class IntentService extends android.app.IntentService {
 
         SharedPreferences sharedPreferences = getSharedPreferences("Settings", 0);
         SharedPreferences.Editor editor = getSharedPreferences("Settings", 0).edit();
-        String mSearchName = sharedPreferences.getString("searchName", "NULL");
+        String mSearchName = sharedPreferences.getString("searchName", "");
 
         HttpURLConnection connection = null;
         BufferedReader reader = null;
@@ -124,7 +124,7 @@ public class IntentService extends android.app.IntentService {
         } else {
             editor.putString("setAccountName", account.getAccountName());
             editor.putString("setProfilePic", mProfileUrl);
-            editor.putString("previousPostURL", sharedPreferences.getString("setPostURL", ""));
+            //editor.putString("previousPostURL", sharedPreferences.getString("setPostURL", ""));
             editor.putString("setPostURL", mPostUrl);
             editor.commit();
         }

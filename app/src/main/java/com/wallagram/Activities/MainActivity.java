@@ -4,6 +4,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
@@ -17,6 +19,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -26,14 +29,18 @@ import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.wallagram.Adapters.AccountListAdapter;
+import com.wallagram.Adapters.SuggestionListAdapter;
 import com.wallagram.Connectors.ForegroundService;
 import com.wallagram.Model.Account;
+import com.wallagram.Model.SuggestionAccount;
 import com.wallagram.R;
 import com.wallagram.Utils.Functions;
 import com.squareup.picasso.Picasso;
@@ -41,6 +48,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements LifecycleObserver {
     private static final String TAG = "MAIN_ACTIVITY";
@@ -54,11 +62,18 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     // TODO: 13/02/2021 Create a broadcast receiver for static
     public static ImageView mSetProfilePic;
     public static TextView mSetAccountName;
+
     public androidx.appcompat.widget.SearchView mSearchBar;
 
     public static RecyclerView mRecyclerView;
     public static AccountListAdapter mAdapter;
     public static List<Account> mDBAccountList = new ArrayList<>();
+
+    private static boolean suggestionsOpened = false;
+    private LinearLayout suggestionLayout;
+    private ImageView suggestionIcon;
+
+    private static final List<SuggestionAccount> mSuggestionAccountList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,8 +92,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         //General page setup
         pageSetup();
 
+        // TODO: 21/02/2021 Test on a fresh install
         //Run Continuously
-        if (sharedPreferences.getInt("state", 1) == 1) {
+        if (sharedPreferences.getInt("state", 0) == 1 && !sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
             Functions.callAlarm(getApplicationContext());
         }
     }
@@ -94,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogCustom);
             builder.setCancelable(false);
             builder.setTitle("Important");
-            builder.setMessage("This application requires battery optimization to be disabled to function correctly.");
+            builder.setMessage(R.string.optimise_msg);
             builder.setPositiveButton("Continue", (dialog, which) -> {
                 Intent intent = new Intent();
                 intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
@@ -141,6 +157,12 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
         //Previous Accounts
         setupPreviousAccounts();
+
+        //Suggestions
+        setupSuggestions();
+
+        //Clear Listeners
+        setupClearListeners();
     }
 
     private void setupSearchBar() {
@@ -175,21 +197,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 return false;
             }
         });
-
-        setupHideSearch();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 59) {
-            if (resultCode == 111) {
-                Log.d(TAG, "Update RecyclerView Received (Clear Recent Searches)");
-                mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
-                mAdapter.notifyDataSetChanged();
-                mDBAccountList.clear();
-            }
-        }
     }
 
     private void setupPreviousAccounts() {
@@ -223,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             });
 
             AlertDialog dialog = builder.create();
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
         });
 
@@ -232,18 +239,91 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    public void setupHideSearch() {
+    private void setupSuggestions() {
+        suggestionLayout = findViewById(R.id.suggestionsLayout);
+        suggestionIcon = findViewById(R.id.suggestionIcon);
+        RecyclerView mSuggestionRecyclerView = findViewById(R.id.suggestionAccountList);
+
+        String[] nameList = getResources().getStringArray(R.array.suggestion_names);
+
+        for (String s : nameList) {
+            int id = getResources().getIdentifier("suggestion_" + s, "drawable", getPackageName());
+            SuggestionAccount a = new SuggestionAccount(s, id);
+            mSuggestionAccountList.add(a);
+        }
+
+        SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(getApplicationContext(), mSuggestionAccountList);
+        mSuggestionRecyclerView.setAdapter(mSuggestionAdapter);
+        mSuggestionRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+        findViewById(R.id.suggestionBtn).setOnClickListener(v -> {
+            if (!suggestionsOpened) {
+                showSuggestions();
+            } else {
+                hideSuggestions();
+            }
+            suggestionsOpened = !suggestionsOpened;
+        });
+    }
+
+    private void showSuggestions() {
+        Log.d(TAG, "Opening suggestions menu");
+
+        mAdapter.isClickable = false;
+
+        Drawable unwrappedDrawable = suggestionIcon.getBackground();
+        Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+        DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.purple));
+
+        suggestionLayout.setVisibility(View.VISIBLE);
+        TranslateAnimation animate = new TranslateAnimation(
+                0,
+                0,
+                suggestionLayout.getHeight(),
+                0);
+        animate.setDuration(300);
+        animate.setFillAfter(true);
+        suggestionLayout.startAnimation(animate);
+    }
+
+    private void hideSuggestions() {
+        Log.d(TAG, "Closing suggestions menu");
+
+        mAdapter.isClickable = true;
+
+        Drawable unwrappedDrawable = suggestionIcon.getBackground();
+        Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+        DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.white));
+
+        suggestionLayout.setVisibility(View.INVISIBLE);
+        TranslateAnimation animate = new TranslateAnimation(
+                0,
+                0,
+                0,
+                suggestionLayout.getHeight() + 20);
+        animate.setDuration(300);
+        animate.setFillAfter(false);
+        suggestionLayout.startAnimation(animate);
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    public void setupClearListeners() {
         RelativeLayout settingsBtn = findViewById(R.id.settingsBtn);
         ConstraintLayout mainContainer = findViewById(R.id.mainContainer);
 
-        mainContainer.setOnTouchListener(new hideKeyboardListener());
-        settingsBtn.setOnTouchListener(new hideKeyboardListener());
+        mainContainer.setOnTouchListener(new clearViewListener());
+        settingsBtn.setOnTouchListener(new clearViewListener());
+        mSearchBar.setOnTouchListener(new clearSuggestionsListener());
     }
 
-    class hideKeyboardListener implements View.OnTouchListener {
+    class clearViewListener implements View.OnTouchListener {
         @SuppressLint("ClickableViewAccessibility")
         @Override
         public boolean onTouch(View v, MotionEvent event) {
+
+            if (suggestionsOpened) {
+                hideSuggestions();
+            }
 
             mSearchBar.setIconified(true);
 
@@ -255,6 +335,32 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             getWindow().getDecorView().clearFocus();
 
             return false;
+        }
+    }
+
+    class clearSuggestionsListener implements View.OnTouchListener {
+        @SuppressLint("ClickableViewAccessibility")
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+
+            if (suggestionsOpened) {
+                hideSuggestions();
+            }
+
+            return false;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 59) {
+            if (resultCode == 111) {
+                Log.d(TAG, "Update RecyclerView Received (Clear Recent Searches)");
+                mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
+                mAdapter.notifyDataSetChanged();
+                mDBAccountList.clear();
+            }
         }
     }
 

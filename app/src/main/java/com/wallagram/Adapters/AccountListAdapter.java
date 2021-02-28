@@ -24,7 +24,9 @@ import com.wallagram.Utils.Functions;
 import java.util.List;
 
 public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.AccountListItemHolder> {
-    private static final String TAG = "Account_List_Adapter";
+    private static final String TAG = "ACCOUNT_LIST_ADAPTER";
+
+    public boolean isClickable = true;
 
     private final List<Account> mAccountList;
     private final LayoutInflater mInflater;
@@ -51,29 +53,33 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
         holder.accountNameView.setText(mAccountName);
 
         holder.itemView.setOnClickListener(v -> {
-            Log.d(TAG, "RecyclerView item clicked: (" + mAccountName + ")");
+            if (isClickable) {
+                Log.d(TAG, "RecyclerView item clicked: (" + mAccountName + ")");
 
-            if (Functions.isNetworkAvailable(mContext)) {
-                MainActivity.mLoadingView.setVisibility(View.VISIBLE);
+                if (Functions.isNetworkAvailable(mContext)) {
+                    MainActivity.mLoadingView.setVisibility(View.VISIBLE);
 
-                mEditor = mContext.getSharedPreferences("Settings", 0).edit();
-                mEditor.putString("searchName", mAccountName);
-                mEditor.apply();
+                    mEditor = mContext.getSharedPreferences("Settings", 0).edit();
+                    mEditor.putString("searchName", mAccountName);
+                    mEditor.apply();
 
-                Intent i = new Intent(mContext, ForegroundService.class);
-                i.setAction(ForegroundService.ACTION_START_FOREGROUND_SERVICE);
-                mContext.startForegroundService(i);
-            } else {
-                Log.d(TAG, "No Network Connection");
-                Functions.showNotification(mContext, "Search Failure", "No network connection found");
+                    Intent i = new Intent(mContext, ForegroundService.class);
+                    i.setAction(ForegroundService.ACTION_START_FOREGROUND_SERVICE);
+                    mContext.startForegroundService(i);
+                } else {
+                    Log.d(TAG, "No Network Connection");
+                    Functions.showNotification(mContext, "Search Failure", "No network connection found");
+                }
             }
         });
 
         holder.itemView.setOnLongClickListener(v -> {
             Log.d(TAG, "RecyclerView item long clicked: (" + mAccountName + ")");
 
-            if (mOnDataChangeListener != null) {
-                mOnDataChangeListener.updateAccountList(mAccountName);
+            if (isClickable) {
+                if (mOnDataChangeListener != null) {
+                    mOnDataChangeListener.updateAccountList(mAccountName);
+                }
             }
 
             return true;

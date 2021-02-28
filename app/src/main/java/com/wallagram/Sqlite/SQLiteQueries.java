@@ -8,7 +8,7 @@ public class SQLiteQueries {
     }
 
     public static String getAccountNameByName(String accountName) {
-        return "SELECT * FROM walla_accounts WHERE account_name = '" + accountName + "'";
+        return "SELECT * FROM walla_accounts WHERE account_name = '" + accountName + "' COLLATE NOCASE";
     }
 
     public static String getAllAccounts() {

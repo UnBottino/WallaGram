@@ -69,7 +69,7 @@ public class SettingsActivity extends AppCompatActivity {
         SwitchCompat state = findViewById(R.id.state);
 
         //init value
-        if (sharedPreferences.getInt("state", 0) == 0) {
+        if (sharedPreferences.getInt("state", 1) == 0) {
             state.setChecked(false);
         }
 

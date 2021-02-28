@@ -98,72 +98,71 @@ public class ForegroundService extends Service {
         if (!error) {
             String setAccountName = sharedPreferences.getString("setAccountName", "");
             String setProfilePic = sharedPreferences.getString("setProfilePic", "");
-            String previousPostURL = sharedPreferences.getString("previousPostURL", "");
+            //String previousPostURL = sharedPreferences.getString("previousPostURL", "");
             String setPostURL = sharedPreferences.getString("setPostURL", "");
 
-            boolean settingsUpdated = sharedPreferences.getBoolean("settingsUpdated", false);
+            //boolean settingsUpdated = sharedPreferences.getBoolean("settingsUpdated", false);
 
-            if (!previousPostURL.equalsIgnoreCase(setPostURL) || settingsUpdated) {
-                Log.d(TAG, "Setting Wallpaper");
-                Functions.setWallpaper(this, setPostURL);
+            //if (!previousPostURL.equalsIgnoreCase(setPostURL) || settingsUpdated) {
+            Log.d(TAG, "Setting Wallpaper");
+            Functions.setWallpaper(this, setPostURL);
 
-                //Resetting settings update check
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("settingsUpdated", false);
-                editor.apply();
+            //Resetting settings update check
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("settingsUpdated", false);
+            editor.apply();
 
-                if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
-                    Log.d(TAG, "Saving Post");
-                    Functions.savePost(this, setPostURL);
-                }
+            if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
+                Log.d(TAG, "Saving Post");
+                Functions.savePost(this, setPostURL);
+            }
 
-                if (MainActivity.IS_APP_IN_FOREGROUND) {
-                    Log.d(TAG, "Setting Profile Pic");
-                    Picasso.get()
-                            .load(Uri.parse(setProfilePic))
-                            .into(MainActivity.mSetProfilePic);
+            if (MainActivity.IS_APP_IN_FOREGROUND) {
+                Log.d(TAG, "Setting Profile Pic");
+                Picasso.get()
+                        .load(Uri.parse(setProfilePic))
+                        .into(MainActivity.mSetProfilePic);
 
-                    Log.d(TAG, "Setting Display Name");
-                    MainActivity.mSetAccountName.setText(setAccountName);
+                Log.d(TAG, "Setting Display Name");
+                MainActivity.mSetAccountName.setText(setAccountName);
 
-                    SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(this);
+                SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(this);
 
-                    Account account = new Account(setAccountName, setProfilePic);
+                Account account = new Account(setAccountName, setProfilePic);
 
-                    if (!db.checkIfAccountExists(account)) {
-                        db.addAccount(account);
+                if (!db.checkIfAccountExists(account)) {
+                    db.addAccount(account);
 
-                        MainActivity.mDBAccountList.add(0, account);
-                        MainActivity.mAdapter.notifyItemInserted(0);
-                        MainActivity.mAdapter.notifyDataSetChanged();
-                    } else {
-                        Log.d(TAG, "Account name already in db (" + setAccountName + ")");
+                    MainActivity.mDBAccountList.add(0, account);
+                    MainActivity.mAdapter.notifyItemInserted(0);
+                    MainActivity.mAdapter.notifyDataSetChanged();
+                } else {
+                    Log.d(TAG, "Account name already in db (" + setAccountName + ")");
 
-                        //int position =  0;
-                        for (Account a : MainActivity.mDBAccountList) {
-                            if (a.getAccountName().equalsIgnoreCase(account.getAccountName())) {
-                                //Not using update because of the ordering in recyclerView
-                                db.deleteAccount(a.getAccountName());
-                                db.addAccount(account);
+                    //int position =  0;
+                    for (Account a : MainActivity.mDBAccountList) {
+                        if (a.getAccountName().equalsIgnoreCase(account.getAccountName())) {
+                            //Not using update because of the ordering in recyclerView
+                            db.deleteAccount(a.getAccountName());
+                            db.addAccount(account);
 
-                                //Cleaner code but items loading in is visible to user as process is slower
+                            //Cleaner code but items loading in is visible to user as process is slower
                                 /*MainActivity.mDBAccountList.remove(a);
                                 MainActivity.mDBAccountList.add(0, account);
                                 MainActivity.mAdapter.notifyItemMoved(position, 0);*/
 
-                                MainActivity.mDBAccountList.remove(a);
-                                MainActivity.mAdapter.notifyItemRemoved(MainActivity.mDBAccountList.indexOf(a));
-                                MainActivity.mDBAccountList.add(0, account);
-                                MainActivity.mAdapter.notifyItemInserted(0);
-                                MainActivity.mAdapter.notifyDataSetChanged();
-                                break;
-                            }
-                            //position++;
+                            MainActivity.mDBAccountList.remove(a);
+                            MainActivity.mAdapter.notifyItemRemoved(MainActivity.mDBAccountList.indexOf(a));
+                            MainActivity.mDBAccountList.add(0, account);
+                            MainActivity.mAdapter.notifyItemInserted(0);
+                            MainActivity.mAdapter.notifyDataSetChanged();
+                            break;
                         }
+                        //position++;
                     }
-
-                    Objects.requireNonNull(MainActivity.mRecyclerView.getLayoutManager()).scrollToPosition(0);
                 }
+
+                Objects.requireNonNull(MainActivity.mRecyclerView.getLayoutManager()).scrollToPosition(0);
             }
 
             if (MainActivity.IS_APP_IN_FOREGROUND) {

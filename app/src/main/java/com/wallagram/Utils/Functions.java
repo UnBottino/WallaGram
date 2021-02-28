@@ -14,6 +14,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -137,7 +138,6 @@ public class Functions {
                     @RequiresApi(api = Build.VERSION_CODES.Q)
                     @Override
                     public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-
                         WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
                         try {
                             SharedPreferences sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
@@ -153,7 +153,9 @@ public class Functions {
                             } else if (sharedPreferences.getInt("location", 0) == 1) {
                                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_LOCK);
                             } else {
-                                wallpaperManager.setBitmap(bitmap);
+                                //wallpaperManager.setBitmap(bitmap);
+                                wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_SYSTEM);
+                                wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_LOCK);
                             }
                         } catch (IOException ex) {
                             ex.printStackTrace();
@@ -207,13 +209,14 @@ public class Functions {
 
         // The target rectangle for the new, scaled version of the source bitmap will now
         // be
+        Rect srcRect = new Rect(0, 0, sourceWidth, sourceHeight);
         RectF targetRect = new RectF(left, top, left + scaledWidth, top + scaledHeight);
 
         // Finally, we create a new bitmap of the specified size and draw our new,
         // scaled bitmap onto it.
         Bitmap dest = Bitmap.createBitmap(newWidth, newHeight, source.getConfig());
         Canvas canvas = new Canvas(dest);
-        canvas.drawBitmap(source, null, targetRect, null);
+        canvas.drawBitmap(source, srcRect, targetRect, null);
 
         return dest;
     }
