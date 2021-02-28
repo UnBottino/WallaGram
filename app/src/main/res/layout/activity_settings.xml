@@ -24,6 +24,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:baselineAligned="false"
         android:orientation="horizontal">
 
         <LinearLayout
@@ -43,9 +44,9 @@
 
                 android:checked="true"
 
-                android:paddingHorizontal="20dp"
-                android:text="State:"
                 android:fontFamily="@font/roboto"
+                android:paddingHorizontal="20dp"
+                android:text="@string/setting_state"
                 android:textColor="?attr/colorOnPrimary"
                 android:textSize="20sp" />
 
@@ -61,13 +62,13 @@
                 <TextView
                     style="@style/SettingsListItemText"
                     android:layout_alignParentStart="true"
-                    android:text="Duration:" />
+                    android:text="@string/setting_duration" />
 
                 <TextView
                     android:id="@+id/durationValue"
                     style="@style/SettingsListItemText"
                     android:layout_alignParentEnd="true"
-                    android:text="1 Hour" />
+                    android:text="@string/setting_duration_default" />
 
             </RelativeLayout>
 
@@ -83,13 +84,13 @@
                 <TextView
                     style="@style/SettingsListItemText"
                     android:layout_alignParentStart="true"
-                    android:text="Location:" />
+                    android:text="@string/setting_location" />
 
                 <TextView
                     android:id="@+id/locationValue"
                     style="@style/SettingsListItemText"
                     android:layout_alignParentEnd="true"
-                    android:text="Home" />
+                    android:text="@string/setting_home_default" />
 
             </RelativeLayout>
 
@@ -105,13 +106,13 @@
                 <TextView
                     style="@style/SettingsListItemText"
                     android:layout_alignParentStart="true"
-                    android:text="Multi-Image Post:" />
+                    android:text="@string/setting_multi_post" />
 
                 <TextView
                     android:id="@+id/multiImageValue"
                     style="@style/SettingsListItemText"
                     android:layout_alignParentEnd="true"
-                    android:text="4th" />
+                    android:text="@string/setting_multi_post_default" />
 
             </RelativeLayout>
 
@@ -122,9 +123,9 @@
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/rounded_rectangle"
 
-                android:paddingHorizontal="20dp"
                 android:fontFamily="@font/roboto"
-                android:text="Save Wallpapers:"
+                android:paddingHorizontal="20dp"
+                android:text="@string/setting_save_wallpapers"
                 android:textColor="?attr/colorOnPrimary"
                 android:textSize="20sp" />
 
@@ -140,13 +141,13 @@
                 <TextView
                     style="@style/SettingsListItemText"
                     android:layout_alignParentStart="true"
-                    android:text="Image Align:" />
+                    android:text="@string/setting_image_align" />
 
                 <TextView
                     android:id="@+id/alignValue"
                     style="@style/SettingsListItemText"
                     android:layout_alignParentEnd="true"
-                    android:text="Centre" />
+                    android:text="@string/setting_image_align_default" />
 
             </RelativeLayout>
 
@@ -161,7 +162,7 @@
 
                 <TextView
                     style="@style/SettingsListItemText"
-                    android:text="Clear Recent Searches" />
+                    android:text="@string/setting_clear_recent_searches" />
 
             </RelativeLayout>
 

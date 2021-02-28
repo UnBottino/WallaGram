@@ -68,7 +68,7 @@
 
                 android:gravity="center"
                 android:maxLength="3"
-                android:text="000"
+                android:text="@string/big_number_default"
                 android:textColor="@color/light_grey"
                 android:textSize="60sp" />
 
@@ -93,7 +93,7 @@
                     android:paddingHorizontal="30dp"
 
                     android:paddingVertical="15dp"
-                    android:text="Days"
+                    android:text="@string/days_btn"
                     android:textColor="?attr/colorOnPrimary"
                     android:textSize="20sp"
 
@@ -112,7 +112,7 @@
                     android:paddingHorizontal="30dp"
 
                     android:paddingVertical="15dp"
-                    android:text="Hours"
+                    android:text="@string/hours_btn"
                     android:textColor="?attr/colorOnPrimary"
                     android:textSize="20sp"
 

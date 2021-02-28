@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorPrimary"
-    tools:context=".Activities.MainActivity" >
+    tools:context=".Activities.MainActivity">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:weightSum="2"
+        android:background="@drawable/loading_grey"
 
         android:padding="15dp"
 
-        android:background="@drawable/loading_grey"
+        android:weightSum="2"
 
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" >
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.iitr.kaishu.nsidedprogressbar.NSidedProgressBar
             android:id="@+id/NSidedProgressBar"
@@ -31,22 +30,22 @@
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
 
-            app:nsidedProg_primaryColor="@color/grey"
-            app:nsidedProg_secondaryColor="?attr/colorSecondary"
-
             app:nsidedProg_baseSpeed="5"
             app:nsidedProg_clockwise="true"
+
+            app:nsidedProg_primaryColor="@color/grey"
+            app:nsidedProg_secondaryColor="?attr/colorSecondary"
             app:nsidedProg_sideCount="360" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
-            android:layout_weight="1"
             android:layout_gravity="center"
             android:layout_marginStart="10dp"
+            android:layout_weight="1"
 
-            android:text="Loading..."
+            android:text="@string/loading"
             android:textColor="@color/white"
             android:textSize="15sp" />
 

@@ -3,6 +3,12 @@
 
     <string name="optimise_msg">This application requires battery optimization to be disabled (Don\'t Optimise) to function correctly.</string>
 
+    <string name="suggestions_icon">Suggestions Icon</string>
+    <string name="settings_icon">Settings Icon</string>
+    <string name="profile_picture">profile_picture</string>
+    <string name="no_account_set">No Account Set</string>
+    <string name="account_name">account_name</string>
+
     <string name="empty_recent_searches">No Recent Searches</string>
 
     <string name="stateInfoMsg">When active, WallaGram will periodically update your selected wallpaper</string>
@@ -12,4 +18,24 @@
     <string name="saveWallpaperInfoMsg">When active, WallaGram saves new posts into an album in your gallery</string>
     <string name="imageAlignInfoMsg">As posts do not have a uniform size, WallaGram needs to crop each post to fit your screen. Image Align allows you to set a preference for the positioning</string>
     <string name="clearRecentInfoMsg">Allows you to clear all accounts from the\nRecent Searches List</string>
+
+    <string name="big_number_default">000</string>
+    <string name="days_btn">Days</string>
+    <string name="hours_btn">Hours</string>
+
+    <string name="setting_state">State:</string>
+    <string name="setting_duration">Duration:</string>
+    <string name="setting_duration_default">1 Hour</string>
+    <string name="setting_location">Location:</string>
+    <string name="setting_home_default">Home</string>
+    <string name="setting_multi_post">Multi-Image Post:</string>
+    <string name="setting_multi_post_default">4th</string>
+    <string name="setting_save_wallpapers">Save Wallpapers:</string>
+    <string name="setting_image_align">Image Align:</string>
+    <string name="setting_image_align_default">Centre</string>
+    <string name="setting_clear_recent_searches">Clear Recent Searches</string>
+
+    <string name="loading">Loading…</string>
+
+    <string name="numpad_clear">CLEAR</string>
 </resources>

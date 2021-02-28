@@ -3,7 +3,6 @@ package com.wallagram.Adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,10 +13,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.squareup.picasso.Picasso;
 import com.wallagram.Activities.MainActivity;
 import com.wallagram.Connectors.ForegroundService;
-import com.wallagram.Model.Account;
 import com.wallagram.Model.SuggestionAccount;
 import com.wallagram.R;
 
@@ -35,7 +32,7 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
     @NonNull
     @Override
     public SuggestionListItemHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View mItemView = mInflater.inflate(R.layout.account_list_item, parent, false);
+        View mItemView = mInflater.inflate(R.layout.suggestion_account_list_item, parent, false);
         return new SuggestionListItemHolder(mItemView, this);
     }
 

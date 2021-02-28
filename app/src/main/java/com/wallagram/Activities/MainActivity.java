@@ -29,7 +29,6 @@ import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -238,7 +237,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+
+    // TODO: 28/02/2021 Populate suggestions list via http
     private void setupSuggestions() {
         suggestionLayout = findViewById(R.id.suggestionsLayout);
         suggestionIcon = findViewById(R.id.suggestionIcon);
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
         SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(getApplicationContext(), mSuggestionAccountList);
         mSuggestionRecyclerView.setAdapter(mSuggestionAdapter);
-        mSuggestionRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        mSuggestionRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
 
         findViewById(R.id.suggestionBtn).setOnClickListener(v -> {
             if (!suggestionsOpened) {
@@ -276,14 +276,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.purple));
 
         suggestionLayout.setVisibility(View.VISIBLE);
-        TranslateAnimation animate = new TranslateAnimation(
-                0,
-                0,
-                suggestionLayout.getHeight(),
-                0);
-        animate.setDuration(300);
-        animate.setFillAfter(true);
-        suggestionLayout.startAnimation(animate);
     }
 
     private void hideSuggestions() {
@@ -295,15 +287,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
         DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.white));
 
-        suggestionLayout.setVisibility(View.INVISIBLE);
-        TranslateAnimation animate = new TranslateAnimation(
-                0,
-                0,
-                0,
-                suggestionLayout.getHeight() + 20);
-        animate.setDuration(300);
-        animate.setFillAfter(false);
-        suggestionLayout.startAnimation(animate);
+        suggestionLayout.setVisibility(View.GONE);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -313,18 +297,12 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
         mainContainer.setOnTouchListener(new clearViewListener());
         settingsBtn.setOnTouchListener(new clearViewListener());
-        mSearchBar.setOnTouchListener(new clearSuggestionsListener());
     }
 
     class clearViewListener implements View.OnTouchListener {
         @SuppressLint("ClickableViewAccessibility")
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-
-            if (suggestionsOpened) {
-                hideSuggestions();
-            }
-
             mSearchBar.setIconified(true);
 
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -335,32 +313,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             getWindow().getDecorView().clearFocus();
 
             return false;
-        }
-    }
-
-    class clearSuggestionsListener implements View.OnTouchListener {
-        @SuppressLint("ClickableViewAccessibility")
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-
-            if (suggestionsOpened) {
-                hideSuggestions();
-            }
-
-            return false;
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 59) {
-            if (resultCode == 111) {
-                Log.d(TAG, "Update RecyclerView Received (Clear Recent Searches)");
-                mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
-                mAdapter.notifyDataSetChanged();
-                mDBAccountList.clear();
-            }
         }
     }
 
