@@ -122,6 +122,19 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 59) {
+            if (resultCode == 111) {
+                Log.d(TAG, "Update RecyclerView Received (Clear Recent Searches)");
+                mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
+                mAdapter.notifyDataSetChanged();
+                mDBAccountList.clear();
+            }
+        }
+    }
+
     private void pageSetup() {
         //Loading View
         mLoadingView = findViewById(R.id.loadingView);
@@ -236,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
     }
-
 
     // TODO: 28/02/2021 Populate suggestions list via http
     private void setupSuggestions() {

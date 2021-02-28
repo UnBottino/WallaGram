@@ -291,7 +291,7 @@ public class SettingsActivity extends AppCompatActivity {
             });
 
             AlertDialog dialog = builder.create();
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
         });
     }
@@ -315,7 +315,7 @@ public class SettingsActivity extends AppCompatActivity {
         builder.setMessage(msg);
 
         AlertDialog dialog = builder.create();
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
 
         alertInfoBtn.setOnClickListener(v -> dialog.cancel());
