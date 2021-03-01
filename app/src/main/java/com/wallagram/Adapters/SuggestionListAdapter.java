@@ -17,6 +17,7 @@ import com.wallagram.Activities.MainActivity;
 import com.wallagram.Connectors.ForegroundService;
 import com.wallagram.Model.SuggestionAccount;
 import com.wallagram.R;
+import com.wallagram.Utils.Functions;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
     private final LayoutInflater mInflater;
 
     private final Context mContext;
+    private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor mEditor;
 
     @NonNull
@@ -56,6 +58,12 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
             Intent i = new Intent(mContext, ForegroundService.class);
             i.setAction(ForegroundService.ACTION_START_FOREGROUND_SERVICE);
             mContext.startForegroundService(i);
+
+            //Activate Alarm
+            sharedPreferences = mContext.getSharedPreferences("Settings", 0);
+            if (sharedPreferences.getInt("state", 1) == 1 && !Functions.alarmActive) {
+                Functions.callAlarm(mContext);
+            }
         });
     }
 

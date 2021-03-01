@@ -10,12 +10,15 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -41,6 +44,7 @@ import com.wallagram.Connectors.ForegroundService;
 import com.wallagram.Model.Account;
 import com.wallagram.Model.SuggestionAccount;
 import com.wallagram.R;
+import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
 import com.wallagram.Utils.Functions;
 import com.squareup.picasso.Picasso;
 
@@ -50,7 +54,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements LifecycleObserver {
-    private static final String TAG = "MAIN_ACTIVITY";
+    private final String TAG = "MAIN_ACTIVITY";
 
     public static boolean IS_APP_IN_FOREGROUND = false;
 
@@ -59,20 +63,20 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     public static ConstraintLayout mLoadingView;
 
     // TODO: 13/02/2021 Create a broadcast receiver for static
-    public static ImageView mSetProfilePic;
-    public static TextView mSetAccountName;
+    public ImageView mSetProfilePic;
+    public TextView mSetAccountName;
 
     public androidx.appcompat.widget.SearchView mSearchBar;
 
-    public static RecyclerView mRecyclerView;
-    public static AccountListAdapter mAdapter;
-    public static List<Account> mDBAccountList = new ArrayList<>();
+    public RecyclerView mRecyclerView;
+    public AccountListAdapter mAdapter;
+    public List<Account> mDBAccountList = new ArrayList<>();
 
-    private static boolean suggestionsOpened = false;
+    private boolean suggestionsOpened = false;
     private LinearLayout suggestionLayout;
     private ImageView suggestionIcon;
 
-    private static final List<SuggestionAccount> mSuggestionAccountList = new ArrayList<>();
+    private final List<SuggestionAccount> mSuggestionAccountList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +86,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         //Check is app in foreground
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
+        //Register update UI broadcast receiver
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateUIReceiver, new IntentFilter("custom-event-name"));
+
         sharedPreferences = getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
         getScreenSize();
@@ -89,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         //General page setup
         pageSetup();
 
-        //Run Continuously
+        //Activate Alarm
         if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
             Functions.callAlarm(getApplicationContext());
         }
@@ -118,6 +125,77 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             dialog.show();
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Unregister update UI broadcast receiver
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateUIReceiver);
+    }
+
+    private final BroadcastReceiver updateUIReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            boolean error = intent.getBooleanExtra("error", false);
+            Log.d(TAG, "Received Broadcast: error = " + error);
+
+            if (error) {
+                Log.d(TAG, "Setting Error Profile Pic");
+                Picasso.get()
+                        .load(R.drawable.frown_straight)
+                        .into(mSetProfilePic);
+
+                Log.d(TAG, "Setting Error Display Name");
+                String setAccountName = sharedPreferences.getString("setAccountName", "");
+                mSetAccountName.setText(setAccountName);
+            } else {
+                String setAccountName = sharedPreferences.getString("setAccountName", "");
+                String setProfilePic = sharedPreferences.getString("setProfilePic", "");
+
+                Log.d(TAG, "Setting Profile Pic");
+                Picasso.get()
+                        .load(Uri.parse(setProfilePic))
+                        .into(mSetProfilePic);
+
+                Log.d(TAG, "Setting Display Name");
+                mSetAccountName.setText(setAccountName);
+
+                SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(getApplicationContext());
+
+                Account account = new Account(setAccountName, setProfilePic);
+
+                if (!db.checkIfAccountExists(account)) {
+                    db.addAccount(account);
+
+                    mDBAccountList.add(0, account);
+                    mAdapter.notifyItemInserted(0);
+                    mAdapter.notifyDataSetChanged();
+                } else {
+                    Log.d(TAG, "Account name already in db (" + setAccountName + ")");
+
+                    for (Account a : mDBAccountList) {
+                        if (a.getAccountName().equalsIgnoreCase(account.getAccountName())) {
+                            //Not using update because of the ordering in recyclerView
+                            db.deleteAccount(a.getAccountName());
+                            db.addAccount(account);
+
+                            mDBAccountList.remove(a);
+                            mAdapter.notifyItemRemoved(mDBAccountList.indexOf(a));
+                            mDBAccountList.add(0, account);
+                            mAdapter.notifyItemInserted(0);
+                            mAdapter.notifyDataSetChanged();
+                            break;
+                        }
+                    }
+                }
+
+                Objects.requireNonNull(mRecyclerView.getLayoutManager()).scrollToPosition(0);
+            }
+
+            mLoadingView.setVisibility(View.INVISIBLE);
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -233,6 +311,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 Intent i = new Intent(getApplicationContext(), ForegroundService.class);
                 i.setAction(ForegroundService.ACTION_START_FOREGROUND_SERVICE);
                 startForegroundService(i);
+
+                //Activate Alarm
+                if (sharedPreferences.getInt("state", 1) == 1 && !Functions.alarmActive) {
+                    Functions.callAlarm(getApplicationContext());
+                }
 
                 return false;
             }

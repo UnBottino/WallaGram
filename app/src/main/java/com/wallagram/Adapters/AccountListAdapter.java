@@ -32,6 +32,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
     private final LayoutInflater mInflater;
 
     private final Context mContext;
+    private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor mEditor;
 
     @NonNull
@@ -66,6 +67,12 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
                     Intent i = new Intent(mContext, ForegroundService.class);
                     i.setAction(ForegroundService.ACTION_START_FOREGROUND_SERVICE);
                     mContext.startForegroundService(i);
+
+                    //Activate Alarm
+                    sharedPreferences = mContext.getSharedPreferences("Settings", 0);
+                    if (sharedPreferences.getInt("state", 1) == 1 && !Functions.alarmActive) {
+                        Functions.callAlarm(mContext);
+                    }
                 } else {
                     Log.d(TAG, "No Network Connection");
                     Functions.showNotification(mContext, "Search Failure", "No network connection found");

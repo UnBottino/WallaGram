@@ -49,6 +49,8 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 public class Functions {
     private static final String TAG = "FUNCTIONS";
 
+    public static boolean alarmActive = false;
+
     public static void callAlarm(Context context) {
         Log.d(TAG, "Activating Alarm");
 
@@ -70,6 +72,8 @@ public class Functions {
         if (alarmManager != null) {
             alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 60 * convertedDuration, pendingIntent); // Millisec * Second * Minute
         }
+
+        alarmActive = true;
     }
 
     public static void cancelAlarm(Context context) {
@@ -81,6 +85,8 @@ public class Functions {
         if (alarmManager != null) {
             alarmManager.cancel(pendingIntent);
         }
+
+        alarmActive = false;
     }
 
     public static boolean isNetworkAvailable(Context context) {

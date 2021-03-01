@@ -30,7 +30,6 @@
         <service android:name=".Connectors.ForegroundService" />
         <service android:name=".Connectors.IntentService" />
 
-        <receiver android:name=".Receivers.AlarmReceiver" />
         <receiver
             android:name=".Receivers.BootReceiver"
             android:enabled="true"
@@ -41,6 +40,8 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <receiver android:name=".Receivers.AlarmReceiver" />
 
         <activity
             android:name=".Activities.MainActivity"
