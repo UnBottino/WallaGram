@@ -84,14 +84,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
         sharedPreferences = getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
-        //Request Storage Access
-        Functions.requestPermission(this);
         getScreenSize();
 
         //General page setup
         pageSetup();
 
-        // TODO: 21/02/2021 Test on a fresh install
         //Run Continuously
         if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
             Functions.callAlarm(getApplicationContext());

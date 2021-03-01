@@ -4,11 +4,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -18,6 +20,7 @@ import android.text.SpannableString;
 import android.text.style.AlignmentSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -27,6 +30,8 @@ import com.wallagram.R;
 import com.wallagram.Utils.Functions;
 
 import java.util.Objects;
+
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class SettingsActivity extends AppCompatActivity {
     private static final String TAG = "SETTINGS_ACTIVITY";
@@ -212,14 +217,21 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         saveWallpaper.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-            if (isChecked) {
-                editor.putInt("saveWallpaper", 1);
-                editor.apply();
-                Log.d(TAG, "Save Wallpaper value updated to: Yes");
+            //Request Storage Access
+            Functions.requestPermission(this);
+
+            if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                saveWallpaper.setChecked(false);
             } else {
-                editor.putInt("saveWallpaper", 0);
-                editor.apply();
-                Log.d(TAG, "Save Wallpaper value updated to: No");
+                if (isChecked) {
+                    editor.putInt("saveWallpaper", 1);
+                    editor.apply();
+                    Log.d(TAG, "Save Wallpaper value updated to: Yes");
+                } else {
+                    editor.putInt("saveWallpaper", 0);
+                    editor.apply();
+                    Log.d(TAG, "Save Wallpaper value updated to: No");
+                }
             }
         });
     }
