@@ -13,19 +13,16 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Layout;
 import android.text.SpannableString;
 import android.text.style.AlignmentSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
 import com.wallagram.R;
 import com.wallagram.Utils.Functions;
 
@@ -35,6 +32,9 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class SettingsActivity extends AppCompatActivity {
     private static final String TAG = "SETTINGS_ACTIVITY";
+
+    private int stateChange = -1;
+    private boolean clearRecentChange = false;
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
@@ -80,15 +80,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         state.setOnCheckedChangeListener((compoundButton, isChecked) -> {
             if (isChecked) {
-                String setAccountName = sharedPreferences.getString("setAccountName", "No Account Set");
-                String setProfilePic = sharedPreferences.getString("setProfilePic", "");
-
-                Log.d(TAG, "Setting Profile Pic");
-                Picasso.get()
-                        .load(Uri.parse(setProfilePic))
-                        .into(MainActivity.mSetProfilePic);
-
-                MainActivity.mSetAccountName.setText(setAccountName);
+                stateChange = 1;
 
                 editor.putInt("state", 1);
                 editor.apply();
@@ -97,18 +89,28 @@ public class SettingsActivity extends AppCompatActivity {
                 if (!sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
                     Functions.callAlarm(getApplicationContext());
                 }
-            } else {
-                Picasso.get()
-                        .load(R.drawable.frown_straight)
-                        .into(MainActivity.mSetProfilePic);
 
-                MainActivity.mSetAccountName.setText(R.string.state_disabled);
+                Intent intent = new Intent();
+                if (clearRecentChange) {
+                    setResult(110, intent);
+                } else {
+                    setResult(10, intent);
+                }
+            } else {
+                stateChange = 0;
 
                 editor.putInt("state", 0);
                 editor.apply();
 
                 Log.d(TAG, "State value updated to: Off");
                 Functions.cancelAlarm(getApplicationContext());
+
+                Intent intent = new Intent();
+                if (clearRecentChange) {
+                    setResult(111, intent);
+                } else {
+                    setResult(11, intent);
+                }
             }
         });
     }
@@ -291,6 +293,8 @@ public class SettingsActivity extends AppCompatActivity {
             builder.setTitle("Clear Recent Searches");
             builder.setMessage("Are you sure?");
             builder.setPositiveButton("Confirm", (dialog, which) -> {
+                clearRecentChange = true;
+
                 Functions.removeDBAccounts(this);
 
                 /*mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
@@ -299,7 +303,13 @@ public class SettingsActivity extends AppCompatActivity {
                 mDBAccountList.clear();*/
 
                 Intent intent = new Intent();
-                setResult(111, intent);
+                if (stateChange == 1) {
+                    setResult(110, intent);
+                } else if (stateChange == 0) {
+                    setResult(111, intent);
+                } else {
+                    setResult(100, intent);
+                }
             });
             builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                 //Do nothing

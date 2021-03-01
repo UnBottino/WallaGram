@@ -123,12 +123,48 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 59) {
-            if (resultCode == 111) {
-                Log.d(TAG, "Update RecyclerView Received (Clear Recent Searches)");
-                mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
-                mAdapter.notifyDataSetChanged();
-                mDBAccountList.clear();
+            if (resultCode == 10) {
+                stateChanged(1);
+            } else if (resultCode == 11) {
+                stateChanged(0);
+            } else if (resultCode == 100) {
+                clearRecentSearches();
+            } else if (resultCode == 110) {
+                stateChanged(1);
+                clearRecentSearches();
+            } else if (resultCode == 111) {
+                stateChanged(0);
+                clearRecentSearches();
             }
+        }
+    }
+
+    private void clearRecentSearches() {
+        Log.d(TAG, "Update RecyclerView Received (Clear Recent Searches)");
+        mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
+        mAdapter.notifyDataSetChanged();
+        mDBAccountList.clear();
+    }
+
+    private void stateChanged(int state) {
+        if (state == 1) {
+            Log.d(TAG, "State enabled: Updating set account visuals");
+            String setAccountName = sharedPreferences.getString("setAccountName", "No Account Set");
+            String setProfilePic = sharedPreferences.getString("setProfilePic", "");
+
+            Log.d(TAG, "Setting Profile Pic");
+            Picasso.get()
+                    .load(Uri.parse(setProfilePic))
+                    .into(mSetProfilePic);
+
+            mSetAccountName.setText(setAccountName);
+        } else if (state == 0) {
+            Log.d(TAG, "State disabled: Updating set account visuals");
+            Picasso.get()
+                    .load(R.drawable.frown_straight)
+                    .into(mSetProfilePic);
+
+            mSetAccountName.setText(R.string.state_disabled);
         }
     }
 
