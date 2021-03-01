@@ -38,4 +38,15 @@
     <string name="loading">Loading…</string>
 
     <string name="numpad_clear">CLEAR</string>
+
+    <string name="state_disabled">State disabled</string>
+
+    <string name="home_screen">Home Screen</string>
+    <string name="lock_screen">Lock Screen</string>
+    <string name="both_screens">Both</string>
+
+    <string name="left_align">Left</string>
+    <string name="centre_align">Centre</string>
+    <string name="right_align">Right</string>
+    <string name="info_msg_confirm">Got it</string>
 </resources>

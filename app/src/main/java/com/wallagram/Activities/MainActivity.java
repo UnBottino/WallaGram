@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
         // TODO: 21/02/2021 Test on a fresh install
         //Run Continuously
-        if (sharedPreferences.getInt("state", 0) == 1 && !sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
+        if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
             Functions.callAlarm(getApplicationContext());
         }
     }
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
         PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
         if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
-            Log.e(TAG, "Using Optimization");
+            Log.e(TAG, "Asking for optimization");
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogCustom);
             builder.setCancelable(false);

@@ -172,7 +172,9 @@ public class DurationActivity extends AppCompatActivity {
 
             editor.apply();
 
-            Functions.callAlarm(getApplicationContext());
+            if (!sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
+                Functions.callAlarm(getApplicationContext());
+            }
 
             Intent intent = new Intent();
             setResult(111, intent);
@@ -182,15 +184,15 @@ public class DurationActivity extends AppCompatActivity {
     }
 
     private void checkChange() {
-        int tempDuration = 0;
+        int convertedDuration = 0;
         if (!mDuration.equalsIgnoreCase("")) {
-            tempDuration = Integer.parseInt(mDuration);
+            convertedDuration = Integer.parseInt(mDuration);
         }
 
-        if ((setDuration == tempDuration && setMetric.equalsIgnoreCase(mMetric)) || tempDuration == 0) {
-            Functions.disableApply(applyBtn);
-        } else {
+        if (!setMetric.equalsIgnoreCase(mMetric) || (setDuration != convertedDuration && convertedDuration != 0)) {
             Functions.enableApply(applyBtn);
+        } else {
+            Functions.disableApply(applyBtn);
         }
     }
 

@@ -16,7 +16,7 @@ public class BootReceiver extends BroadcastReceiver {
         if (Intent.ACTION_BOOT_COMPLETED.equals(i.getAction())) {
             SharedPreferences sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
-            if (sharedPreferences.getInt("state", 1) == 1) {
+            if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
                 Log.d(TAG, "Activating Alarm");
                 Functions.callAlarm(context);
             }

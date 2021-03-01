@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -51,7 +52,6 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 800) {
-
             switch (resultCode) {
                 case 111:
                     Log.d(TAG, "Duration returned");
@@ -89,13 +89,15 @@ public class SettingsActivity extends AppCompatActivity {
                 editor.apply();
 
                 Log.d(TAG, "State value updated to: On");
-                Functions.callAlarm(getApplicationContext());
+                if (!sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
+                    Functions.callAlarm(getApplicationContext());
+                }
             } else {
                 Picasso.get()
                         .load(R.drawable.frown_straight)
                         .into(MainActivity.mSetProfilePic);
 
-                MainActivity.mSetAccountName.setText("State disabled");
+                MainActivity.mSetAccountName.setText(R.string.state_disabled);
 
                 editor.putInt("state", 0);
                 editor.apply();
@@ -136,13 +138,13 @@ public class SettingsActivity extends AppCompatActivity {
         //init value
         switch (sharedPreferences.getInt("location", 0)) {
             case 0:
-                locationValue.setText("Home Screen");
+                locationValue.setText(R.string.home_screen);
                 break;
             case 1:
-                locationValue.setText("Lock Screen");
+                locationValue.setText(R.string.lock_screen);
                 break;
             case 2:
-                locationValue.setText("Both");
+                locationValue.setText(R.string.both_screens);
                 break;
         }
 
@@ -152,19 +154,19 @@ public class SettingsActivity extends AppCompatActivity {
             switch (locationValue.getText().toString()) {
                 case "Home Screen":
                     Log.d(TAG, "Location set to 'Lock'");
-                    locationValue.setText("Lock Screen");
+                    locationValue.setText(R.string.lock_screen);
                     editor.putInt("location", 1);
                     editor.apply();
                     break;
                 case "Lock Screen":
                     Log.d(TAG, "Location set to 'Both'");
-                    locationValue.setText("Both");
+                    locationValue.setText(R.string.both_screens);
                     editor.putInt("location", 2);
                     editor.apply();
                     break;
                 case "Both":
                     Log.d(TAG, "Location set to 'Home'");
-                    locationValue.setText("Home Screen");
+                    locationValue.setText(R.string.home_screen);
                     editor.putInt("location", 0);
                     editor.apply();
                     break;
@@ -172,6 +174,7 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("SetTextI18n")
     private void multiPostBtnSetup() {
         RelativeLayout multiPost = findViewById(R.id.multiImage);
 
@@ -228,13 +231,13 @@ public class SettingsActivity extends AppCompatActivity {
         //init value
         switch (sharedPreferences.getInt("align", 1)) {
             case 0:
-                alignValue.setText("Left");
+                alignValue.setText(R.string.left_align);
                 break;
             case 1:
-                alignValue.setText("Centre");
+                alignValue.setText(R.string.centre_align);
                 break;
             case 2:
-                alignValue.setText("Right");
+                alignValue.setText(R.string.right_align);
                 break;
         }
 
@@ -244,19 +247,19 @@ public class SettingsActivity extends AppCompatActivity {
             switch (alignValue.getText().toString()) {
                 case "Left":
                     Log.d(TAG, "ImageAlign set to 'Centre'");
-                    alignValue.setText("Centre");
+                    alignValue.setText(R.string.centre_align);
                     editor.putInt("align", 1);
                     editor.apply();
                     break;
                 case "Centre":
                     Log.d(TAG, "ImageAlign set to 'Right'");
-                    alignValue.setText("Right");
+                    alignValue.setText(R.string.right_align);
                     editor.putInt("align", 2);
                     editor.apply();
                     break;
                 case "Right":
                     Log.d(TAG, "ImageAlign set to 'Left'");
-                    alignValue.setText("Left");
+                    alignValue.setText(R.string.left_align);
                     editor.putInt("align", 0);
                     editor.apply();
                     break;
