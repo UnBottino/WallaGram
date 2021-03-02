@@ -52,7 +52,7 @@ public class Functions {
     public static boolean alarmActive = false;
 
     public static void callAlarm(Context context) {
-        Log.d(TAG, "Activating Alarm");
+        Log.d(TAG, "callAlarm: Activating Alarm");
 
         SharedPreferences sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
         String metric = sharedPreferences.getString("metric", "hours");
@@ -77,7 +77,7 @@ public class Functions {
     }
 
     public static void cancelAlarm(Context context) {
-        Log.d(TAG, "Deactivating Alarm");
+        Log.d(TAG, "cancelAlarm: Deactivating Alarm");
 
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123, intent, 0);
@@ -90,6 +90,8 @@ public class Functions {
     }
 
     public static boolean isNetworkAvailable(Context context) {
+        Log.d(TAG, "isNetworkAvailable: Checking device network status");
+
         ConnectivityManager conn = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = null;
         if (conn != null) {
@@ -104,13 +106,15 @@ public class Functions {
     }
 
     public static void removeDBAccounts(Context context) {
-        Log.d("DB", "Remove all account names from DB");
+        Log.d(TAG, "removeDBAccounts: Removing all accounts from DB");
+
         SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
         db.deleteAll();
     }
 
     public static void removeDBAccountByName(Context context, String accountName) {
-        Log.d("DB", "Remove all account names from DB");
+        Log.d(TAG, "removeDBAccountByName: Removing " + accountName + "'s information from DB");
+
         SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
         db.deleteAccount(accountName);
     }
@@ -121,6 +125,8 @@ public class Functions {
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public static boolean checkImageExists(String path, String imageName, Context context) {
+        Log.d(TAG, "checkImageExists: Looking for " + imageName + " in users gallery");
+
         String selection = MediaStore.Files.FileColumns.RELATIVE_PATH + " like ? and " + MediaStore.Files.FileColumns.DISPLAY_NAME + " like ?";
         String[] selectionArgs = {"%" + path + "%", "%" + imageName + "%"};
 
@@ -144,6 +150,8 @@ public class Functions {
                     @RequiresApi(api = Build.VERSION_CODES.Q)
                     @Override
                     public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+                        Log.d(TAG, "setWallpaper: onBitmapLoaded: Setting Wallpaper");
+
                         WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
                         try {
                             SharedPreferences sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
@@ -159,12 +167,11 @@ public class Functions {
                             } else if (sharedPreferences.getInt("location", 0) == 1) {
                                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_LOCK);
                             } else {
-                                //wallpaperManager.setBitmap(bitmap);
                                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_SYSTEM);
                                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_LOCK);
                             }
                         } catch (IOException ex) {
-                            ex.printStackTrace();
+                            Log.e(TAG, "onBitmapLoaded: " + ex.getLocalizedMessage());
                         }
                     }
 
@@ -179,6 +186,8 @@ public class Functions {
     }
 
     public static Bitmap scaleCrop(Bitmap source, int imageAlign, int newHeight, int newWidth) {
+        Log.d(TAG, "scaleCrop: Scaling image to Height: " + newHeight + ", to Width: " + newWidth + " and aligned: " + imageAlign);
+
         int sourceWidth = source.getWidth();
         int sourceHeight = source.getHeight();
 
@@ -235,6 +244,8 @@ public class Functions {
                     @RequiresApi(api = Build.VERSION_CODES.Q)
                     @Override
                     public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+                        Log.d(TAG, "savePost: onBitmapLoaded: Saving image to gallery");
+
                         String imageName = postUrl.substring(postUrl.length() - 50);
 
                         OutputStream fos;
@@ -264,7 +275,7 @@ public class Functions {
 
                     @Override
                     public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                        Log.v("savePost", Objects.requireNonNull(e.getMessage()));
+                        Log.e(TAG, "onBitmapFailed: " + Objects.requireNonNull(e.getMessage()));
                     }
 
                     @Override
@@ -284,7 +295,7 @@ public class Functions {
     }
 
     public static void showNotification(Context context, String title, String text) {
-        Log.d(TAG, "Showing Notification");
+        Log.d(TAG, "showNotification: Title: " + title + ", Text: " + text);
 
         String CHANNEL_ID = "com.wallagram.nofication";
         String CHANNEL_NAME = "WallaGram Notification";

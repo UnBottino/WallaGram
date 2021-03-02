@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
     public static ConstraintLayout mLoadingView;
 
-    // TODO: 13/02/2021 Create a broadcast receiver for static
     public ImageView mSetProfilePic;
     public TextView mSetAccountName;
 
@@ -108,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
         PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
         if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
-            Log.e(TAG, "Asking for optimization");
+            Log.d(TAG, "onStart: Asking to deactivate optimization");
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogCustom);
             builder.setCancelable(false);
@@ -129,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy: Unregistering updateUIReceiver");
         // Unregister update UI broadcast receiver
         LocalBroadcastManager.getInstance(this).unregisterReceiver(updateUIReceiver);
     }
@@ -138,29 +138,29 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         public void onReceive(Context context, Intent intent) {
             // Get extra data included in the Intent
             boolean error = intent.getBooleanExtra("error", false);
-            Log.d(TAG, "Received Broadcast: error = " + error);
 
             if (error) {
-                Log.d(TAG, "Setting Error Profile Pic");
+                Log.d(TAG, "onReceive: Setting Error Profile Pic");
                 Picasso.get()
                         .load(R.drawable.frown_straight)
                         .into(mSetProfilePic);
 
-                Log.d(TAG, "Setting Error Display Name");
+                Log.d(TAG, "onReceive: Setting Error Display Name");
                 String setAccountName = sharedPreferences.getString("setAccountName", "");
                 mSetAccountName.setText(setAccountName);
             } else {
                 String setAccountName = sharedPreferences.getString("setAccountName", "");
                 String setProfilePic = sharedPreferences.getString("setProfilePic", "");
 
-                Log.d(TAG, "Setting Profile Pic");
+                Log.d(TAG, "onReceive: Setting Current Profile Pic");
                 Picasso.get()
                         .load(Uri.parse(setProfilePic))
                         .into(mSetProfilePic);
 
-                Log.d(TAG, "Setting Display Name");
+                Log.d(TAG, "onReceive: Setting Current Display Name");
                 mSetAccountName.setText(setAccountName);
 
+                // TODO: 01/03/2021 Move this DB work to an AsyncTask??? Might fix "I/Choreographer: Skipped 137 frames!"
                 SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(getApplicationContext());
 
                 Account account = new Account(setAccountName, setProfilePic);
@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                     mAdapter.notifyItemInserted(0);
                     mAdapter.notifyDataSetChanged();
                 } else {
-                    Log.d(TAG, "Account name already in db (" + setAccountName + ")");
+                    Log.d(TAG, "onReceive: Account name already in db (" + setAccountName + ")");
 
                     for (Account a : mDBAccountList) {
                         if (a.getAccountName().equalsIgnoreCase(account.getAccountName())) {
@@ -217,16 +217,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         }
     }
 
-    private void clearRecentSearches() {
-        Log.d(TAG, "Update RecyclerView Received (Clear Recent Searches)");
-        mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
-        mAdapter.notifyDataSetChanged();
-        mDBAccountList.clear();
-    }
-
     private void stateChanged(int state) {
         if (state == 1) {
-            Log.d(TAG, "State enabled: Updating set account visuals");
+            Log.d(TAG, "stateChanged: State enabled: Updating set account visuals");
             String setAccountName = sharedPreferences.getString("setAccountName", "No Account Set");
             String setProfilePic = sharedPreferences.getString("setProfilePic", "");
 
@@ -237,13 +230,21 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
             mSetAccountName.setText(setAccountName);
         } else if (state == 0) {
-            Log.d(TAG, "State disabled: Updating set account visuals");
+            Log.d(TAG, "stateChanged: State disabled: Updating set account visuals");
             Picasso.get()
                     .load(R.drawable.frown_straight)
                     .into(mSetProfilePic);
 
             mSetAccountName.setText(R.string.state_disabled);
         }
+    }
+
+    private void clearRecentSearches() {
+        Log.d(TAG, "clearRecentSearches: Update RecyclerView Received");
+
+        mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
+        mAdapter.notifyDataSetChanged();
+        mDBAccountList.clear();
     }
 
     private void pageSetup() {
@@ -296,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         mSearchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Log.d(TAG, "Searching for: " + query);
+                Log.d(TAG, "onQueryTextSubmit: Searching for: " + query);
 
                 mLoadingView.setVisibility(View.VISIBLE);
 
@@ -395,7 +396,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     }
 
     private void showSuggestions() {
-        Log.d(TAG, "Opening suggestions menu");
+        Log.d(TAG, "showSuggestions: Opening suggestions menu");
 
         mAdapter.isClickable = false;
 
@@ -407,7 +408,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     }
 
     private void hideSuggestions() {
-        Log.d(TAG, "Closing suggestions menu");
+        Log.d(TAG, "hideSuggestions: Closing suggestions menu");
 
         mAdapter.isClickable = true;
 
@@ -451,27 +452,28 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         final int screenWidth = metrics.widthPixels;
         final int screenHeight = metrics.heightPixels;
 
-        Log.d(TAG, "Screen Width: " + screenWidth);
-        Log.d(TAG, "Screen Height: " + screenHeight);
+        Log.d(TAG, "getScreenSize: Screen Width: " + screenWidth);
+        Log.d(TAG, "getScreenSize: Screen Height: " + screenHeight);
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("screenWidth", screenWidth);
         editor.putInt("screenHeight", screenHeight);
-        Log.i("ScreenSize", "Global screen dimensions set");
         editor.apply();
+
+        Log.d(TAG, "getScreenSize: Global screen dimensions set");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onAppBackgrounded() {
         //App in background
-        Log.d(TAG, "App moved to background");
+        Log.d(TAG, "onAppBackgrounded: App moved to background");
         IS_APP_IN_FOREGROUND = false;
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onAppForegrounded() {
         // App in foreground
-        Log.d(TAG, "App moved to foreground");
+        Log.d(TAG, "onAppForegrounded: App moved to foreground");
         IS_APP_IN_FOREGROUND = true;
     }
 }

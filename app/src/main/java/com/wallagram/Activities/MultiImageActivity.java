@@ -17,8 +17,8 @@ import com.wallagram.Utils.Functions;
 import java.util.Objects;
 
 public class MultiImageActivity extends AppCompatActivity {
-
     private static final String TAG = "MULTI_IMAGE_ACTIVITY";
+
     private SharedPreferences sharedpreferences;
 
     private String setChecked;
@@ -122,7 +122,7 @@ public class MultiImageActivity extends AppCompatActivity {
         });
 
         applyBtn.setOnClickListener(v -> {
-            Log.d(TAG, "Setting multi image pref to: " + findChecked());
+            Log.d(TAG, "buttonSetup: Setting multi image pref to: " + findChecked());
 
             SharedPreferences.Editor editor = sharedpreferences.edit();
 

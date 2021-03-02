@@ -19,6 +19,8 @@ import com.wallagram.Utils.Functions;
 import java.util.Objects;
 
 public class DurationActivity extends AppCompatActivity {
+    private final String TAG = "DURATION_ACTIVITY";
+
     private int setDuration;
     private String setMetric;
 
@@ -162,12 +164,12 @@ public class DurationActivity extends AppCompatActivity {
 
             if (!mMetric.equalsIgnoreCase(sharedPreferences.getString("metric", "Hours"))) {
                 editor.putString("metric", mMetric);
-                Log.d("Duration", "Metric value updated to: " + mMetric);
+                Log.d(TAG, "buttonSetup: Metric value updated to: " + mMetric);
             }
 
             if (!mDuration.equals("")) {
                 editor.putInt("duration", Integer.parseInt(mDuration));
-                Log.d("Duration", "Duration value updated to: " + mDuration);
+                Log.d(TAG, "buttonSetup: Duration value updated to: " + mDuration);
             }
 
             editor.apply();

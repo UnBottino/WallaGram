@@ -59,11 +59,11 @@ public class SettingsActivity extends AppCompatActivity {
         if (requestCode == 800) {
             switch (resultCode) {
                 case 111:
-                    Log.d(TAG, "Duration returned");
+                    Log.d(TAG, "onActivityResult: Duration update returned");
                     durationBtnSetup();
                     break;
                 case 222:
-                    Log.d(TAG, "Multi-Image returned");
+                    Log.d(TAG, "onActivityResult: Multi-Image update returned");
                     multiPostBtnSetup();
                     break;
             }
@@ -85,7 +85,7 @@ public class SettingsActivity extends AppCompatActivity {
                 editor.putInt("state", 1);
                 editor.apply();
 
-                Log.d(TAG, "State value updated to: On");
+                Log.d(TAG, "stateBtnSetup: State value updated to: On");
                 if (!sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
                     Functions.callAlarm(getApplicationContext());
                 }
@@ -102,7 +102,7 @@ public class SettingsActivity extends AppCompatActivity {
                 editor.putInt("state", 0);
                 editor.apply();
 
-                Log.d(TAG, "State value updated to: Off");
+                Log.d(TAG, "stateBtnSetup: State value updated to: Off");
                 Functions.cancelAlarm(getApplicationContext());
 
                 Intent intent = new Intent();
@@ -160,19 +160,19 @@ public class SettingsActivity extends AppCompatActivity {
 
             switch (locationValue.getText().toString()) {
                 case "Home Screen":
-                    Log.d(TAG, "Location set to 'Lock'");
+                    Log.d(TAG, "locationBtnSetup: Location set to 'Lock'");
                     locationValue.setText(R.string.lock_screen);
                     editor.putInt("location", 1);
                     editor.apply();
                     break;
                 case "Lock Screen":
-                    Log.d(TAG, "Location set to 'Both'");
+                    Log.d(TAG, "locationBtnSetup: Location set to 'Both'");
                     locationValue.setText(R.string.both_screens);
                     editor.putInt("location", 2);
                     editor.apply();
                     break;
                 case "Both":
-                    Log.d(TAG, "Location set to 'Home'");
+                    Log.d(TAG, "locationBtnSetup: Location set to 'Home'");
                     locationValue.setText(R.string.home_screen);
                     editor.putInt("location", 0);
                     editor.apply();
@@ -228,11 +228,11 @@ public class SettingsActivity extends AppCompatActivity {
                 if (isChecked) {
                     editor.putInt("saveWallpaper", 1);
                     editor.apply();
-                    Log.d(TAG, "Save Wallpaper value updated to: Yes");
+                    Log.d(TAG, "saveWallpaperBtnSetup: Save Wallpaper value updated to: Yes");
                 } else {
                     editor.putInt("saveWallpaper", 0);
                     editor.apply();
-                    Log.d(TAG, "Save Wallpaper value updated to: No");
+                    Log.d(TAG, "saveWallpaperBtnSetup: Save Wallpaper value updated to: No");
                 }
             }
         });
@@ -260,25 +260,25 @@ public class SettingsActivity extends AppCompatActivity {
 
             switch (alignValue.getText().toString()) {
                 case "Left":
-                    Log.d(TAG, "ImageAlign set to 'Centre'");
+                    Log.d(TAG, "imageAlignBtnSetup: ImageAlign set to 'Centre'");
                     alignValue.setText(R.string.centre_align);
                     editor.putInt("align", 1);
                     editor.apply();
                     break;
                 case "Centre":
-                    Log.d(TAG, "ImageAlign set to 'Right'");
+                    Log.d(TAG, "imageAlignBtnSetup: ImageAlign set to 'Right'");
                     alignValue.setText(R.string.right_align);
                     editor.putInt("align", 2);
                     editor.apply();
                     break;
                 case "Right":
-                    Log.d(TAG, "ImageAlign set to 'Left'");
+                    Log.d(TAG, "imageAlignBtnSetup: ImageAlign set to 'Left'");
                     alignValue.setText(R.string.left_align);
                     editor.putInt("align", 0);
                     editor.apply();
                     break;
                 default:
-                    Log.e(TAG, "Image align error");
+                    Log.e(TAG, "imageAlignBtnSetup: Image align error");
                     break;
             }
         });

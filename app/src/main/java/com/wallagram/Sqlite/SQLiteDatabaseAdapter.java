@@ -22,7 +22,7 @@ public class SQLiteDatabaseAdapter {
     }
 
     public void addAccount(Account account) {
-        Log.d(TAG, "Adding account into DB (" + account.getAccountName() + ")");
+        Log.d(TAG, "addAccount: Adding account into DB (" + account.getAccountName() + ")");
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         ContentValues values = new ContentValues();
@@ -34,7 +34,7 @@ public class SQLiteDatabaseAdapter {
     }
 
     public List<Account> getAllAccounts() {
-        Log.d(TAG, "Getting all account names from DB");
+        Log.d(TAG, "getAllAccounts");
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String query = SQLiteQueries.getAllAccounts();
@@ -58,7 +58,7 @@ public class SQLiteDatabaseAdapter {
     }
 
     public boolean checkIfAccountExists(Account account) {
-        Log.d(TAG, "Checking if account exists");
+        Log.d(TAG, "checkIfAccountExists");
 
         boolean exists = false;
 
@@ -75,7 +75,7 @@ public class SQLiteDatabaseAdapter {
     }
 
     public void deleteAccount(String name) {
-        Log.d(TAG, "Deleting account from DB (" + name + ")");
+        Log.d(TAG, "deleteAccount: Deleting account from DB (" + name + ")");
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         db.delete(SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES, "account_name" + "='" + name + "'", null);
@@ -83,7 +83,7 @@ public class SQLiteDatabaseAdapter {
     }
 
     public void deleteAll() {
-        Log.d(TAG, "Removing all accounts from table '" + SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES + "'");
+        Log.d(TAG, "deleteAll: Removing all accounts from table '" + SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES + "'");
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete(SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES, null, null);

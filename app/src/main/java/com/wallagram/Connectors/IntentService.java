@@ -34,7 +34,7 @@ public class IntentService extends android.app.IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        Log.d(TAG, "Handling Intent");
+        Log.d(TAG, "onHandleIntent: Handling Intent");
 
         SharedPreferences sharedPreferences = getSharedPreferences("Settings", 0);
         SharedPreferences.Editor editor = getSharedPreferences("Settings", 0).edit();
@@ -71,22 +71,22 @@ public class IntentService extends android.app.IntentService {
             try {
                 childrenObject = nodeObject.getJSONObject("edge_sidecar_to_children");
             } catch (Exception e) {
-                Log.d(TAG, "Post has NO children");
+                Log.d(TAG, "onHandleIntent: Post has NO children");
             }
 
             if (childrenObject != null) {
-                Log.d(TAG, "Children found");
+                Log.d(TAG, "onHandleIntent: Children found");
 
                 JSONArray childEdgesArray = childrenObject.getJSONArray("edges");
 
-                int imageNumber = sharedPreferences.getInt("multiImage", 0) - 1;
+                int imageNumber = sharedPreferences.getInt("multiImage", 1) - 1;
 
                 JSONObject childEdgeObject = childEdgesArray.getJSONObject(0);
 
                 try {
                     childEdgeObject = childEdgesArray.getJSONObject(imageNumber);
                 } catch (Exception e) {
-                    Log.d(TAG, "Multi-post is not long enough");
+                    Log.d(TAG, "onHandleIntent: Multi-post is not long enough");
                 }
 
                 JSONObject childNodeObject = childEdgeObject.getJSONObject("node");
@@ -114,7 +114,7 @@ public class IntentService extends android.app.IntentService {
         i.setAction(ForegroundService.ACTION_STOP_FOREGROUND_SERVICE);
 
         if (error) {
-            Log.d(TAG, "Account Search Failed");
+            Log.d(TAG, "onHandleIntent: Account Search Failed");
 
             i.putExtra("error", true);
 

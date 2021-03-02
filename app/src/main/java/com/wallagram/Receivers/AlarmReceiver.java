@@ -15,14 +15,14 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "Alarm Received: " + Calendar.getInstance().getTime());
+        Log.d(TAG, "onReceive: Alarm Received at " + Calendar.getInstance().getTime());
 
         if (Functions.isNetworkAvailable(context)) {
             Intent i = new Intent(context, ForegroundService.class);
             i.setAction(ForegroundService.ACTION_START_FOREGROUND_SERVICE);
             context.startForegroundService(i);
         } else {
-            Log.d(TAG, "No Network Connection");
+            Log.d(TAG, "onReceive: No Network Connection");
             Functions.showNotification(context, "Search Failure", "No network connection found");
         }
     }

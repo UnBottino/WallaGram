@@ -21,10 +21,10 @@ import com.wallagram.R;
 import com.wallagram.Utils.Functions;
 
 public class ForegroundService extends Service {
+    private static final String TAG = "FOREGROUND_SERVICE";
+
     public static final String ACTION_START_FOREGROUND_SERVICE = "ACTION_START_FOREGROUND_SERVICE";
     public static final String ACTION_STOP_FOREGROUND_SERVICE = "ACTION_STOP_FOREGROUND_SERVICE";
-
-    private static final String TAG = "FOREGROUND_SERVICE";
 
     private static boolean error;
 
@@ -49,7 +49,7 @@ public class ForegroundService extends Service {
         if (action != null) {
             switch (action) {
                 case ACTION_START_FOREGROUND_SERVICE:
-                    Log.d(TAG, "Starting Foreground");
+                    Log.d(TAG, "onStartCommand: Starting Foreground");
                     startForeground();
 
                     Intent serviceIntent = new Intent(this, IntentService.class);
@@ -61,7 +61,7 @@ public class ForegroundService extends Service {
                     break;
             }
         } else {
-            Log.e(TAG, "Foreground intent has no action");
+            Log.e(TAG, "onStartCommand: Foreground intent has no action");
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -92,11 +92,9 @@ public class ForegroundService extends Service {
         if (!error) {
             String setPostURL = sharedPreferences.getString("setPostURL", "");
 
-            Log.d(TAG, "Setting Wallpaper");
             Functions.setWallpaper(this, setPostURL);
 
             if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
-                Log.d(TAG, "Saving Post");
                 Functions.savePost(this, setPostURL);
             }
 
@@ -111,7 +109,7 @@ public class ForegroundService extends Service {
             Functions.cancelAlarm(this);
         }
 
-        Log.d(TAG, "Stopping foreground service.");
+        Log.d(TAG, "stopForegroundService: Stopping foreground service.");
         waitALittle();
         stopForeground(true);
         stopSelf();
@@ -126,7 +124,7 @@ public class ForegroundService extends Service {
     }
 
     private void sendUpdateUIBroadcast(boolean error) {
-        Log.d("sender", "Broadcasting message");
+        Log.d(TAG, "sendUpdateUIBroadcast: Broadcasting message");
 
         Intent intent = new Intent("custom-event-name");
         intent.putExtra("error", error);
