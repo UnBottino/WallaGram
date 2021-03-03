@@ -398,8 +398,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     private void showSuggestions() {
         Log.d(TAG, "showSuggestions: Opening suggestions menu");
 
-        mAdapter.isClickable = false;
-
         Drawable unwrappedDrawable = suggestionIcon.getBackground();
         Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
         DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.purple));
@@ -409,8 +407,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
     private void hideSuggestions() {
         Log.d(TAG, "hideSuggestions: Closing suggestions menu");
-
-        mAdapter.isClickable = true;
 
         Drawable unwrappedDrawable = suggestionIcon.getBackground();
         Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
