@@ -54,7 +54,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements LifecycleObserver {
-    private final String TAG = "MAIN_ACTIVITY";
+    private static final String TAG = "MAIN_ACTIVITY";
 
     public static boolean IS_APP_IN_FOREGROUND = false;
 
@@ -129,14 +129,15 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy: Unregistering updateUIReceiver");
-        // Unregister update UI broadcast receiver
         LocalBroadcastManager.getInstance(this).unregisterReceiver(updateUIReceiver);
     }
 
     private final BroadcastReceiver updateUIReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Get extra data included in the Intent
+            String setAccountName = sharedPreferences.getString("setAccountName", "");
+            String setProfilePic = sharedPreferences.getString("setProfilePic", "");
+
             boolean error = intent.getBooleanExtra("error", false);
 
             if (error) {
@@ -146,12 +147,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                         .into(mSetProfilePic);
 
                 Log.d(TAG, "onReceive: Setting Error Display Name");
-                String setAccountName = sharedPreferences.getString("setAccountName", "");
                 mSetAccountName.setText(setAccountName);
             } else {
-                String setAccountName = sharedPreferences.getString("setAccountName", "");
-                String setProfilePic = sharedPreferences.getString("setProfilePic", "");
-
                 Log.d(TAG, "onReceive: Setting Current Profile Pic");
                 Picasso.get()
                         .load(Uri.parse(setProfilePic))
@@ -160,7 +157,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 Log.d(TAG, "onReceive: Setting Current Display Name");
                 mSetAccountName.setText(setAccountName);
 
-                // TODO: 01/03/2021 Move this DB work to an AsyncTask??? Might fix "I/Choreographer: Skipped 137 frames!"
                 SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(getApplicationContext());
 
                 Account account = new Account(setAccountName, setProfilePic);
@@ -189,10 +185,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                         }
                     }
                 }
-
                 Objects.requireNonNull(mRecyclerView.getLayoutManager()).scrollToPosition(0);
             }
-
             mLoadingView.setVisibility(View.INVISIBLE);
         }
     };

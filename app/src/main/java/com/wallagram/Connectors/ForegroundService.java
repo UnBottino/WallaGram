@@ -103,7 +103,7 @@ public class ForegroundService extends Service {
             }
         } else {
             if (MainActivity.IS_APP_IN_FOREGROUND) {
-                sendUpdateUIBroadcast(error);
+                sendUpdateUIBroadcast(true);
             }
 
             Functions.cancelAlarm(this);
