@@ -28,9 +28,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -102,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
         sharedPreferences = getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
-        getScreenSize();
+        Functions.getScreenSize(this);
 
         //General page setup
         pageSetup();
@@ -505,24 +503,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
             return false;
         }
-    }
-
-    private void getScreenSize() {
-        DisplayMetrics metrics = new DisplayMetrics();
-        Display display = getWindowManager().getDefaultDisplay();
-        display.getMetrics(metrics);
-        final int screenWidth = metrics.widthPixels;
-        final int screenHeight = metrics.heightPixels;
-
-        Log.d(TAG, "getScreenSize: Screen Width: " + screenWidth);
-        Log.d(TAG, "getScreenSize: Screen Height: " + screenHeight);
-
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt("screenWidth", screenWidth);
-        editor.putInt("screenHeight", screenHeight);
-        editor.apply();
-
-        Log.d(TAG, "getScreenSize: Global screen dimensions set");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)

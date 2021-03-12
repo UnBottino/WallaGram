@@ -24,7 +24,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 
 import androidx.annotation.RequiresApi;
@@ -318,5 +320,24 @@ public class Functions {
                 .setContentText(text);
 
         notificationManager.notify(CHANNEL_ID, 421, notificationBuilder.build());
+    }
+
+    public static void getScreenSize(Activity activity) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        Display display = activity.getWindowManager().getDefaultDisplay();
+        display.getMetrics(metrics);
+        final int screenWidth = metrics.widthPixels;
+        final int screenHeight = metrics.heightPixels;
+
+        Log.d(TAG, "getScreenSize: Screen Width: " + screenWidth);
+        Log.d(TAG, "getScreenSize: Screen Height: " + screenHeight);
+
+        SharedPreferences sharedPreferences = activity.getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("screenWidth", screenWidth);
+        editor.putInt("screenHeight", screenHeight);
+        editor.apply();
+
+        Log.d(TAG, "getScreenSize: Global screen dimensions set");
     }
 }
