@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
@@ -48,6 +49,16 @@ import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
 import com.wallagram.Utils.Functions;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -74,8 +85,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     private boolean suggestionsOpened = false;
     private LinearLayout suggestionLayout;
     private ImageView suggestionIcon;
+    private static RecyclerView mSuggestionsRecyclerView;
 
-    private final List<SuggestionAccount> mSuggestionAccountList = new ArrayList<>();
+    private static final List<SuggestionAccount> mSuggestionAccountList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     @Override
     protected void onStart() {
         super.onStart();
-
         PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
         if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
             Log.d(TAG, "onStart: Asking to deactivate optimization");
@@ -361,23 +372,12 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
     }
 
-    // TODO: 28/02/2021 Populate suggestions list via http
     private void setupSuggestions() {
         suggestionLayout = findViewById(R.id.suggestionsLayout);
         suggestionIcon = findViewById(R.id.suggestionIcon);
-        RecyclerView mSuggestionRecyclerView = findViewById(R.id.suggestionAccountList);
+        mSuggestionsRecyclerView = findViewById(R.id.suggestionAccountList);
 
-        String[] nameList = getResources().getStringArray(R.array.suggestion_names);
-
-        for (String s : nameList) {
-            int id = getResources().getIdentifier("suggestion_" + s, "drawable", getPackageName());
-            SuggestionAccount a = new SuggestionAccount(s, id);
-            mSuggestionAccountList.add(a);
-        }
-
-        SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(getApplicationContext(), mSuggestionAccountList);
-        mSuggestionRecyclerView.setAdapter(mSuggestionAdapter);
-        mSuggestionRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+        new FetchSuggestions(this).execute();
 
         findViewById(R.id.suggestionBtn).setOnClickListener(v -> {
             if (!suggestionsOpened) {
@@ -387,6 +387,78 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             }
             suggestionsOpened = !suggestionsOpened;
         });
+    }
+
+    private static final class FetchSuggestions extends AsyncTask<Void, Void, String> {
+        private final WeakReference<MainActivity> activityReference;
+
+        FetchSuggestions(MainActivity context) {
+            activityReference = new WeakReference<>(context);
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            HttpURLConnection connection = null;
+            BufferedReader reader = null;
+
+            Log.d(TAG, "doInBackground: Fetching suggestions from cloud db");
+
+            String urlString = "https://utzvkb8roc.execute-api.eu-west-1.amazonaws.com/prod_v2/suggestions";
+            try {
+                URL url = new URL(urlString);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+
+                InputStream stream = connection.getInputStream();
+
+                reader = new BufferedReader(new InputStreamReader(stream));
+            } catch (Exception e) {
+                Log.e(TAG, "doInBackground: Error connecting to URL: " + urlString);
+            }
+
+            try {
+                assert reader != null;
+                JSONObject jsonObject = new JSONObject(reader.readLine());
+                JSONArray jsonArray = jsonObject.getJSONArray("body");
+
+                mSuggestionAccountList.clear();
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject suggestion = jsonArray.getJSONObject(i);
+
+                    String suggestionName = suggestion.getString("suggestion_name");
+                    String suggestionImgUrl = suggestion.getString("suggestion_img_url");
+
+                    SuggestionAccount a = new SuggestionAccount(suggestionName, suggestionImgUrl);
+                    mSuggestionAccountList.add(a);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "doInBackground: Failed to parse Json");
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return "Executed";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            MainActivity activity = activityReference.get();
+            if (activity == null || activity.isFinishing()) return;
+
+            SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(activity, mSuggestionAccountList);
+            mSuggestionsRecyclerView.setAdapter(mSuggestionAdapter);
+            mSuggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false));
+        }
     }
 
     private void showSuggestions() {

@@ -1,19 +1,19 @@
 package com.wallagram.Model;
 
 public class SuggestionAccount {
-    private final String accountName;
-    private final int profilePicID;
+    private final String suggestionName;
+    private final String suggestionImgUrl;
 
-    public SuggestionAccount(String accountName, int profilePicID) {
-        this.accountName = accountName;
-        this.profilePicID = profilePicID;
+    public SuggestionAccount(String suggestionName, String suggestionImgUrl) {
+        this.suggestionName = suggestionName;
+        this.suggestionImgUrl = suggestionImgUrl;
     }
 
-    public String getAccountName() {
-        return accountName;
+    public String getSuggestionName() {
+        return suggestionName;
     }
 
-    public int getProfilePicID() {
-        return profilePicID;
+    public String getSuggestionImgUrl() {
+        return suggestionImgUrl;
     }
 }

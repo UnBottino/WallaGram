@@ -3,6 +3,7 @@ package com.wallagram.Adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.squareup.picasso.Picasso;
 import com.wallagram.Activities.MainActivity;
 import com.wallagram.Connectors.ForegroundService;
 import com.wallagram.Model.SuggestionAccount;
@@ -40,19 +42,22 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
 
     @Override
     public void onBindViewHolder(final SuggestionListItemHolder holder, int position) {
-        final String mAccountName = mSuggestionAccountList.get(position).getAccountName();
-        final int mProfilePicID = mSuggestionAccountList.get(position).getProfilePicID();
+        final String mSuggestionName = mSuggestionAccountList.get(position).getSuggestionName();
+        final String mSuggestionImgUrl = mSuggestionAccountList.get(position).getSuggestionImgUrl();
 
-        holder.profilePicView.setImageResource(mProfilePicID);
-        holder.accountNameView.setText(mAccountName);
+        Picasso.get()
+                .load(Uri.parse(mSuggestionImgUrl))
+                .into(holder.profilePicView);
+
+        holder.accountNameView.setText(mSuggestionName);
 
         holder.itemView.setOnClickListener(v -> {
-            Log.d(TAG, "onBindViewHolder: Suggestion RecyclerView item clicked: (" + mAccountName + ")");
+            Log.d(TAG, "onBindViewHolder: Suggestion RecyclerView item clicked: (" + mSuggestionName + ")");
 
             MainActivity.mLoadingView.setVisibility(View.VISIBLE);
 
             mEditor = mContext.getSharedPreferences("Settings", 0).edit();
-            mEditor.putString("searchName", mAccountName);
+            mEditor.putString("searchName", mSuggestionName);
             mEditor.apply();
 
             Intent i = new Intent(mContext, ForegroundService.class);
