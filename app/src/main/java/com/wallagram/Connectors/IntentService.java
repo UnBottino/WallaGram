@@ -110,25 +110,27 @@ public class IntentService extends android.app.IntentService {
             }
         }
 
-        Intent i = new Intent(this, ForegroundService.class);
-        i.setAction(ForegroundService.ACTION_STOP_FOREGROUND_SERVICE);
-
         if (error) {
             Log.d(TAG, "onHandleIntent: Account Search Failed");
-
-            i.putExtra("error", true);
 
             editor.putString("setAccountName", "Account doesn't exist or is set private");
             editor.putString("setProfilePic", "");
             editor.apply();
+
+            Intent i = new Intent(this, ForegroundService.class);
+            i.setAction(ForegroundService.ACTION_STOP_FOREGROUND_SERVICE);
+            i.putExtra("error", true);
+            startForegroundService(i);
         } else {
             editor.putString("setAccountName", account.getAccountName());
             editor.putString("setProfilePic", mProfileUrl);
             //editor.putString("previousPostURL", sharedPreferences.getString("setPostURL", ""));
             editor.putString("setPostURL", mPostUrl);
             editor.commit();
-        }
 
-        startForegroundService(i);
+            Intent setWallpaperIntent = new Intent(getApplicationContext(), SetWallpaperIntentService.class);
+            setWallpaperIntent.putExtra("postUrl", mPostUrl);
+            startService(setWallpaperIntent);
+        }
     }
 }

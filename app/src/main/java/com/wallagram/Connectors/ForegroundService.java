@@ -16,7 +16,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.wallagram.Activities.MainActivity;
 import com.wallagram.R;
 import com.wallagram.Utils.Functions;
 
@@ -87,24 +86,19 @@ public class ForegroundService extends Service {
     }
 
     private void stopForegroundService() {
+        System.out.println("Inside stopForeground");
         SharedPreferences sharedPreferences = this.getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
         if (!error) {
             String setPostURL = sharedPreferences.getString("setPostURL", "");
 
-            Functions.setWallpaper(this, setPostURL);
-
             if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
                 Functions.savePost(this, setPostURL);
             }
 
-            if (MainActivity.IS_APP_IN_FOREGROUND) {
-                sendUpdateUIBroadcast(error);
-            }
+            sendUpdateUIBroadcast(error);
         } else {
-            if (MainActivity.IS_APP_IN_FOREGROUND) {
-                sendUpdateUIBroadcast(true);
-            }
+            sendUpdateUIBroadcast(true);
 
             Functions.cancelAlarm(this);
         }
