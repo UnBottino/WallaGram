@@ -214,8 +214,8 @@ public class SettingsActivity extends AppCompatActivity {
         SwitchCompat saveWallpaper = findViewById(R.id.saveWallpaper);
 
         //init value
-        if (sharedPreferences.getInt("saveWallpaper", 0) == 0) {
-            saveWallpaper.setChecked(false);
+        if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
+            saveWallpaper.setChecked(true);
         }
 
         saveWallpaper.setOnCheckedChangeListener((compoundButton, isChecked) -> {
