@@ -75,12 +75,9 @@ public class Functions {
     public static boolean isNetworkAvailable(Context context) {
         Log.d(TAG, "isNetworkAvailable: Checking device network status");
 
-        ConnectivityManager conn = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = null;
-        if (conn != null) {
-            networkInfo = conn.getActiveNetworkInfo();
-        }
-        return null != networkInfo && networkInfo.isConnected();
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     public static List<Account> getDBAccounts(Context context) {
