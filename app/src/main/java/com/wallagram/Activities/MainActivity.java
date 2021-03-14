@@ -6,10 +6,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
-import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -65,8 +62,6 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements LifecycleObserver {
     private static final String TAG = "MAIN_ACTIVITY";
 
-    public static boolean IS_APP_IN_FOREGROUND = false;
-
     private SharedPreferences sharedPreferences;
 
     public static ConstraintLayout mLoadingView;
@@ -91,9 +86,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //Check is app in foreground
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
         //Register update UI broadcast receiver
         LocalBroadcastManager.getInstance(this).registerReceiver(updateUIReceiver, new IntentFilter("custom-event-name"));
@@ -505,21 +497,5 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
             return false;
         }
-    }
-
-    // TODO: 14/03/2021 Check if these are used anymore
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void onAppBackgrounded() {
-        //App in background
-        Log.d(TAG, "onAppBackgrounded: App moved to background");
-        IS_APP_IN_FOREGROUND = false;
-    }
-
-    // TODO: 14/03/2021 Check if these are used anymore
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    public void onAppForegrounded() {
-        // App in foreground
-        Log.d(TAG, "onAppForegrounded: App moved to foreground");
-        IS_APP_IN_FOREGROUND = true;
     }
 }
