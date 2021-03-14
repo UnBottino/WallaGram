@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -86,17 +85,8 @@ public class ForegroundService extends Service {
     }
 
     private void stopForegroundService() {
-        System.out.println("Inside stopForeground");
-        SharedPreferences sharedPreferences = this.getSharedPreferences("Settings", Context.MODE_PRIVATE);
-
         if (!error) {
-            String setPostURL = sharedPreferences.getString("setPostURL", "");
-
-            if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
-                Functions.savePost(this, setPostURL);
-            }
-
-            sendUpdateUIBroadcast(error);
+            sendUpdateUIBroadcast(false);
         } else {
             sendUpdateUIBroadcast(true);
 

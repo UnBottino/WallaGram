@@ -5,27 +5,16 @@ import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
-import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -34,11 +23,7 @@ import com.wallagram.Model.Account;
 import com.wallagram.R;
 import com.wallagram.Receivers.AlarmReceiver;
 import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Objects;
 
@@ -119,73 +104,6 @@ public class Functions {
 
     public static void requestPermission(Activity activity) {
         ActivityCompat.requestPermissions(activity, new String[]{WRITE_EXTERNAL_STORAGE}, 1);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    public static boolean checkImageExists(String path, String imageName, Context context) {
-        Log.d(TAG, "checkImageExists: Looking for " + imageName + " in users gallery");
-
-        String selection = MediaStore.Files.FileColumns.RELATIVE_PATH + " like ? and " + MediaStore.Files.FileColumns.DISPLAY_NAME + " like ?";
-        String[] selectionArgs = {"%" + path + "%", "%" + imageName + "%"};
-
-        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, selection, selectionArgs, null);
-
-        boolean exist = false;
-        if (cursor != null && cursor.getCount() > 0)
-            exist = true;
-
-        assert cursor != null;
-        cursor.close();
-
-        return exist;
-    }
-
-    public static void savePost(final Context context, final String postUrl) {
-        Handler uiHandler = new Handler(Looper.getMainLooper());
-        uiHandler.post(() -> Picasso.get()
-                .load(postUrl)
-                .into(new Target() {
-                    @RequiresApi(api = Build.VERSION_CODES.Q)
-                    @Override
-                    public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-                        Log.d(TAG, "savePost: onBitmapLoaded: Saving image to gallery");
-
-                        String imageName = postUrl.substring(postUrl.length() - 50);
-
-                        OutputStream fos;
-
-                        String path = "Pictures/" + context.getResources().getString(R.string.app_name);
-
-                        ContentResolver resolver = context.getContentResolver();
-                        ContentValues contentValues = new ContentValues();
-                        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, imageName);
-                        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
-                        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, path);
-
-                        if (!Functions.checkImageExists(path, imageName, context)) {
-                            Uri imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-                            try {
-                                assert imageUri != null;
-                                fos = resolver.openOutputStream(imageUri);
-                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                                assert fos != null;
-                                fos.flush();
-                                fos.close();
-                            } catch (IOException e) {
-                                Log.w("savePost", e.toString());
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                        Log.e(TAG, "onBitmapFailed: " + Objects.requireNonNull(e.getMessage()));
-                    }
-
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-                    }
-                }));
     }
 
     public static void enableApply(View v) {

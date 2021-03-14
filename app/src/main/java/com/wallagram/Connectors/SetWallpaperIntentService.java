@@ -25,9 +25,6 @@ public class SetWallpaperIntentService extends android.app.IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        System.out.println("Starting set wallpaper");
-        Log.d(TAG, "onHandleIntent: Handling Intent");
-
         String postUrl = intent.getStringExtra("postUrl");
 
         try {

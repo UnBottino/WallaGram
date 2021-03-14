@@ -34,8 +34,6 @@ public class IntentService extends android.app.IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        Log.d(TAG, "onHandleIntent: Handling Intent");
-
         SharedPreferences sharedPreferences = getSharedPreferences("Settings", 0);
         SharedPreferences.Editor editor = getSharedPreferences("Settings", 0).edit();
         String mSearchName = sharedPreferences.getString("searchName", "");
@@ -45,6 +43,7 @@ public class IntentService extends android.app.IntentService {
         boolean error = false;
 
         try {
+            Log.d(TAG, "onHandleIntent: Building account url and connecting");
             String urlString = "https://www.instagram.com/" + mSearchName + "/channel/?__a=1";
 
             URL url = new URL(urlString);
@@ -55,6 +54,7 @@ public class IntentService extends android.app.IntentService {
 
             reader = new BufferedReader(new InputStreamReader(stream));
 
+            Log.d(TAG, "onHandleIntent: Parsing json response");
             JSONObject jsonObject = new JSONObject(reader.readLine());
             JSONObject graphqlObject = jsonObject.getJSONObject("graphql");
             JSONObject userObject = graphqlObject.getJSONObject("user");
@@ -124,13 +124,18 @@ public class IntentService extends android.app.IntentService {
         } else {
             editor.putString("setAccountName", account.getAccountName());
             editor.putString("setProfilePic", mProfileUrl);
-            //editor.putString("previousPostURL", sharedPreferences.getString("setPostURL", ""));
             editor.putString("setPostURL", mPostUrl);
             editor.commit();
 
             Intent setWallpaperIntent = new Intent(getApplicationContext(), SetWallpaperIntentService.class);
             setWallpaperIntent.putExtra("postUrl", mPostUrl);
             startService(setWallpaperIntent);
+
+            if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
+                Intent savePostIntent = new Intent(getApplicationContext(), SavePostIntentService.class);
+                savePostIntent.putExtra("postUrl", mPostUrl);
+                startService(savePostIntent);
+            }
         }
     }
 }

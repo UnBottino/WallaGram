@@ -30,6 +30,7 @@
         <service android:name=".Connectors.ForegroundService" />
         <service android:name=".Connectors.IntentService" />
         <service android:name=".Connectors.SetWallpaperIntentService" />
+        <service android:name=".Connectors.SavePostIntentService" />
 
         <receiver
             android:name=".Receivers.BootReceiver"
