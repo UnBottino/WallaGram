@@ -143,36 +143,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
             boolean error = intent.getBooleanExtra("error", false);
 
-            SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(getApplicationContext());
-            Account account = new Account(setAccountName, setProfilePic);
-
-            if (!db.checkIfAccountExists(account)) {
-                db.addAccount(account);
-
-                mDBAccountList.add(0, account);
-                mAdapter.notifyItemInserted(0);
-                mAdapter.notifyDataSetChanged();
-            } else {
-                Log.d(TAG, "onReceive: Account name already in db (" + setAccountName + ")");
-
-                for (Account a : mDBAccountList) {
-                    if (a.getAccountName().equalsIgnoreCase(account.getAccountName())) {
-                        //Not using update because of the ordering in recyclerView
-                        db.deleteAccount(a.getAccountName());
-                        db.addAccount(account);
-
-                        mDBAccountList.remove(a);
-                        mAdapter.notifyItemRemoved(mDBAccountList.indexOf(a));
-                        mDBAccountList.add(0, account);
-                        mAdapter.notifyItemInserted(0);
-                        mAdapter.notifyDataSetChanged();
-                        break;
-                    }
-                }
-
-                Objects.requireNonNull(mRecyclerView.getLayoutManager()).scrollToPosition(0);
-            }
-
             if (error) {
                 Log.d(TAG, "onReceive: Setting Error Profile Pic");
                 Picasso.get()
@@ -181,6 +151,36 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
                 Log.d(TAG, "onReceive: Setting Error Display Name");
             } else {
+                SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(getApplicationContext());
+                Account account = new Account(setAccountName, setProfilePic);
+
+                if (!db.checkIfAccountExists(account)) {
+                    db.addAccount(account);
+
+                    mDBAccountList.add(0, account);
+                    mAdapter.notifyItemInserted(0);
+                    mAdapter.notifyDataSetChanged();
+                } else {
+                    Log.d(TAG, "onReceive: Account name already in db (" + setAccountName + ")");
+
+                    for (Account a : mDBAccountList) {
+                        if (a.getAccountName().equalsIgnoreCase(account.getAccountName())) {
+                            //Not using update because of the ordering in recyclerView
+                            db.deleteAccount(a.getAccountName());
+                            db.addAccount(account);
+
+                            mDBAccountList.remove(a);
+                            mAdapter.notifyItemRemoved(mDBAccountList.indexOf(a));
+                            mDBAccountList.add(0, account);
+                            mAdapter.notifyItemInserted(0);
+                            mAdapter.notifyDataSetChanged();
+                            break;
+                        }
+                    }
+
+                    Objects.requireNonNull(mRecyclerView.getLayoutManager()).scrollToPosition(0);
+                }
+
                 Log.d(TAG, "onReceive: Setting Current Profile Pic");
                 Picasso.get()
                         .load(Uri.parse(setProfilePic))
