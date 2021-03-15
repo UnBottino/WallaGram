@@ -38,7 +38,7 @@ public class SavePostIntentService extends android.app.IntentService {
             URL url = new URL(postUrl);
             Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
 
-            String imageName = postUrl.substring(postUrl.length() - 50);
+            String imageName = postUrl.substring(postUrl.length() - 8);
 
             OutputStream fos;
 
