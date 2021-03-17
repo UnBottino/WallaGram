@@ -43,7 +43,7 @@
 
             android:fontFamily="@font/roboto_light"
 
-            android:gravity="center"
+            android:layout_gravity="center"
             android:text="@string/account_name"
             android:textColor="?attr/colorOnPrimary"
             android:textSize="15sp" />
