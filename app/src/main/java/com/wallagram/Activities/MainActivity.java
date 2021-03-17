@@ -25,6 +25,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -66,8 +67,10 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
     public static ConstraintLayout mLoadingView;
 
+    public RelativeLayout profilePicGlow;
     public ImageView mSetProfilePic;
     public TextView mSetAccountName;
+    public RelativeLayout disabledBtn;
 
     public androidx.appcompat.widget.SearchView mSearchBar;
 
@@ -137,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "onReceive: Broadcast received");
-            
+
             String setAccountName = sharedPreferences.getString("setAccountName", "");
             String setProfilePic = sharedPreferences.getString("setProfilePic", "");
 
@@ -217,22 +220,16 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     private void stateChanged(int state) {
         if (state == 1) {
             Log.d(TAG, "stateChanged: State enabled: Updating set account visuals");
-            String setAccountName = sharedPreferences.getString("setAccountName", "No Account Set");
-            String setProfilePic = sharedPreferences.getString("setProfilePic", "");
 
-            Log.d(TAG, "Setting Profile Pic");
-            Picasso.get()
-                    .load(Uri.parse(setProfilePic))
-                    .into(mSetProfilePic);
-
-            mSetAccountName.setText(setAccountName);
+            profilePicGlow.setBackground(ContextCompat.getDrawable(this, R.drawable.purple_round_glow));
+            mSetAccountName.setTextColor(ContextCompat.getColor(this, R.color.purple));
+            disabledBtn.setVisibility(View.GONE);
         } else if (state == 0) {
             Log.d(TAG, "stateChanged: State disabled: Updating set account visuals");
-            Picasso.get()
-                    .load(R.drawable.frown_straight)
-                    .into(mSetProfilePic);
 
-            mSetAccountName.setText(R.string.state_disabled);
+            profilePicGlow.setBackground(ContextCompat.getDrawable(this, R.drawable.orange_round_glow));
+            mSetAccountName.setTextColor(ContextCompat.getColor(this, R.color.orange));
+            disabledBtn.setVisibility(View.VISIBLE);
         }
     }
 
@@ -259,7 +256,12 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             startActivityForResult(intent, 59);
         });
 
+        //Disabled Button
+        disabledBtn = findViewById(R.id.disabledBtn);
+        disabledBtn.setOnClickListener(view -> Functions.popupMsg(this, new SpannableString("State Disabled"), new SpannableString(getString(R.string.stateDisabledInfoMsg))));
+
         //Set Profile Information
+        profilePicGlow = findViewById(R.id.profilePicGlow);
         mSetProfilePic = findViewById(R.id.setProfilePic);
 
         String setProfilePic = sharedPreferences.getString("setProfilePic", "");
@@ -273,6 +275,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         mSetAccountName = findViewById(R.id.SetAccountName);
         mSetAccountName.setText(sharedPreferences.getString("setAccountName", "No Account Set"));
 
+        //State Color
+        setupState();
+
         //Search Box
         setupSearchBar();
 
@@ -284,6 +289,14 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
         //Clear Listeners
         setupClearListeners();
+    }
+
+    private void setupState() {
+        if (sharedPreferences.getInt("state", 1) == 0) {
+            profilePicGlow.setBackground(ContextCompat.getDrawable(this, R.drawable.orange_round_glow));
+            mSetAccountName.setTextColor(ContextCompat.getColor(this, R.color.orange));
+            disabledBtn.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setupSearchBar() {

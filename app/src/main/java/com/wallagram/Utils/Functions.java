@@ -8,13 +8,21 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.text.Layout;
+import android.text.SpannableString;
+import android.text.style.AlignmentSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -111,6 +119,31 @@ public class Functions {
     public static void disableApply(View v) {
         v.setAlpha((float) 0.5);
         v.setEnabled(false);
+    }
+
+    public static void popupMsg(Activity activity, SpannableString title, SpannableString msg) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogCustom);
+        builder.setCancelable(true);
+
+        LayoutInflater inflater = activity.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.info_dialog, null);
+        builder.setView(dialogView);
+
+        TextView alertInfoBtn = dialogView.findViewById(R.id.alertInfoBtn);
+
+        // alert dialog title align center
+        title.setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER), 0, title.length(), 0);
+        // alert dialog msg align center
+        msg.setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER), 0, msg.length(), 0);
+
+        builder.setTitle(title);
+        builder.setMessage(msg);
+
+        AlertDialog dialog = builder.create();
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+
+        alertInfoBtn.setOnClickListener(v -> dialog.cancel());
     }
 
     public static void showNotification(Context context, String title, String text) {

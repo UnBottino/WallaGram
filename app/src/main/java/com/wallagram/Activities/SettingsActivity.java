@@ -14,12 +14,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.text.Layout;
 import android.text.SpannableString;
-import android.text.style.AlignmentSpan;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -321,31 +317,6 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-    private void popupMsg(SpannableString title, SpannableString msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogCustom);
-        builder.setCancelable(true);
-
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.info_dialog, null);
-        builder.setView(dialogView);
-
-        TextView alertInfoBtn = dialogView.findViewById(R.id.alertInfoBtn);
-
-        // alert dialog title align center
-        title.setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER), 0, title.length(), 0);
-        // alert dialog msg align center
-        msg.setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER), 0, msg.length(), 0);
-
-        builder.setTitle(title);
-        builder.setMessage(msg);
-
-        AlertDialog dialog = builder.create();
-        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.show();
-
-        alertInfoBtn.setOnClickListener(v -> dialog.cancel());
-    }
-
     private void toolbarSetup() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -366,24 +337,24 @@ public class SettingsActivity extends AppCompatActivity {
         clearRecentBtnSetup();
 
         RelativeLayout stateInfo = findViewById(R.id.stateInfoBtn);
-        stateInfo.setOnClickListener(v -> popupMsg(new SpannableString("State"), new SpannableString(getString(R.string.stateInfoMsg))));
+        stateInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("State"), new SpannableString(getString(R.string.stateInfoMsg))));
 
         RelativeLayout durationInfo = findViewById(R.id.durationInfoBtn);
-        durationInfo.setOnClickListener(v -> popupMsg(new SpannableString("Duration"), new SpannableString(getString(R.string.durationInfoMsg))));
+        durationInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Duration"), new SpannableString(getString(R.string.durationInfoMsg))));
 
         RelativeLayout locationInfo = findViewById(R.id.locationInfoBtn);
-        locationInfo.setOnClickListener(v -> popupMsg(new SpannableString("Location"), new SpannableString(getString(R.string.locationInfoMsg))));
+        locationInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Location"), new SpannableString(getString(R.string.locationInfoMsg))));
 
         RelativeLayout multiImagePostInfo = findViewById(R.id.multiPostInfoBtn);
-        multiImagePostInfo.setOnClickListener(v -> popupMsg(new SpannableString("Multi-image Post"), new SpannableString(getString(R.string.multiImagePostInfoMsg))));
+        multiImagePostInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Multi-image Post"), new SpannableString(getString(R.string.multiImagePostInfoMsg))));
 
         RelativeLayout saveWallpaperInfo = findViewById(R.id.saveWallpaperInfoBtn);
-        saveWallpaperInfo.setOnClickListener(v -> popupMsg(new SpannableString("Save Wallpaper"), new SpannableString(getString(R.string.saveWallpaperInfoMsg))));
+        saveWallpaperInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Save Wallpaper"), new SpannableString(getString(R.string.saveWallpaperInfoMsg))));
 
         RelativeLayout imageAlignInfo = findViewById(R.id.imageAlignInfoBtn);
-        imageAlignInfo.setOnClickListener(v -> popupMsg(new SpannableString("Image Align"), new SpannableString(getString(R.string.imageAlignInfoMsg))));
+        imageAlignInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Image Align"), new SpannableString(getString(R.string.imageAlignInfoMsg))));
 
         RelativeLayout clearRecentInfo = findViewById(R.id.clearRecentInfoBtn);
-        clearRecentInfo.setOnClickListener(v -> popupMsg(new SpannableString("Clear Recent Searches"), new SpannableString(getString(R.string.clearRecentInfoMsg))));
+        clearRecentInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Clear Recent Searches"), new SpannableString(getString(R.string.clearRecentInfoMsg))));
     }
 }

@@ -5,10 +5,13 @@
 
     <string name="suggestions_icon">Suggestions Icon</string>
     <string name="settings_icon">Settings Icon</string>
+    <string name="state_disabled_icon">State Disabled Icon</string>
+    <string name="stateDisabledInfoMsg">WallaGram is not periodically updating your wallpapers.\nGo to settings to enable.</string>
+
     <string name="profile_picture">profile_picture</string>
     <string name="no_account_set">No Account Set</string>
-    <string name="account_name">account_name</string>
 
+    <string name="account_name">account_name</string>
     <string name="empty_recent_searches">No Recent Searches</string>
 
     <string name="stateInfoMsg">When active, WallaGram will periodically update your selected wallpaper</string>
