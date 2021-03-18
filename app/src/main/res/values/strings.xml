@@ -18,6 +18,7 @@
     <string name="durationInfoMsg">Allows you to set how often WallaGram searches for a new wallpaper</string>
     <string name="locationInfoMsg">Allows you to set which wallpaper WallaGram updates\n(Home Screen / Lock Screen)</string>
     <string name="multiImagePostInfoMsg">Allows you to place a priority on which image in a multi-image post is selected for your new wallpaper</string>
+    <string name="allowVideosInfoMsg">When active, if your selected account\'s most recent post is a video, the first frame will be set as your new wallpaper</string>
     <string name="saveWallpaperInfoMsg">When active, WallaGram saves new posts into an album in your gallery</string>
     <string name="imageAlignInfoMsg">As posts do not have a uniform size, WallaGram needs to crop each post to fit your screen. Image Align allows you to set a preference for the positioning</string>
     <string name="clearRecentInfoMsg">Allows you to clear all accounts from the\nRecent Searches List</string>
@@ -34,6 +35,7 @@
     <string name="setting_multi_post">Multi-Image Post:</string>
     <string name="setting_multi_post_default">4th</string>
     <string name="setting_save_wallpapers">Save Wallpapers:</string>
+    <string name="setting_allow_videos">Allow Video Posts:</string>
     <string name="setting_image_align">Image Align:</string>
     <string name="setting_image_align_default">Centre</string>
     <string name="setting_clear_recent_searches">Clear Recent Searches</string>

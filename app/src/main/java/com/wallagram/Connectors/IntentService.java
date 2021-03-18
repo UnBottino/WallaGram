@@ -26,6 +26,7 @@ public class IntentService extends android.app.IntentService {
     private String mProfileUrl;
     private Account account = null;
 
+    private boolean videoCheckDisabled = false;
     private String mPostUrl;
 
     private boolean error = false;
@@ -40,6 +41,7 @@ public class IntentService extends android.app.IntentService {
         SharedPreferences sharedPreferences = getSharedPreferences("Settings", 0);
         SharedPreferences.Editor editor = getSharedPreferences("Settings", 0).edit();
         String mSearchName = sharedPreferences.getString("searchName", "");
+        videoCheckDisabled = sharedPreferences.getBoolean("allowVideos", false);
 
         HttpURLConnection connection = null;
         BufferedReader reader = null;
@@ -62,7 +64,6 @@ public class IntentService extends android.app.IntentService {
             mProfileUrl = userObject.getString("profile_pic_url_hd");
             account = new Account(mSearchName, mProfileUrl);
 
-
             JSONObject timelineMediaObject = userObject.getJSONObject("edge_owner_to_timeline_media");
             JSONArray edgesArray = timelineMediaObject.getJSONArray("edges");
 
@@ -81,14 +82,14 @@ public class IntentService extends android.app.IntentService {
 
                 if (childrenObject != null) {
                     Log.d(TAG, "onHandleIntent: Children found");
-
                     JSONArray childEdgesArray = childrenObject.getJSONArray("edges");
 
                     try {
                         int preferredChildNumber = sharedPreferences.getInt("multiImage", 1) - 1;
                         JSONObject childEdgeObject = childEdgesArray.getJSONObject(preferredChildNumber);
                         JSONObject childNodeObject = childEdgeObject.getJSONObject("node");
-                        if (childNodeObject.get("is_video").toString().equalsIgnoreCase("false")) {
+
+                        if (childNodeObject.get("is_video").toString().equalsIgnoreCase("false") || videoCheckDisabled) {
                             Log.d(TAG, "onHandleIntent: Preferred child found");
                             mPostUrl = childNodeObject.get("display_url").toString();
                             empty = false;
@@ -102,7 +103,7 @@ public class IntentService extends android.app.IntentService {
                         break;
                     }
                 } else {
-                    if (nodeObject.get("is_video").toString().equalsIgnoreCase("false")) {
+                    if (nodeObject.get("is_video").toString().equalsIgnoreCase("false") || videoCheckDisabled) {
                         Log.d(TAG, "onHandleIntent: Image found");
                         mPostUrl = nodeObject.get("display_url").toString();
                         empty = false;
@@ -167,7 +168,7 @@ public class IntentService extends android.app.IntentService {
                 JSONObject childEdgeObject = childEdgesArray.getJSONObject(childNumber);
 
                 JSONObject childNodeObject = childEdgeObject.getJSONObject("node");
-                if (childNodeObject.get("is_video").toString().equalsIgnoreCase("false")) {
+                if (childNodeObject.get("is_video").toString().equalsIgnoreCase("false") || videoCheckDisabled) {
                     Log.d(TAG, "onHandleIntent: Image found in child : " + childNumber);
                     mPostUrl = childNodeObject.get("display_url").toString();
                     empty = false;

@@ -177,63 +177,6 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressLint("SetTextI18n")
-    private void multiPostBtnSetup() {
-        RelativeLayout multiPost = findViewById(R.id.multiImage);
-
-        //init value
-        int setMultiImage = sharedPreferences.getInt("multiImage", 1);
-        TextView multiImageValue = findViewById(R.id.multiImageValue);
-
-        switch (setMultiImage) {
-            case 1:
-                multiImageValue.setText(setMultiImage + "st");
-                break;
-            case 2:
-                multiImageValue.setText(setMultiImage + "nd");
-                break;
-            case 3:
-                multiImageValue.setText(setMultiImage + "rd");
-                break;
-            default:
-                multiImageValue.setText(setMultiImage + "th");
-                break;
-        }
-
-        multiPost.setOnClickListener(v -> {
-            Intent intent = new Intent(SettingsActivity.this, MultiImageActivity.class);
-            startActivityForResult(intent, 800);
-        });
-    }
-
-    private void saveWallpaperBtnSetup() {
-        SwitchCompat saveWallpaper = findViewById(R.id.saveWallpaper);
-
-        //init value
-        if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
-            saveWallpaper.setChecked(true);
-        }
-
-        saveWallpaper.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-            //Request Storage Access
-            Functions.requestPermission(this);
-
-            if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                saveWallpaper.setChecked(false);
-            } else {
-                if (isChecked) {
-                    editor.putInt("saveWallpaper", 1);
-                    editor.apply();
-                    Log.d(TAG, "saveWallpaperBtnSetup: Save Wallpaper value updated to: Yes");
-                } else {
-                    editor.putInt("saveWallpaper", 0);
-                    editor.apply();
-                    Log.d(TAG, "saveWallpaperBtnSetup: Save Wallpaper value updated to: No");
-                }
-            }
-        });
-    }
-
     private void imageAlignBtnSetup() {
         RelativeLayout imageAlign = findViewById(R.id.imageAlign);
         TextView alignValue = findViewById(R.id.alignValue);
@@ -276,6 +219,84 @@ public class SettingsActivity extends AppCompatActivity {
                 default:
                     Log.e(TAG, "imageAlignBtnSetup: Image align error");
                     break;
+            }
+        });
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void multiPostBtnSetup() {
+        RelativeLayout multiPost = findViewById(R.id.multiImage);
+
+        //init value
+        int setMultiImage = sharedPreferences.getInt("multiImage", 1);
+        TextView multiImageValue = findViewById(R.id.multiImageValue);
+
+        switch (setMultiImage) {
+            case 1:
+                multiImageValue.setText(setMultiImage + "st");
+                break;
+            case 2:
+                multiImageValue.setText(setMultiImage + "nd");
+                break;
+            case 3:
+                multiImageValue.setText(setMultiImage + "rd");
+                break;
+            default:
+                multiImageValue.setText(setMultiImage + "th");
+                break;
+        }
+
+        multiPost.setOnClickListener(v -> {
+            Intent intent = new Intent(SettingsActivity.this, MultiImageActivity.class);
+            startActivityForResult(intent, 800);
+        });
+    }
+
+    private void allowVideosBtnSetup() {
+        SwitchCompat allowVideos = findViewById(R.id.allowVideos);
+
+        //init value
+        if (sharedPreferences.getBoolean("allowVideos", false)) {
+            allowVideos.setChecked(true);
+        }
+
+        allowVideos.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            if (isChecked) {
+                editor.putBoolean("allowVideos", true);
+                editor.apply();
+                Log.d(TAG, "allowVideosBtnSetup: Allow videos value updated to: Yes");
+            } else {
+                editor.putBoolean("allowVideos", false);
+                editor.apply();
+                Log.d(TAG, "allowVideosBtnSetup: Allow videos value updated to: No");
+            }
+        });
+    }
+
+    private void saveWallpaperBtnSetup() {
+        SwitchCompat saveWallpaper = findViewById(R.id.saveWallpaper);
+
+        //init value
+        if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
+            saveWallpaper.setChecked(true);
+        }
+
+        saveWallpaper.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            //Request Storage Access
+            Functions.requestPermission(this);
+
+            if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                saveWallpaper.setChecked(false);
+            } else {
+                if (isChecked) {
+                    editor.putInt("saveWallpaper", 1);
+                    editor.apply();
+                    Log.d(TAG, "saveWallpaperBtnSetup: Save Wallpaper value updated to: Yes");
+                } else {
+                    editor.putInt("saveWallpaper", 0);
+                    editor.apply();
+                    Log.d(TAG, "saveWallpaperBtnSetup: Save Wallpaper value updated to: No");
+                }
             }
         });
     }
@@ -332,6 +353,7 @@ public class SettingsActivity extends AppCompatActivity {
         durationBtnSetup();
         locationBtnSetup();
         multiPostBtnSetup();
+        allowVideosBtnSetup();
         saveWallpaperBtnSetup();
         imageAlignBtnSetup();
         clearRecentBtnSetup();
@@ -347,6 +369,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         RelativeLayout multiImagePostInfo = findViewById(R.id.multiPostInfoBtn);
         multiImagePostInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Multi-image Post"), new SpannableString(getString(R.string.multiImagePostInfoMsg))));
+
+        RelativeLayout allowVideosInfo = findViewById(R.id.allowVideosInfoBtn);
+        allowVideosInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Allow Video Posts"), new SpannableString(getString(R.string.allowVideosInfoMsg))));
 
         RelativeLayout saveWallpaperInfo = findViewById(R.id.saveWallpaperInfoBtn);
         saveWallpaperInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Save Wallpaper"), new SpannableString(getString(R.string.saveWallpaperInfoMsg))));
