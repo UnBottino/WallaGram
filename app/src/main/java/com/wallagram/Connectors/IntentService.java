@@ -23,10 +23,13 @@ import java.util.Objects;
 public class IntentService extends android.app.IntentService {
     private static final String TAG = "INTENT_SERVICE";
 
-    private String mPostUrl;
     private String mProfileUrl;
+    private Account account = null;
 
-    private Account account;
+    private String mPostUrl;
+
+    private boolean error = false;
+    private boolean empty = true;
 
     public IntentService() {
         super("name");
@@ -40,7 +43,6 @@ public class IntentService extends android.app.IntentService {
 
         HttpURLConnection connection = null;
         BufferedReader reader = null;
-        boolean error = false;
 
         try {
             Log.d(TAG, "onHandleIntent: Building account url and connecting");
@@ -49,9 +51,7 @@ public class IntentService extends android.app.IntentService {
             URL url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
             connection.connect();
-
             InputStream stream = connection.getInputStream();
-
             reader = new BufferedReader(new InputStreamReader(stream));
 
             Log.d(TAG, "onHandleIntent: Parsing json response");
@@ -62,37 +62,53 @@ public class IntentService extends android.app.IntentService {
             mProfileUrl = userObject.getString("profile_pic_url_hd");
             account = new Account(mSearchName, mProfileUrl);
 
+
             JSONObject timelineMediaObject = userObject.getJSONObject("edge_owner_to_timeline_media");
             JSONArray edgesArray = timelineMediaObject.getJSONArray("edges");
-            JSONObject edgeObject = edgesArray.getJSONObject(0);
-            JSONObject nodeObject = edgeObject.getJSONObject("node");
 
-            JSONObject childrenObject = null;
-            try {
-                childrenObject = nodeObject.getJSONObject("edge_sidecar_to_children");
-            } catch (Exception e) {
-                Log.d(TAG, "onHandleIntent: Post has NO children");
-            }
+            for (int postNumber = 0; postNumber < 12; postNumber++) {
+                Log.d(TAG, "onHandleIntent: Looking at post: " + postNumber);
 
-            if (childrenObject != null) {
-                Log.d(TAG, "onHandleIntent: Children found");
+                JSONObject edgeObject = edgesArray.getJSONObject(postNumber);
+                JSONObject nodeObject = edgeObject.getJSONObject("node");
 
-                JSONArray childEdgesArray = childrenObject.getJSONArray("edges");
-
-                int imageNumber = sharedPreferences.getInt("multiImage", 1) - 1;
-
-                JSONObject childEdgeObject = childEdgesArray.getJSONObject(0);
-
+                JSONObject childrenObject = null;
                 try {
-                    childEdgeObject = childEdgesArray.getJSONObject(imageNumber);
+                    childrenObject = nodeObject.getJSONObject("edge_sidecar_to_children");
                 } catch (Exception e) {
-                    Log.d(TAG, "onHandleIntent: Multi-post is not long enough");
+                    Log.d(TAG, "onHandleIntent: Post has NO children");
                 }
 
-                JSONObject childNodeObject = childEdgeObject.getJSONObject("node");
-                mPostUrl = childNodeObject.get("display_url").toString();
-            } else {
-                mPostUrl = nodeObject.get("display_url").toString();
+                if (childrenObject != null) {
+                    Log.d(TAG, "onHandleIntent: Children found");
+
+                    JSONArray childEdgesArray = childrenObject.getJSONArray("edges");
+
+                    try {
+                        int preferredChildNumber = sharedPreferences.getInt("multiImage", 1) - 1;
+                        JSONObject childEdgeObject = childEdgesArray.getJSONObject(preferredChildNumber);
+                        JSONObject childNodeObject = childEdgeObject.getJSONObject("node");
+                        if (childNodeObject.get("is_video").toString().equalsIgnoreCase("false")) {
+                            Log.d(TAG, "onHandleIntent: Preferred child found");
+                            mPostUrl = childNodeObject.get("display_url").toString();
+                            empty = false;
+                            break;
+                        }
+                    } catch (Exception e) {
+                        Log.d(TAG, "onHandleIntent: Preferred child not found");
+                    }
+
+                    if (loopChildren(childEdgesArray)) {
+                        break;
+                    }
+                } else {
+                    if (nodeObject.get("is_video").toString().equalsIgnoreCase("false")) {
+                        Log.d(TAG, "onHandleIntent: Image found");
+                        mPostUrl = nodeObject.get("display_url").toString();
+                        empty = false;
+                        break;
+                    }
+                }
             }
         } catch (JSONException | IOException e) {
             Log.d(TAG, Objects.requireNonNull(e.getMessage()));
@@ -110,10 +126,14 @@ public class IntentService extends android.app.IntentService {
             }
         }
 
-        if (error) {
-            Log.d(TAG, "onHandleIntent: Account Search Failed");
+        if (error || empty) {
+            String errorMsg = "Account Not Found\n(" + mSearchName + ")";
 
-            editor.putString("setAccountName", "Account doesn't exist or is set private");
+            if (!error) errorMsg = "Empty Account\n(" + mSearchName + ")";
+            else if (account != null) errorMsg = "Private Account\n(" + mSearchName + ")";
+
+            Log.d(TAG, "onHandleIntent: Account Search Failed");
+            editor.putString("setAccountName", errorMsg);
             editor.putString("setProfilePic", "");
             editor.apply();
 
@@ -137,5 +157,29 @@ public class IntentService extends android.app.IntentService {
                 startService(savePostIntent);
             }
         }
+    }
+
+    public boolean loopChildren(JSONArray childEdgesArray) {
+        int childNumber = 0;
+
+        do {
+            try {
+                JSONObject childEdgeObject = childEdgesArray.getJSONObject(childNumber);
+
+                JSONObject childNodeObject = childEdgeObject.getJSONObject("node");
+                if (childNodeObject.get("is_video").toString().equalsIgnoreCase("false")) {
+                    Log.d(TAG, "onHandleIntent: Image found in child : " + childNumber);
+                    mPostUrl = childNodeObject.get("display_url").toString();
+                    empty = false;
+                    return true;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "loopChildren: " + e.getMessage());
+            }
+
+            childNumber++;
+        } while (childNumber <= childEdgesArray.length());
+
+        return false;
     }
 }
