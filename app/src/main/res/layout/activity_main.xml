@@ -56,7 +56,7 @@
 
         <LinearLayout
             android:id="@+id/setContainer"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingBottom="20dp"
@@ -92,41 +92,47 @@
                 </androidx.cardview.widget.CardView>
             </RelativeLayout>
 
-            <TextView
-                android:id="@+id/SetAccountName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-                android:layout_marginTop="15dp"
-                android:fontFamily="@font/roboto_medium_italic"
+                <TextView
+                    android:id="@+id/SetAccountName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
 
-                android:text="@string/no_account_set"
-                android:textAlignment="center"
-                android:textColor="?attr/colorSecondary"
-                android:textSize="22sp" />
+                    android:layout_marginTop="15dp"
+                    android:fontFamily="@font/roboto_medium_italic"
+
+                    android:text="@string/no_account_set"
+                    android:textAlignment="center"
+                    android:textColor="?attr/colorSecondary"
+                    android:textSize="22sp" />
+
+                <RelativeLayout
+                    android:id="@+id/disabledBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="20dp"
+                    android:padding="25dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:background="@drawable/ic_baseline_update_disabled_24"
+                        android:backgroundTint="@color/orange"
+                        android:contentDescription="@string/state_disabled_icon" />
+                </RelativeLayout>
+
+            </RelativeLayout>
+
 
         </LinearLayout>
-
-        <RelativeLayout
-            android:id="@+id/disabledBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
-            android:padding="25dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:background="@drawable/ic_baseline_update_disabled_24"
-                android:backgroundTint="@color/orange"
-                android:contentDescription="@string/state_disabled_icon" />
-        </RelativeLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
