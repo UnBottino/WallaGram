@@ -5,6 +5,9 @@ import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,6 +30,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
+import com.wallagram.Connectors.TestJobService;
 import com.wallagram.Model.Account;
 import com.wallagram.R;
 import com.wallagram.Receivers.AlarmReceiver;
@@ -189,5 +193,51 @@ public class Functions {
         editor.apply();
 
         Log.d(TAG, "getScreenSize: Global screen dimensions set");
+    }
+
+
+
+
+
+
+
+
+
+
+    public static void scheduleJob(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        String metric = sharedPreferences.getString("metric", "hours");
+
+        int convertedDuration;
+
+        if (metric.equalsIgnoreCase("hours")) {
+            convertedDuration = sharedPreferences.getInt("duration", 1) * 60;
+        } else {
+            convertedDuration = sharedPreferences.getInt("duration", 1) * 60 * 24;
+        }
+
+        ComponentName componentName = new ComponentName(context, TestJobService.class);
+        JobInfo info = new JobInfo.Builder(123, componentName)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPersisted(true)
+                .setPeriodic(1000 * 60 * convertedDuration)
+                .build();
+
+        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+
+        int resultCode = scheduler.schedule(info);
+        if (resultCode == JobScheduler.RESULT_SUCCESS) {
+            Log.d(TAG, "Job scheduled");
+            alarmActive = true;
+        } else {
+            Log.d(TAG, "Job scheduling failed");
+            Functions.showNotification(context, "Search Failure", "No network connection found");
+        }
+    }
+
+    public static void cancelJob(Activity activity) {
+        JobScheduler scheduler = (JobScheduler) activity.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        scheduler.cancel(123);
+        Log.d(TAG, "Job cancelled");
     }
 }

@@ -263,6 +263,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         profilePicGlow = findViewById(R.id.profilePicGlow);
         mSetProfilePic = findViewById(R.id.setProfilePic);
 
+        mSetProfilePic.setOnClickListener(view -> Functions.scheduleJob(this));
+
         String setProfilePic = sharedPreferences.getString("setProfilePic", "");
 
         if (!setProfilePic.equalsIgnoreCase("")) {

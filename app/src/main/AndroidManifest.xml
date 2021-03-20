@@ -31,6 +31,9 @@
         <service android:name=".Connectors.IntentService" />
         <service android:name=".Connectors.SetWallpaperIntentService" />
         <service android:name=".Connectors.SavePostIntentService" />
+        <service
+            android:name=".Connectors.TestJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver
             android:name=".Receivers.BootReceiver"
