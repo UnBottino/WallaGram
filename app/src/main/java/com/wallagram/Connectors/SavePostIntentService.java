@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -31,14 +32,14 @@ public class SavePostIntentService extends android.app.IntentService {
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        String postUrl = intent.getStringExtra("postUrl");
+        SharedPreferences sharedPreferences = this.getSharedPreferences("Settings", 0);
+        String postUrl = sharedPreferences.getString("setPostURL", "");
+        String imageName = sharedPreferences.getString("setImageName", "");
 
         try {
             Log.d(TAG, "onHandleIntent: Fetching bitmap from postUrl");
             URL url = new URL(postUrl);
             Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-
-            String imageName = postUrl.substring(postUrl.length() - 8);
 
             OutputStream fos;
 

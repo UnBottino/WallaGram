@@ -6,8 +6,6 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.wallagram.Model.Account;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,13 +22,14 @@ public class IntentService extends android.app.IntentService {
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
+
     private String mSearchName;
-
     private String mProfileUrl;
-    private Account account = null;
 
+    private JSONObject nodeObject;
     private boolean videoCheckDisabled = false;
     private String mPostUrl;
+    private String mImageName;
 
     private String errorMsg = null;
 
@@ -67,7 +66,7 @@ public class IntentService extends android.app.IntentService {
             InputStream stream = connection.getInputStream();
             reader = new BufferedReader(new InputStreamReader(stream));
         } catch (Exception e) {
-            Log.e(TAG, "onHandleIntent: Account Not Found");
+            Log.d(TAG, "onHandleIntent: Account Not Found");
             errorMsg = "Account Not Found\n(" + mSearchName + ")";
             connection.disconnect();
         }
@@ -80,9 +79,8 @@ public class IntentService extends android.app.IntentService {
                 JSONObject graphqlObject = jsonObject.getJSONObject("graphql");
                 JSONObject userObject = graphqlObject.getJSONObject("user");
 
-                //Get profile pic and create user account
+                //Get profile pic
                 mProfileUrl = userObject.getString("profile_pic_url_hd");
-                account = new Account(mSearchName, mProfileUrl);
 
                 JSONObject timelineMediaObject = userObject.getJSONObject("edge_owner_to_timeline_media");
 
@@ -111,7 +109,7 @@ public class IntentService extends android.app.IntentService {
                             break;
                         }
 
-                        JSONObject nodeObject = edgeObject.getJSONObject("node");
+                        nodeObject = edgeObject.getJSONObject("node");
 
                         //Check for post children
                         JSONObject childrenObject = null;
@@ -157,6 +155,9 @@ public class IntentService extends android.app.IntentService {
                         if (postNumber == 11)
                             errorMsg = "No Recent Image Posts\n(" + mSearchName + ")";
                     }
+
+                    if (errorMsg == null)
+                        mImageName = nodeObject.get("id").toString();
                 }
             } catch (JSONException | IOException e) {
                 Log.e(TAG, "Error parsing response: " + e.getMessage());
@@ -187,9 +188,10 @@ public class IntentService extends android.app.IntentService {
             startForegroundService(i);
         } else {
             //Show new current account info
-            editor.putString("setAccountName", account.getAccountName());
+            editor.putString("setAccountName", mSearchName);
             editor.putString("setProfilePic", mProfileUrl);
             editor.putString("setPostURL", mPostUrl);
+            editor.putString("setImageName", mImageName);
             editor.commit();
 
             Intent setWallpaperIntent = new Intent(getApplicationContext(), SetWallpaperIntentService.class);
@@ -198,7 +200,6 @@ public class IntentService extends android.app.IntentService {
 
             if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
                 Intent savePostIntent = new Intent(getApplicationContext(), SavePostIntentService.class);
-                savePostIntent.putExtra("postUrl", mPostUrl);
                 startService(savePostIntent);
             }
         }
