@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -220,13 +221,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     private void stateChanged(int state) {
         if (state == 1) {
             Log.d(TAG, "stateChanged: State enabled: Updating set account visuals");
-
             profilePicGlow.setBackground(ContextCompat.getDrawable(this, R.drawable.purple_round_glow));
             mSetAccountName.setTextColor(ContextCompat.getColor(this, R.color.purple));
             disabledBtn.setVisibility(View.GONE);
         } else if (state == 0) {
             Log.d(TAG, "stateChanged: State disabled: Updating set account visuals");
-
             profilePicGlow.setBackground(ContextCompat.getDrawable(this, R.drawable.orange_round_glow));
             mSetAccountName.setTextColor(ContextCompat.getColor(this, R.color.orange));
             disabledBtn.setVisibility(View.VISIBLE);
@@ -301,6 +300,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
     private void setupSearchBar() {
         mSearchBar = findViewById(R.id.searchBar);
+        EditText searchEditText = mSearchBar.findViewById(androidx.appcompat.R.id.search_src_text);
+        searchEditText.setHintTextColor(ContextCompat.getColor(this, R.color.dark_white));
 
         mSearchBar.setOnClickListener(v -> mSearchBar.setIconified(false));
 

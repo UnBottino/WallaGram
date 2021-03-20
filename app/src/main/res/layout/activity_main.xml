@@ -13,7 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -60,7 +59,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingBottom="20dp"
-
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/settingsBtn">
@@ -132,12 +130,8 @@
                         android:textColor="?attr/colorSecondary"
                         android:textSize="22sp" />
                 </RelativeLayout>
-
             </RelativeLayout>
-
-
         </LinearLayout>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
@@ -146,9 +140,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="20dp"
-
         android:visibility="gone"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/searchLayout"
         app:layout_constraintEnd_toEndOf="parent"
@@ -159,25 +151,19 @@
             android:id="@+id/suggestionAccountList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-
             tools:itemCount="5"
             tools:listitem="@layout/suggestion_account_list_item" />
-
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/searchLayout"
+        style="@style/SearchViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:layout_marginTop="20dp"
-
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-
         app:layout_constraintBottom_toTopOf="@+id/accountNameContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -189,16 +175,11 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginHorizontal="20dp"
-
-            android:background="@drawable/serach_bar"
-
-            android:inputType="none"
-
+            android:background="@drawable/search_bar"
+            android:inputType="text"
             android:paddingStart="10dp"
-            android:paddingEnd="10dp">
-
-        </androidx.appcompat.widget.SearchView>
-
+            android:paddingEnd="10dp"
+            app:queryHint=" Set New Account" />
     </LinearLayout>
 
 
@@ -207,9 +188,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="20dp"
-
         android:background="@drawable/rounded_rectangle"
-
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -243,7 +222,6 @@
                 android:text="@string/empty_recent_searches"
                 android:textColor="@color/grey"
                 android:textSize="20sp" />
-
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -253,7 +231,6 @@
             android:layout_centerInParent="true"
             tools:itemCount="6"
             tools:listitem="@layout/account_list_item" />
-
     </RelativeLayout>
 
     <include
