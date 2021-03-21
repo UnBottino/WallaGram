@@ -1,7 +1,6 @@
 package com.wallagram.Adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 import com.wallagram.Activities.MainActivity;
-import com.wallagram.Connectors.ForegroundService;
 import com.wallagram.Model.SuggestionAccount;
 import com.wallagram.R;
 import com.wallagram.Utils.Functions;
@@ -30,8 +28,6 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
     private final LayoutInflater mInflater;
 
     private final Context mContext;
-    private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor mEditor;
 
     @NonNull
     @Override
@@ -56,18 +52,16 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
 
             MainActivity.mLoadingView.setVisibility(View.VISIBLE);
 
-            mEditor = mContext.getSharedPreferences("Settings", 0).edit();
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences("Settings", 0);
+            SharedPreferences.Editor mEditor = sharedPreferences.edit();
             mEditor.putString("searchName", mSuggestionName);
             mEditor.apply();
 
-            Intent i = new Intent(mContext, ForegroundService.class);
-            i.setAction(ForegroundService.ACTION_START_FOREGROUND_SERVICE);
-            mContext.startForegroundService(i);
-
             //Activate Alarm
-            sharedPreferences = mContext.getSharedPreferences("Settings", 0);
-            if (sharedPreferences.getInt("state", 1) == 1 && !Functions.alarmActive) {
-                Functions.callAlarm(mContext);
+            if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
+                Functions.findNewPostRequest(mContext);
+            } else {
+                Functions.setWallpaperRequest(mContext);
             }
         });
     }

@@ -1,12 +1,9 @@
 package com.wallagram.Utils;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -26,24 +23,31 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
 
+import com.wallagram.Connectors.WorkerFindNewPost;
+import com.wallagram.Connectors.WorkerSavePost;
+import com.wallagram.Connectors.WorkerSetWallpaper;
 import com.wallagram.Model.Account;
 import com.wallagram.R;
-import com.wallagram.Receivers.AlarmReceiver;
 import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class Functions {
     private static final String TAG = "FUNCTIONS";
 
-    public static boolean alarmActive = false;
-
-    public static void callAlarm(Context context) {
-        Log.d(TAG, "callAlarm: Activating Alarm");
+    public static void findNewPostRequest(Context context) {
+        String WORK_TAG = "findNewPost";
 
         SharedPreferences sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
         String metric = sharedPreferences.getString("metric", "hours");
@@ -56,28 +60,49 @@ public class Functions {
             convertedDuration = sharedPreferences.getInt("duration", 1) * 60 * 24;
         }
 
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
 
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (alarmManager != null) {
-            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 60 * convertedDuration, pendingIntent); // Millisec * Second * Minute
-        }
+        final PeriodicWorkRequest pwr = new PeriodicWorkRequest.Builder(WorkerFindNewPost.class, convertedDuration, TimeUnit.MINUTES)
+                .addTag(WORK_TAG)
+                .setConstraints(constraints)
+                .build();
 
-        alarmActive = true;
+        androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
+        workManager.enqueueUniquePeriodicWork(WORK_TAG, ExistingPeriodicWorkPolicy.REPLACE, pwr);
     }
 
-    public static void cancelAlarm(Context context) {
-        Log.d(TAG, "cancelAlarm: Deactivating Alarm");
+    public static void setWallpaperRequest(Context context) {
+        String WORK_TAG = "setWallpaper";
 
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123, intent, 0);
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (alarmManager != null) {
-            alarmManager.cancel(pendingIntent);
-        }
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
 
-        alarmActive = false;
+        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(WorkerSetWallpaper.class)
+                .addTag(WORK_TAG)
+                .setConstraints(constraints)
+                .build();
+
+        androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
+        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.REPLACE, owr);
+    }
+
+    public static void savePostRequest(Context context) {
+        String WORK_TAG = "savePost";
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(WorkerSavePost.class)
+                .addTag(WORK_TAG)
+                .setConstraints(constraints)
+                .build();
+
+        androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
+        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.REPLACE, owr);
     }
 
     public static boolean isNetworkAvailable(Context context) {

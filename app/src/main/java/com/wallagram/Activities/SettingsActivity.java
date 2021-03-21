@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.work.WorkManager;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -83,7 +84,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                 Log.d(TAG, "stateBtnSetup: State value updated to: On");
                 if (!sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
-                    Functions.callAlarm(getApplicationContext());
+                    Functions.findNewPostRequest(getApplicationContext());
                 }
 
                 Intent intent = new Intent();
@@ -99,7 +100,7 @@ public class SettingsActivity extends AppCompatActivity {
                 editor.apply();
 
                 Log.d(TAG, "stateBtnSetup: State value updated to: Off");
-                Functions.cancelAlarm(getApplicationContext());
+                WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("findNewPost");
 
                 Intent intent = new Intent();
                 if (clearRecentChange) {

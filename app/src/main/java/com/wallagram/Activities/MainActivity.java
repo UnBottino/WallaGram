@@ -38,7 +38,6 @@ import android.widget.TextView;
 
 import com.wallagram.Adapters.AccountListAdapter;
 import com.wallagram.Adapters.SuggestionListAdapter;
-import com.wallagram.Connectors.ForegroundService;
 import com.wallagram.Model.Account;
 import com.wallagram.Model.SuggestionAccount;
 import com.wallagram.R;
@@ -102,9 +101,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         pageSetup();
 
         //Activate Alarm
-        if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
-            Functions.callAlarm(getApplicationContext());
-        }
+        Functions.findNewPostRequest(this);
     }
 
     @Override
@@ -320,13 +317,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 mSearchBar.setIconified(true);
                 mSearchBar.clearFocus();
 
-                Intent i = new Intent(getApplicationContext(), ForegroundService.class);
-                i.setAction(ForegroundService.ACTION_START_FOREGROUND_SERVICE);
-                startForegroundService(i);
-
                 //Activate Alarm
-                if (sharedPreferences.getInt("state", 1) == 1 && !Functions.alarmActive) {
-                    Functions.callAlarm(getApplicationContext());
+                if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
+                    Functions.findNewPostRequest(getApplicationContext());
+                } else {
+                    Functions.setWallpaperRequest(getApplicationContext());
                 }
 
                 return false;

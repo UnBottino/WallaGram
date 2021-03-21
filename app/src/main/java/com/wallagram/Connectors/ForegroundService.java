@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.work.WorkManager;
 
 import com.wallagram.R;
 import com.wallagram.Utils.Functions;
@@ -90,7 +91,7 @@ public class ForegroundService extends Service {
         } else {
             sendUpdateUIBroadcast(true);
 
-            Functions.cancelAlarm(this);
+            WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("findNewPost");
         }
 
         Log.d(TAG, "stopForegroundService: Stopping foreground service.");

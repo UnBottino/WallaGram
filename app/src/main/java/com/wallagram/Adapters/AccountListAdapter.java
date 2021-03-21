@@ -1,7 +1,6 @@
 package com.wallagram.Adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
@@ -14,7 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.wallagram.Connectors.ForegroundService;
 import com.wallagram.Activities.MainActivity;
 import com.wallagram.Model.Account;
 import com.wallagram.R;
@@ -32,8 +30,6 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
     private final LayoutInflater mInflater;
 
     private final Context mContext;
-    private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor mEditor;
 
     @NonNull
     @Override
@@ -60,18 +56,16 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
                 if (Functions.isNetworkAvailable(mContext)) {
                     MainActivity.mLoadingView.setVisibility(View.VISIBLE);
 
-                    mEditor = mContext.getSharedPreferences("Settings", 0).edit();
+                    SharedPreferences sharedPreferences = mContext.getSharedPreferences("Settings", 0);
+                    SharedPreferences.Editor mEditor = sharedPreferences.edit();
                     mEditor.putString("searchName", mAccountName);
                     mEditor.apply();
 
-                    Intent i = new Intent(mContext, ForegroundService.class);
-                    i.setAction(ForegroundService.ACTION_START_FOREGROUND_SERVICE);
-                    mContext.startForegroundService(i);
-
                     //Activate Alarm
-                    sharedPreferences = mContext.getSharedPreferences("Settings", 0);
-                    if (sharedPreferences.getInt("state", 1) == 1 && !Functions.alarmActive) {
-                        Functions.callAlarm(mContext);
+                    if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
+                        Functions.findNewPostRequest(mContext);
+                    } else {
+                        Functions.setWallpaperRequest(mContext);
                     }
                 } else {
                     Log.d(TAG, "onBindViewHolder: No Network Connection");
