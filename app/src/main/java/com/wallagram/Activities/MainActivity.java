@@ -23,8 +23,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.PowerManager;
-import android.provider.Settings;
 import android.text.SpannableString;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -102,29 +100,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
         //Activate Alarm
         Functions.findNewPostPeriodicRequest(this);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-        if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
-            Log.d(TAG, "onStart: Asking to deactivate optimization");
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogCustom);
-            builder.setCancelable(false);
-            builder.setTitle("Important");
-            builder.setMessage(R.string.optimise_msg);
-            builder.setPositiveButton("Continue", (dialog, which) -> {
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                startActivity(intent);
-            });
-            builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> finish());
-
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        }
     }
 
     @Override

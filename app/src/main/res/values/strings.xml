@@ -1,32 +1,30 @@
 <resources>
     <string name="app_name">WallaGram</string>
 
-    <string name="optimise_msg">This application requires battery optimization to be disabled (Don\'t Optimise) to function correctly.</string>
-
+    <!--Home Screen Buttons-->
     <string name="suggestions_icon">Suggestions Icon</string>
     <string name="settings_icon">Settings Icon</string>
     <string name="state_disabled_icon">State Disabled Icon</string>
     <string name="stateDisabledInfoMsg">WallaGram is not periodically updating your wallpapers.\nGo to settings to enable.</string>
 
+    <!--Set Account Info-->
     <string name="profile_picture">profile_picture</string>
     <string name="no_account_set">No Account Set</string>
 
+    <!--Recent Accounts RecyclerView-->
     <string name="account_name">account_name</string>
     <string name="empty_recent_searches">No Recent Searches</string>
 
-    <string name="stateInfoMsg">When active, WallaGram will periodically update your selected wallpaper</string>
-    <string name="durationInfoMsg">Allows you to set how often WallaGram searches for a new wallpaper</string>
-    <string name="locationInfoMsg">Allows you to set which wallpaper WallaGram updates\n(Home Screen / Lock Screen)</string>
-    <string name="multiImagePostInfoMsg">Allows you to place a priority on which image in a multi-image post is selected for your new wallpaper</string>
-    <string name="allowVideosInfoMsg">When active, if your selected account\'s most recent post is a video, the first frame will be set as your new wallpaper</string>
-    <string name="saveWallpaperInfoMsg">When active, WallaGram saves new posts into an album in your gallery</string>
-    <string name="imageAlignInfoMsg">As posts do not have a uniform size, WallaGram needs to crop each post to fit your screen. Image Align allows you to set a preference for the positioning</string>
-    <string name="clearRecentInfoMsg">Allows you to clear all accounts from the\nRecent Searches List</string>
+    <!--Loading Screen-->
+    <string name="loading">Loading…</string>
 
+    <!--DurationActivity-->
     <string name="big_number_default">000</string>
     <string name="days_btn">Days</string>
     <string name="hours_btn">Hours</string>
+    <string name="numpad_clear">CLEAR</string>
 
+    <!--SettingActivity Buttons-->
     <string name="setting_state">State:</string>
     <string name="setting_duration">Duration:</string>
     <string name="setting_duration_default">1 Hour</string>
@@ -40,18 +38,26 @@
     <string name="setting_image_align_default">Centre</string>
     <string name="setting_clear_recent_searches">Clear Recent Searches</string>
 
-    <string name="loading">Loading…</string>
+    <!--SettingsActivity Info-->
+    <string name="stateInfoMsg">When active, WallaGram will periodically update your selected wallpaper</string>
+    <string name="durationInfoMsg">Allows you to set how often WallaGram searches for a new wallpaper</string>
+    <string name="locationInfoMsg">Allows you to set which wallpaper WallaGram updates\n(Home Screen / Lock Screen)</string>
+    <string name="multiImagePostInfoMsg">Allows you to place a priority on which image in a multi-image post is selected for your new wallpaper</string>
+    <string name="allowVideosInfoMsg">When active, if your selected account\'s most recent post is a video, the first frame will be set as your new wallpaper</string>
+    <string name="saveWallpaperInfoMsg">When active, WallaGram saves new posts into an album in your gallery</string>
+    <string name="imageAlignInfoMsg">As posts do not have a uniform size, WallaGram needs to crop each post to fit your screen. Image Align allows you to set a preference for the positioning</string>
+    <string name="clearRecentInfoMsg">Allows you to clear all accounts from the\nRecent Searches List</string>
 
-    <string name="numpad_clear">CLEAR</string>
+    <!--Info message Confirm-->
+    <string name="info_msg_confirm">Got it</string>
 
-    <string name="state_disabled">State disabled</string>
-
+    <!--Location Values-->
     <string name="home_screen">Home Screen</string>
     <string name="lock_screen">Lock Screen</string>
     <string name="both_screens">Both</string>
 
+    <!--Image Align Values-->
     <string name="left_align">Left</string>
     <string name="centre_align">Centre</string>
     <string name="right_align">Right</string>
-    <string name="info_msg_confirm">Got it</string>
 </resources>
