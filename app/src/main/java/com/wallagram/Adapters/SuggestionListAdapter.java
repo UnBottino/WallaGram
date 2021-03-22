@@ -59,9 +59,9 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
 
             //Activate Alarm
             if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
-                Functions.findNewPostRequest(mContext);
+                Functions.findNewPostPeriodicRequest(mContext);
             } else {
-                Functions.setWallpaperRequest(mContext);
+                Functions.findNewPostSingleRequest(mContext);
             }
         });
     }

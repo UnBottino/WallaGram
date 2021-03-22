@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         pageSetup();
 
         //Activate Alarm
-        Functions.findNewPostRequest(this);
+        Functions.findNewPostPeriodicRequest(this);
     }
 
     @Override
@@ -319,9 +319,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
                 //Activate Alarm
                 if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
-                    Functions.findNewPostRequest(getApplicationContext());
+                    Functions.findNewPostPeriodicRequest(getApplicationContext());
                 } else {
-                    Functions.setWallpaperRequest(getApplicationContext());
+                    Functions.findNewPostSingleRequest(getApplicationContext());
                 }
 
                 return false;

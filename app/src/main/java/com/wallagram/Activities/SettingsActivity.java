@@ -84,7 +84,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                 Log.d(TAG, "stateBtnSetup: State value updated to: On");
                 if (!sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
-                    Functions.findNewPostRequest(getApplicationContext());
+                    Functions.findNewPostPeriodicRequest(getApplicationContext());
                 }
 
                 Intent intent = new Intent();

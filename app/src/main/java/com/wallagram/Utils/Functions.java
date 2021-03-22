@@ -22,7 +22,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
@@ -32,13 +31,16 @@ import androidx.work.PeriodicWorkRequest;
 
 import com.wallagram.Connectors.WorkerFindNewPost;
 import com.wallagram.Connectors.WorkerSavePost;
-import com.wallagram.Connectors.WorkerSetWallpaper;
 import com.wallagram.Model.Account;
 import com.wallagram.R;
 import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
 
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -46,8 +48,8 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 public class Functions {
     private static final String TAG = "FUNCTIONS";
 
-    public static void findNewPostRequest(Context context) {
-        String WORK_TAG = "findNewPost";
+    public static void findNewPostPeriodicRequest(Context context) {
+        String WORK_TAG = "findNewPost: Periodic";
 
         SharedPreferences sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
         String metric = sharedPreferences.getString("metric", "hours");
@@ -73,14 +75,14 @@ public class Functions {
         workManager.enqueueUniquePeriodicWork(WORK_TAG, ExistingPeriodicWorkPolicy.REPLACE, pwr);
     }
 
-    public static void setWallpaperRequest(Context context) {
-        String WORK_TAG = "setWallpaper";
+    public static void findNewPostSingleRequest(Context context) {
+        String WORK_TAG = "findNewPost: Single";
 
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(WorkerSetWallpaper.class)
+        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(WorkerFindNewPost.class)
                 .addTag(WORK_TAG)
                 .setConstraints(constraints)
                 .build();
@@ -109,6 +111,7 @@ public class Functions {
         Log.d(TAG, "isNetworkAvailable: Checking device network status");
 
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert connectivityManager != null;
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
@@ -178,18 +181,15 @@ public class Functions {
         String CHANNEL_NAME = "WallaGram Notification";
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
-        channel.enableVibration(true);
-        channel.enableLights(true);
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_MIN);
 
         Objects.requireNonNull(notificationManager).createNotificationChannel(channel);
 
         NotificationCompat.Builder notificationBuilder;
 
         notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setPriority(NotificationManager.IMPORTANCE_DEFAULT)
+                .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setAutoCancel(true)
-                .setColor(ContextCompat.getColor(context, R.color.purple))
                 .setSmallIcon(R.drawable.notification)
                 .setContentTitle(title)
                 .setContentText(text);
@@ -214,5 +214,36 @@ public class Functions {
         editor.apply();
 
         Log.d(TAG, "getScreenSize: Global screen dimensions set");
+    }
+
+
+    public static void debugNotification(Context context, String title) {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT-4:00"));
+        Date currentLocalTime = cal.getTime();
+        DateFormat date = DateFormat.getTimeInstance();
+        date.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        String localTime = date.format(currentLocalTime);
+
+        Log.d(TAG, "showNotification: Title: " + title + ", Text: " + localTime);
+
+        String CHANNEL_ID = "com.wallagram.nofication";
+        String CHANNEL_NAME = "WallaGram Notification";
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_MIN);
+
+        Objects.requireNonNull(notificationManager).createNotificationChannel(channel);
+
+        NotificationCompat.Builder notificationBuilder;
+
+        notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setPriority(NotificationManager.IMPORTANCE_MIN)
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.notification)
+                .setContentTitle(title)
+                .setContentText(localTime);
+
+        notificationManager.notify(CHANNEL_ID, 421, notificationBuilder.build());
     }
 }

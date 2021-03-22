@@ -27,11 +27,6 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
 
-        <service android:name=".Connectors.ForegroundService" />
-        <service android:name=".Connectors.IntentService" />
-        <service android:name=".Connectors.SetWallpaperIntentService" />
-        <service android:name=".Connectors.SavePostIntentService" />
-
         <receiver
             android:name=".Receivers.BootReceiver"
             android:enabled="true"
@@ -42,8 +37,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
-        <receiver android:name=".Receivers.AlarmReceiver" />
 
         <activity
             android:name=".Activities.MainActivity"

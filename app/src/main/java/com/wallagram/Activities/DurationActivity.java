@@ -174,8 +174,8 @@ public class DurationActivity extends AppCompatActivity {
 
             editor.apply();
 
-            if (!sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
-                Functions.findNewPostRequest(getApplicationContext());
+            if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
+                Functions.findNewPostPeriodicRequest(getApplicationContext());
             }
 
             Intent intent = new Intent();

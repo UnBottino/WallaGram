@@ -63,9 +63,9 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
                     //Activate Alarm
                     if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
-                        Functions.findNewPostRequest(mContext);
+                        Functions.findNewPostPeriodicRequest(mContext);
                     } else {
-                        Functions.setWallpaperRequest(mContext);
+                        Functions.findNewPostSingleRequest(mContext);
                     }
                 } else {
                     Log.d(TAG, "onBindViewHolder: No Network Connection");
