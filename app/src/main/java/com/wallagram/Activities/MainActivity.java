@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // TODO: 22/03/2021 Change event name
         //Register update UI broadcast receiver
         LocalBroadcastManager.getInstance(this).registerReceiver(updateUIReceiver, new IntentFilter("custom-event-name"));
 
@@ -375,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         @Override
         protected String doInBackground(Void... params) {
             HttpURLConnection connection = null;
-            BufferedReader reader = null;
+            BufferedReader reader;
 
             Log.d(TAG, "doInBackground: Fetching suggestions from cloud db");
 
@@ -388,38 +389,37 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 InputStream stream = connection.getInputStream();
 
                 reader = new BufferedReader(new InputStreamReader(stream));
-            } catch (Exception e) {
-                Log.e(TAG, "doInBackground: Error connecting to URL: " + urlString);
-            }
 
-            try {
-                assert reader != null;
-                JSONObject jsonObject = new JSONObject(reader.readLine());
-                JSONArray jsonArray = jsonObject.getJSONArray("body");
+                try {
+                    JSONObject jsonObject = new JSONObject(Objects.requireNonNull(reader).readLine());
 
-                mSuggestionAccountList.clear();
+                    JSONArray jsonArray = jsonObject.getJSONArray("body");
 
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject suggestion = jsonArray.getJSONObject(i);
+                    mSuggestionAccountList.clear();
 
-                    String suggestionName = suggestion.getString("suggestion_name");
-                    String suggestionImgUrl = suggestion.getString("suggestion_img_url");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject suggestion = jsonArray.getJSONObject(i);
 
-                    SuggestionAccount a = new SuggestionAccount(suggestionName, suggestionImgUrl);
-                    mSuggestionAccountList.add(a);
+                        String suggestionName = suggestion.getString("suggestion_name");
+                        String suggestionImgUrl = suggestion.getString("suggestion_img_url");
+
+                        SuggestionAccount a = new SuggestionAccount(suggestionName, suggestionImgUrl);
+                        mSuggestionAccountList.add(a);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "doInBackground: Failed to parse Json");
+                } finally {
+                    try {
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             } catch (Exception e) {
-                Log.e(TAG, "doInBackground: Failed to parse Json");
+                Log.e(TAG, "doInBackground: Error connecting to URL: " + urlString);
             } finally {
                 if (connection != null) {
                     connection.disconnect();
-                }
-                try {
-                    if (reader != null) {
-                        reader.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
 

@@ -22,9 +22,11 @@ import com.wallagram.R;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Objects;
 
+// TODO: 22/03/2021 Change log messages
 public class WorkerSavePost extends Worker {
-    private static final String TAG = "WORK_MANAGER";
+    private static final String TAG = "WORKER_SAVE_POST";
 
     private final String mPostUrl;
     private final String mImageName;
@@ -37,16 +39,17 @@ public class WorkerSavePost extends Worker {
         mImageName = sharedPreferences.getString("setImageName", "");
     }
 
+    // TODO: 22/03/2021 Make Backwards compatible
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @NonNull
     @Override
     public Result doWork() {
         try {
-            Log.d(TAG, "onHandleIntent: Fetching bitmap from postUrl");
+            Log.d(TAG, "Fetching bitmap from postUrl");
             URL url = new URL(mPostUrl);
             Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
 
-            OutputStream fos;
+            OutputStream fos = null;
 
             String path = "Pictures/" + getApplicationContext().getResources().getString(R.string.app_name);
 
@@ -57,17 +60,18 @@ public class WorkerSavePost extends Worker {
             contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, path);
 
             if (!checkImageExists(path, mImageName, getApplicationContext())) {
-                Log.d(TAG, "doWork: Saving Image to gallery");
+                Log.d(TAG, "Saving Image to gallery");
                 Uri imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
                 try {
-                    assert imageUri != null;
-                    fos = resolver.openOutputStream(imageUri);
+                    fos = resolver.openOutputStream(Objects.requireNonNull(imageUri));
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    assert fos != null;
-                    fos.flush();
-                    fos.close();
                 } catch (IOException e) {
                     Log.e(TAG, "Adding to gallery: " + e.toString());
+                } finally {
+                    if (fos != null) {
+                        fos.flush();
+                        fos.close();
+                    }
                 }
             }
         } catch (Exception e) {
@@ -90,8 +94,7 @@ public class WorkerSavePost extends Worker {
         if (cursor != null && cursor.getCount() > 0)
             exist = true;
 
-        assert cursor != null;
-        cursor.close();
+        Objects.requireNonNull(cursor).close();
 
         if (exist) {
             Log.d(TAG, "checkImageExists: Image Found in gallery");

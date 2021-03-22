@@ -51,7 +51,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
         holder.itemView.setOnClickListener(v -> {
             if (isClickable) {
-                Log.d(TAG, "onBindViewHolder: RecyclerView item clicked: (" + mAccountName + ")");
+                Log.d(TAG, "RecyclerView item clicked: (" + mAccountName + ")");
 
                 if (Functions.isNetworkAvailable(mContext)) {
                     MainActivity.mLoadingView.setVisibility(View.VISIBLE);
@@ -68,14 +68,14 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
                         Functions.findNewPostSingleRequest(mContext);
                     }
                 } else {
-                    Log.d(TAG, "onBindViewHolder: No Network Connection");
+                    Log.d(TAG, "No Network Connection");
                     Functions.showNotification(mContext, "Search Failure", "No network connection found");
                 }
             }
         });
 
         holder.itemView.setOnLongClickListener(v -> {
-            Log.d(TAG, "onBindViewHolder: RecyclerView item long clicked: (" + mAccountName + ")");
+            Log.d(TAG, "RecyclerView item long clicked: (" + mAccountName + ")");
 
             if (isClickable) {
                 if (mOnDataChangeListener != null) {

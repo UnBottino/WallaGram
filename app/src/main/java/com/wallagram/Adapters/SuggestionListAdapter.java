@@ -48,7 +48,7 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
         holder.accountNameView.setText(mSuggestionName);
 
         holder.itemView.setOnClickListener(v -> {
-            Log.d(TAG, "onBindViewHolder: Suggestion RecyclerView item clicked: (" + mSuggestionName + ")");
+            Log.d(TAG, "Suggestion RecyclerView item clicked: (" + mSuggestionName + ")");
 
             MainActivity.mLoadingView.setVisibility(View.VISIBLE);
 

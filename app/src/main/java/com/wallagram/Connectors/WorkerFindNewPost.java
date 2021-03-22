@@ -31,9 +31,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Objects;
 
 public class WorkerFindNewPost extends Worker {
-    private static final String TAG = "WORK_MANAGER";
+    private static final String TAG = "WORKER_FIND_NEW_POST";
 
     private final SharedPreferences sharedPreferences;
     private final SharedPreferences.Editor editor;
@@ -70,7 +71,7 @@ public class WorkerFindNewPost extends Worker {
 
         //Connect and get response
         try {
-            Log.d(TAG, "onHandleIntent: Building account url and connecting");
+            Log.d(TAG, "Building account url and connecting");
             String urlString = "https://www.instagram.com/" + mSearchName + "/channel/?__a=1";
 
             URL url = new URL(urlString);
@@ -80,18 +81,19 @@ public class WorkerFindNewPost extends Worker {
             InputStream stream = connection.getInputStream();
             reader = new BufferedReader(new InputStreamReader(stream));
         } catch (Exception e) {
-            Log.d(TAG, "onHandleIntent: Account Not Found");
+            Log.d(TAG, "Account Not Found");
             errorMsg = "Account Not Found\n(" + mSearchName + ")";
-            assert connection != null;
-            connection.disconnect();
+            Objects.requireNonNull(connection).disconnect();
         }
 
         if (errorMsg == null) {
             try {
-                Log.d(TAG, "onHandleIntent: Parsing json response");
-                assert reader != null;
-                JSONObject jsonObject = new JSONObject(reader.readLine());
+                Log.d(TAG, "Reading Json Response");
+                JSONObject jsonObject = new JSONObject(Objects.requireNonNull(reader).readLine());
+                reader.close();
+                connection.disconnect();
 
+                Log.d(TAG, "Parsing Json response");
                 JSONObject graphqlObject = jsonObject.getJSONObject("graphql");
                 JSONObject userObject = graphqlObject.getJSONObject("user");
 
@@ -102,7 +104,7 @@ public class WorkerFindNewPost extends Worker {
 
                 //Check for 'no post' account
                 int postCount = timelineMediaObject.getInt("count");
-                Log.d(TAG, "onHandleIntent: Post Count: " + postCount);
+                Log.d(TAG, "Post Count: " + postCount);
                 if (postCount == 0)
                     errorMsg = "No Posts Yet\n(" + mSearchName + ")";
 
@@ -112,7 +114,7 @@ public class WorkerFindNewPost extends Worker {
 
                     //Loop through posts
                     for (int postNumber = 0; postNumber < 12; postNumber++) {
-                        Log.d(TAG, "onHandleIntent: Looking at post: " + postNumber);
+                        Log.d(TAG, "Looking at post: " + postNumber);
 
                         JSONObject edgeObject;
 
@@ -120,7 +122,7 @@ public class WorkerFindNewPost extends Worker {
                         try {
                             edgeObject = edgesArray.getJSONObject(postNumber);
                         } catch (Exception e) {
-                            Log.d(TAG, "onHandleIntent: Private Account");
+                            Log.d(TAG, "Account is private");
                             errorMsg = "Private Account\n(" + mSearchName + ")";
                             break;
                         }
@@ -132,11 +134,11 @@ public class WorkerFindNewPost extends Worker {
                         try {
                             childrenObject = nodeObject.getJSONObject("edge_sidecar_to_children");
                         } catch (Exception e) {
-                            Log.d(TAG, "onHandleIntent: Post has NO children");
+                            Log.d(TAG, "Post has NO children");
                         }
 
                         if (childrenObject != null) {
-                            Log.d(TAG, "onHandleIntent: Children found");
+                            Log.d(TAG, "Children found");
                             JSONArray childEdgesArray = childrenObject.getJSONArray("edges");
 
                             //Check if preferred child is usable
@@ -146,12 +148,12 @@ public class WorkerFindNewPost extends Worker {
                                 JSONObject childNodeObject = childEdgeObject.getJSONObject("node");
 
                                 if (childNodeObject.get("is_video").toString().equalsIgnoreCase("false") || videoCheckDisabled) {
-                                    Log.d(TAG, "onHandleIntent: Preferred child found");
+                                    Log.d(TAG, "Preferred child found");
                                     mPostUrl = childNodeObject.get("display_url").toString();
                                     break;
                                 }
                             } catch (Exception e) {
-                                Log.d(TAG, "onHandleIntent: Preferred child not found");
+                                Log.d(TAG, "Preferred child not found");
                             }
 
                             //Loop through all children if preferred has problem
@@ -161,7 +163,7 @@ public class WorkerFindNewPost extends Worker {
                         } else {
                             //Check if post is usable if no children
                             if (nodeObject.get("is_video").toString().equalsIgnoreCase("false") || videoCheckDisabled) {
-                                Log.d(TAG, "onHandleIntent: Image found");
+                                Log.d(TAG, "Image found");
                                 mPostUrl = nodeObject.get("display_url").toString();
                                 break;
                             }
@@ -178,16 +180,6 @@ public class WorkerFindNewPost extends Worker {
             } catch (JSONException | IOException e) {
                 Log.e(TAG, "Error parsing response: " + e.getMessage());
                 errorMsg = "Unexpected Error";
-            } finally {
-                connection.disconnect();
-
-                try {
-                    if (reader != null) {
-                        reader.close();
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "onHandleIntent: " + e.getMessage());
-                }
             }
         }
 
@@ -216,13 +208,14 @@ public class WorkerFindNewPost extends Worker {
     }
 
     public boolean loopChildren(JSONArray childEdgesArray) {
+        Log.d(TAG, "loopChildren: Looping Children");
         for (int childNumber = 0; childNumber <= childEdgesArray.length(); childNumber++) {
             try {
                 JSONObject childEdgeObject = childEdgesArray.getJSONObject(childNumber);
 
                 JSONObject childNodeObject = childEdgeObject.getJSONObject("node");
                 if (childNodeObject.get("is_video").toString().equalsIgnoreCase("false") || videoCheckDisabled) {
-                    Log.d(TAG, "onHandleIntent: Image found in child : " + childNumber);
+                    Log.d(TAG, "loopChildren: Image found in child : " + childNumber);
                     mPostUrl = childNodeObject.get("display_url").toString();
                     return true;
                 }
@@ -235,9 +228,11 @@ public class WorkerFindNewPost extends Worker {
     }
 
     private void setWallpaper() {
+        boolean success = true;
+        URL url;
         try {
-            Log.d(TAG, "onHandleIntent: Setting Wallpaper");
-            URL url = new URL(mPostUrl);
+            Log.d(TAG, "setWallpaper: Setting Wallpaper");
+            url = new URL(mPostUrl);
             Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
             WallpaperManager wallpaperManager = WallpaperManager.getInstance(getApplicationContext());
 
@@ -256,15 +251,18 @@ public class WorkerFindNewPost extends Worker {
                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_SYSTEM);
                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_LOCK);
             }
-        } catch (IOException ex) {
-            Log.e(TAG, "onHandleIntent: settingWallpaper Failed:  " + ex.getLocalizedMessage());
+        } catch (IOException e) {
+            Log.e(TAG, "setWallpaper:  " + e.getMessage());
+            success = false;
         }
 
-        if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
-            Functions.savePostRequest(getApplicationContext());
-        }
+        if (success) {
+            if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
+                Functions.savePostRequest(getApplicationContext());
+            }
 
-        sendUpdateUIBroadcast(false);
+            sendUpdateUIBroadcast(false);
+        }
     }
 
     private Bitmap scaleCrop(Bitmap source, int imageAlign, int newHeight, int newWidth) {

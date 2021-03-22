@@ -107,12 +107,12 @@ public class Functions {
         workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.REPLACE, owr);
     }
 
+    // TODO: 22/03/2021 Check if function is necessary
     public static boolean isNetworkAvailable(Context context) {
         Log.d(TAG, "isNetworkAvailable: Checking device network status");
 
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        assert connectivityManager != null;
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        NetworkInfo activeNetworkInfo = Objects.requireNonNull(connectivityManager).getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
