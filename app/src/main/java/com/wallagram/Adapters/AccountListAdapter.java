@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.wallagram.Activities.MainActivity;
-import com.wallagram.Model.Account;
+import com.wallagram.Model.PreviousAccount;
 import com.wallagram.R;
 import com.squareup.picasso.Picasso;
 import com.wallagram.Utils.Functions;
@@ -26,7 +26,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
     public boolean isClickable = true;
 
-    private final List<Account> mAccountList;
+    private final List<PreviousAccount> mPreviousAccountList;
     private final LayoutInflater mInflater;
 
     private final Context mContext;
@@ -40,8 +40,8 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
     @Override
     public void onBindViewHolder(final AccountListItemHolder holder, int position) {
-        final String mAccountName = mAccountList.get(position).getAccountName();
-        final String mProfilePicURL = mAccountList.get(position).getProfilePicURL();
+        final String mAccountName = mPreviousAccountList.get(position).getAccountName();
+        final String mProfilePicURL = mPreviousAccountList.get(position).getProfilePicURL();
 
         Picasso.get()
                 .load(Uri.parse(mProfilePicURL))
@@ -89,12 +89,12 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
     @Override
     public int getItemCount() {
-        return mAccountList.size();
+        return mPreviousAccountList.size();
     }
 
-    public AccountListAdapter(Context context, List<Account> accountList) {
+    public AccountListAdapter(Context context, List<PreviousAccount> previousAccountList) {
         mInflater = LayoutInflater.from(context);
-        this.mAccountList = accountList;
+        this.mPreviousAccountList = previousAccountList;
 
         mContext = context;
     }

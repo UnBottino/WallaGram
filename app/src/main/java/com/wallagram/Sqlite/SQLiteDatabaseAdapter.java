@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.wallagram.Model.Account;
+import com.wallagram.Model.PreviousAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,49 +21,49 @@ public class SQLiteDatabaseAdapter {
         dbHelper = new SQLiteDatabaseHelper(context);
     }
 
-    public void addAccount(Account account) {
-        Log.d(TAG, "addAccount: Adding account into DB (" + account.getAccountName() + ")");
+    public void addAccount(PreviousAccount previousAccount) {
+        Log.d(TAG, "addAccount: Adding previousAccount into DB (" + previousAccount.getAccountName() + ")");
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         ContentValues values = new ContentValues();
-        values.put("account_name", account.getAccountName());
-        values.put("profile_pic_url", account.getProfilePicURL());
+        values.put("account_name", previousAccount.getAccountName());
+        values.put("profile_pic_url", previousAccount.getProfilePicURL());
 
         db.insert(SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES, null, values);
         db.close();
     }
 
-    public List<Account> getAllAccounts() {
+    public List<PreviousAccount> getAllAccounts() {
         Log.d(TAG, "getAllAccounts");
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String query = SQLiteQueries.getAllAccounts();
         Cursor cursor = db.rawQuery(query, null);
-        List<Account> accountList = new ArrayList<>();
+        List<PreviousAccount> previousAccountList = new ArrayList<>();
 
         if (cursor != null) {
             cursor.moveToNext();
             for (int i = 0; i < cursor.getCount(); i++) {
-                Account account = new Account(cursor.getString(0),
+                PreviousAccount previousAccount = new PreviousAccount(cursor.getString(0),
                         cursor.getString(1));
-                accountList.add(account);
+                previousAccountList.add(previousAccount);
                 cursor.moveToNext();
             }
             cursor.close();
             db.close();
-            return accountList;
+            return previousAccountList;
         }
 
         return null;
     }
 
-    public boolean checkIfAccountExists(Account account) {
+    public boolean checkIfAccountExists(PreviousAccount previousAccount) {
         Log.d(TAG, "checkIfAccountExists");
 
         boolean exists = false;
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String query = SQLiteQueries.getAccountNameByName(account.getAccountName());
+        String query = SQLiteQueries.getAccountNameByName(previousAccount.getAccountName());
         Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.getCount() > 0)

@@ -34,7 +34,7 @@ import android.widget.TextView;
 
 import com.wallagram.Adapters.AccountListAdapter;
 import com.wallagram.Adapters.SuggestionListAdapter;
-import com.wallagram.Model.Account;
+import com.wallagram.Model.PreviousAccount;
 import com.wallagram.Model.SuggestionAccount;
 import com.wallagram.R;
 import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
@@ -69,12 +69,16 @@ public class MainActivity extends AppCompatActivity {
 
     public RecyclerView mPreviousRecyclerView;
     private AccountListAdapter mPreviousAdapter;
-    public List<Account> mPreviousAccountList = new ArrayList<>();
+    public List<PreviousAccount> mPreviousPreviousAccountList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.d(TAG, "onCreate: Registering receivers");
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateSetAccountUIReceiver, new IntentFilter("update-set-account"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateSuggestionsUIReceiver, new IntentFilter("update-suggestions"));
 
         sharedPreferences = getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
@@ -89,17 +93,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume: Registering receivers");
-        LocalBroadcastManager.getInstance(this).registerReceiver(updateSetAccountUIReceiver, new IntentFilter("update-set-account"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(updateSuggestionsUIReceiver, new IntentFilter("update-suggestions"));
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause: Unregistering receivers");
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: Unregistering receivers");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(updateSetAccountUIReceiver);
     }
 
@@ -142,26 +138,26 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onReceive: Setting Error Display Name");
             } else {
                 SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(getApplicationContext());
-                Account account = new Account(setAccountName, setProfilePic);
+                PreviousAccount previousAccount = new PreviousAccount(setAccountName, setProfilePic);
 
-                if (!db.checkIfAccountExists(account)) {
-                    db.addAccount(account);
+                if (!db.checkIfAccountExists(previousAccount)) {
+                    db.addAccount(previousAccount);
 
-                    mPreviousAccountList.add(0, account);
+                    mPreviousPreviousAccountList.add(0, previousAccount);
                     mPreviousAdapter.notifyItemInserted(0);
                     mPreviousAdapter.notifyDataSetChanged();
                 } else {
-                    Log.d(TAG, "onReceive: Account name already in db (" + setAccountName + ")");
+                    Log.d(TAG, "onReceive: PreviousAccount name already in db (" + setAccountName + ")");
 
-                    for (Account a : mPreviousAccountList) {
-                        if (a.getAccountName().equalsIgnoreCase(account.getAccountName())) {
+                    for (PreviousAccount a : mPreviousPreviousAccountList) {
+                        if (a.getAccountName().equalsIgnoreCase(previousAccount.getAccountName())) {
                             //Not using update because of the ordering in recyclerView
                             db.deleteAccount(a.getAccountName());
-                            db.addAccount(account);
+                            db.addAccount(previousAccount);
 
-                            mPreviousAccountList.remove(a);
-                            mPreviousAdapter.notifyItemRemoved(mPreviousAccountList.indexOf(a));
-                            mPreviousAccountList.add(0, account);
+                            mPreviousPreviousAccountList.remove(a);
+                            mPreviousAdapter.notifyItemRemoved(mPreviousPreviousAccountList.indexOf(a));
+                            mPreviousPreviousAccountList.add(0, previousAccount);
                             mPreviousAdapter.notifyItemInserted(0);
                             mPreviousAdapter.notifyDataSetChanged();
                             break;
@@ -201,9 +197,9 @@ public class MainActivity extends AppCompatActivity {
     private void clearRecentSearches() {
         Log.d(TAG, "clearRecentSearches: Update RecyclerView Received");
 
-        mPreviousAdapter.notifyItemRangeRemoved(0, mPreviousAccountList.size());
+        mPreviousAdapter.notifyItemRangeRemoved(0, mPreviousPreviousAccountList.size());
         mPreviousAdapter.notifyDataSetChanged();
-        mPreviousAccountList.clear();
+        mPreviousPreviousAccountList.clear();
     }
 
     private void pageSetup() {
@@ -238,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mSetAccountName = findViewById(R.id.SetAccountName);
-        mSetAccountName.setText(sharedPreferences.getString("setAccountName", "No Account Set"));
+        mSetAccountName.setText(sharedPreferences.getString("setAccountName", "No PreviousAccount Set"));
 
         //State Color
         setupState();
@@ -305,10 +301,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupPreviousAccounts() {
         mPreviousRecyclerView = findViewById(R.id.accountNameList);
-        mPreviousAccountList = Functions.getDBAccounts(this);
-        Collections.reverse(mPreviousAccountList);
+        mPreviousPreviousAccountList = Functions.getDBAccounts(this);
+        Collections.reverse(mPreviousPreviousAccountList);
 
-        mPreviousAdapter = new AccountListAdapter(getApplicationContext(), mPreviousAccountList);
+        mPreviousAdapter = new AccountListAdapter(getApplicationContext(), mPreviousPreviousAccountList);
 
         mPreviousAdapter.setOnDataChangeListener(accountName -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogCustom);
@@ -319,9 +315,9 @@ public class MainActivity extends AppCompatActivity {
                 Functions.removeDBAccountByName(MainActivity.this, accountName);
 
                 int pos = 0;
-                for (Account a : mPreviousAccountList) {
+                for (PreviousAccount a : mPreviousPreviousAccountList) {
                     if (a.getAccountName().equalsIgnoreCase(accountName)) {
-                        mPreviousAccountList.remove(a);
+                        mPreviousPreviousAccountList.remove(a);
                         mPreviousAdapter.notifyItemRemoved(pos);
                         mPreviousAdapter.notifyDataSetChanged();
                         break;

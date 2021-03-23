@@ -81,8 +81,8 @@ public class FindNewPost extends Worker {
             InputStream stream = connection.getInputStream();
             reader = new BufferedReader(new InputStreamReader(stream));
         } catch (Exception e) {
-            Log.d(TAG, "Account Not Found");
-            errorMsg = "Account Not Found\n(" + mSearchName + ")";
+            Log.d(TAG, "PreviousAccount Not Found");
+            errorMsg = "PreviousAccount Not Found\n(" + mSearchName + ")";
             Objects.requireNonNull(connection).disconnect();
         }
 
@@ -122,8 +122,8 @@ public class FindNewPost extends Worker {
                         try {
                             edgeObject = edgesArray.getJSONObject(postNumber);
                         } catch (Exception e) {
-                            Log.d(TAG, "Account is private");
-                            errorMsg = "Private Account\n(" + mSearchName + ")";
+                            Log.d(TAG, "PreviousAccount is private");
+                            errorMsg = "Private PreviousAccount\n(" + mSearchName + ")";
                             break;
                         }
 

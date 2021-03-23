@@ -1,10 +1,10 @@
 package com.wallagram.Model;
 
-public class Account {
+public class PreviousAccount {
     private final String accountName;
     private final String profilePicURL;
 
-    public Account(String accountName, String profilePicURL) {
+    public PreviousAccount(String accountName, String profilePicURL) {
         this.accountName = accountName;
         this.profilePicURL = profilePicURL;
     }

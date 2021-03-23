@@ -32,7 +32,7 @@ import androidx.work.PeriodicWorkRequest;
 import com.wallagram.Workers.FetchSuggestions;
 import com.wallagram.Workers.FindNewPost;
 import com.wallagram.Workers.SavePost;
-import com.wallagram.Model.Account;
+import com.wallagram.Model.PreviousAccount;
 import com.wallagram.R;
 import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
 
@@ -133,7 +133,7 @@ public class Functions {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public static List<Account> getDBAccounts(Context context) {
+    public static List<PreviousAccount> getDBAccounts(Context context) {
         SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
         return db.getAllAccounts();
     }
