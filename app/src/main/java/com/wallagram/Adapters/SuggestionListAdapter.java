@@ -50,18 +50,23 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
         holder.itemView.setOnClickListener(v -> {
             Log.d(TAG, "Suggestion RecyclerView item clicked: (" + mSuggestionName + ")");
 
-            MainActivity.mLoadingView.setVisibility(View.VISIBLE);
+            if (Functions.isNetworkAvailable(mContext)) {
+                MainActivity.mLoadingView.setVisibility(View.VISIBLE);
 
-            SharedPreferences sharedPreferences = mContext.getSharedPreferences("Settings", 0);
-            SharedPreferences.Editor mEditor = sharedPreferences.edit();
-            mEditor.putString("searchName", mSuggestionName);
-            mEditor.apply();
+                SharedPreferences sharedPreferences = mContext.getSharedPreferences("Settings", 0);
+                SharedPreferences.Editor mEditor = sharedPreferences.edit();
+                mEditor.putString("searchName", mSuggestionName);
+                mEditor.apply();
 
-            //Activate Alarm
-            if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
-                Functions.findNewPostPeriodicRequest(mContext);
+                //Activate Alarm
+                if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
+                    Functions.findNewPostPeriodicRequest(mContext);
+                } else {
+                    Functions.findNewPostSingleRequest(mContext);
+                }
             } else {
-                Functions.findNewPostSingleRequest(mContext);
+                Log.d(TAG, "No Network Connection");
+                Functions.showNotification(mContext, "Search Failure", "No network connection found");
             }
         });
     }

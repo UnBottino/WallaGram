@@ -29,8 +29,9 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 
-import com.wallagram.Connectors.WorkerFindNewPost;
-import com.wallagram.Connectors.WorkerSavePost;
+import com.wallagram.Workers.FetchSuggestions;
+import com.wallagram.Workers.FindNewPost;
+import com.wallagram.Workers.SavePost;
 import com.wallagram.Model.Account;
 import com.wallagram.R;
 import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
@@ -66,7 +67,7 @@ public class Functions {
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        final PeriodicWorkRequest pwr = new PeriodicWorkRequest.Builder(WorkerFindNewPost.class, convertedDuration, TimeUnit.MINUTES)
+        final PeriodicWorkRequest pwr = new PeriodicWorkRequest.Builder(FindNewPost.class, convertedDuration, TimeUnit.MINUTES)
                 .addTag(WORK_TAG)
                 .setConstraints(constraints)
                 .build();
@@ -82,7 +83,23 @@ public class Functions {
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(WorkerFindNewPost.class)
+        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(FindNewPost.class)
+                .addTag(WORK_TAG)
+                .setConstraints(constraints)
+                .build();
+
+        androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
+        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.REPLACE, owr);
+    }
+
+    public static void fetchSuggestionsRequest(Context context) {
+        String WORK_TAG = "fetchSuggestions:";
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(FetchSuggestions.class)
                 .addTag(WORK_TAG)
                 .setConstraints(constraints)
                 .build();
@@ -98,7 +115,7 @@ public class Functions {
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(WorkerSavePost.class)
+        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(SavePost.class)
                 .addTag(WORK_TAG)
                 .setConstraints(constraints)
                 .build();
@@ -174,29 +191,6 @@ public class Functions {
         alertInfoBtn.setOnClickListener(v -> dialog.cancel());
     }
 
-    public static void showNotification(Context context, String title, String text) {
-        Log.d(TAG, "showNotification: Title: " + title + ", Text: " + text);
-
-        String CHANNEL_ID = "com.wallagram.nofication";
-        String CHANNEL_NAME = "WallaGram Notification";
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_MIN);
-
-        Objects.requireNonNull(notificationManager).createNotificationChannel(channel);
-
-        NotificationCompat.Builder notificationBuilder;
-
-        notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setPriority(NotificationManager.IMPORTANCE_MIN)
-                .setAutoCancel(true)
-                .setSmallIcon(R.drawable.notification)
-                .setContentTitle(title)
-                .setContentText(text);
-
-        notificationManager.notify(CHANNEL_ID, 421, notificationBuilder.build());
-    }
-
     public static void getScreenSize(Activity activity) {
         DisplayMetrics metrics = new DisplayMetrics();
         Display display = activity.getWindowManager().getDefaultDisplay();
@@ -216,6 +210,30 @@ public class Functions {
         Log.d(TAG, "getScreenSize: Global screen dimensions set");
     }
 
+    public static void showNotification(Context context, String title, String text) {
+        Log.d(TAG, "showNotification: Title: " + title + ", Text: " + text);
+
+        String CHANNEL_ID = "com.wallagram.nofication";
+        String CHANNEL_NAME = "WallaGram Notification";
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+        channel.enableVibration(true);
+        channel.enableLights(true);
+
+        Objects.requireNonNull(notificationManager).createNotificationChannel(channel);
+
+        NotificationCompat.Builder notificationBuilder;
+
+        notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setPriority(NotificationManager.IMPORTANCE_DEFAULT)
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.notification)
+                .setContentTitle(title)
+                .setContentText(text);
+
+        notificationManager.notify(CHANNEL_ID, 421, notificationBuilder.build());
+    }
 
     public static void debugNotification(Context context, String title) {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT-4:00"));
@@ -235,15 +253,13 @@ public class Functions {
 
         Objects.requireNonNull(notificationManager).createNotificationChannel(channel);
 
-        NotificationCompat.Builder notificationBuilder;
-
-        notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.notification)
                 .setContentTitle(title)
                 .setContentText(localTime);
 
-        notificationManager.notify(CHANNEL_ID, 421, notificationBuilder.build());
+        notificationManager.notify(CHANNEL_ID, 422, notificationBuilder.build());
     }
 }

@@ -1,4 +1,4 @@
-package com.wallagram.Connectors;
+package com.wallagram.Workers;
 
 import android.app.WallpaperManager;
 import android.content.Context;
@@ -33,7 +33,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Objects;
 
-public class WorkerFindNewPost extends Worker {
+public class FindNewPost extends Worker {
     private static final String TAG = "WORKER_FIND_NEW_POST";
 
     private final SharedPreferences sharedPreferences;
@@ -49,7 +49,7 @@ public class WorkerFindNewPost extends Worker {
 
     private String errorMsg = null;
 
-    public WorkerFindNewPost(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public FindNewPost(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
         sharedPreferences = getApplicationContext().getSharedPreferences("Settings", 0);
@@ -319,7 +319,7 @@ public class WorkerFindNewPost extends Worker {
     private void sendUpdateUIBroadcast(boolean error) {
         Log.d(TAG, "sendUpdateUIBroadcast: Broadcasting message");
 
-        Intent intent = new Intent("custom-event-name");
+        Intent intent = new Intent("update-set-account");
         intent.putExtra("error", error);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }

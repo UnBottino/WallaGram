@@ -6,7 +6,6 @@ import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.lifecycle.LifecycleObserver;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,7 +20,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.util.Log;
@@ -43,54 +41,40 @@ import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
 import com.wallagram.Utils.Functions;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements LifecycleObserver {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MAIN_ACTIVITY";
 
     private SharedPreferences sharedPreferences;
 
     public static ConstraintLayout mLoadingView;
 
-    public RelativeLayout profilePicGlow;
-    public ImageView mSetProfilePic;
-    public TextView mSetAccountName;
-    public RelativeLayout disabledBtn;
+    private RelativeLayout profilePicGlow;
+    private ImageView mSetProfilePic;
+    private TextView mSetAccountName;
+    private RelativeLayout disabledBtn;
+
+    private LinearLayout suggestionLayout;
+    private ImageView suggestionIcon;
+    private boolean suggestionsOpened = false;
+
+    private RecyclerView mSuggestionsRecyclerView;
+    public static final List<SuggestionAccount> mSuggestionAccountList = new ArrayList<>();
 
     public androidx.appcompat.widget.SearchView mSearchBar;
 
-    public RecyclerView mRecyclerView;
-    public AccountListAdapter mAdapter;
-    public List<Account> mDBAccountList = new ArrayList<>();
-
-    private boolean suggestionsOpened = false;
-    private LinearLayout suggestionLayout;
-    private ImageView suggestionIcon;
-    private static RecyclerView mSuggestionsRecyclerView;
-
-    private static final List<SuggestionAccount> mSuggestionAccountList = new ArrayList<>();
+    public RecyclerView mPreviousRecyclerView;
+    private AccountListAdapter mPreviousAdapter;
+    public List<Account> mPreviousAccountList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // TODO: 22/03/2021 Change event name
-        //Register update UI broadcast receiver
-        LocalBroadcastManager.getInstance(this).registerReceiver(updateUIReceiver, new IntentFilter("custom-event-name"));
 
         sharedPreferences = getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
@@ -100,17 +84,46 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         pageSetup();
 
         //Activate Alarm
+        // TODO: 23/03/2021 Wrap with IF()
         Functions.findNewPostPeriodicRequest(this);
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy: Unregistering updateUIReceiver");
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateUIReceiver);
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: Registering receivers");
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateSetAccountUIReceiver, new IntentFilter("update-set-account"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateSuggestionsUIReceiver, new IntentFilter("update-suggestions"));
     }
 
-    private final BroadcastReceiver updateUIReceiver = new BroadcastReceiver() {
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause: Unregistering receivers");
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateSetAccountUIReceiver);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 59) {
+            if (resultCode == 10) {
+                stateChanged(1);
+            } else if (resultCode == 11) {
+                stateChanged(0);
+            } else if (resultCode == 100) {
+                clearRecentSearches();
+            } else if (resultCode == 110) {
+                stateChanged(1);
+                clearRecentSearches();
+            } else if (resultCode == 111) {
+                stateChanged(0);
+                clearRecentSearches();
+            }
+        }
+    }
+
+    private final BroadcastReceiver updateSetAccountUIReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "onReceive: Broadcast received");
@@ -134,28 +147,28 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 if (!db.checkIfAccountExists(account)) {
                     db.addAccount(account);
 
-                    mDBAccountList.add(0, account);
-                    mAdapter.notifyItemInserted(0);
-                    mAdapter.notifyDataSetChanged();
+                    mPreviousAccountList.add(0, account);
+                    mPreviousAdapter.notifyItemInserted(0);
+                    mPreviousAdapter.notifyDataSetChanged();
                 } else {
                     Log.d(TAG, "onReceive: Account name already in db (" + setAccountName + ")");
 
-                    for (Account a : mDBAccountList) {
+                    for (Account a : mPreviousAccountList) {
                         if (a.getAccountName().equalsIgnoreCase(account.getAccountName())) {
                             //Not using update because of the ordering in recyclerView
                             db.deleteAccount(a.getAccountName());
                             db.addAccount(account);
 
-                            mDBAccountList.remove(a);
-                            mAdapter.notifyItemRemoved(mDBAccountList.indexOf(a));
-                            mDBAccountList.add(0, account);
-                            mAdapter.notifyItemInserted(0);
-                            mAdapter.notifyDataSetChanged();
+                            mPreviousAccountList.remove(a);
+                            mPreviousAdapter.notifyItemRemoved(mPreviousAccountList.indexOf(a));
+                            mPreviousAccountList.add(0, account);
+                            mPreviousAdapter.notifyItemInserted(0);
+                            mPreviousAdapter.notifyDataSetChanged();
                             break;
                         }
                     }
 
-                    Objects.requireNonNull(mRecyclerView.getLayoutManager()).scrollToPosition(0);
+                    Objects.requireNonNull(mPreviousRecyclerView.getLayoutManager()).scrollToPosition(0);
                 }
 
                 Log.d(TAG, "onReceive: Setting Current Profile Pic");
@@ -170,26 +183,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             mLoadingView.setVisibility(View.INVISIBLE);
         }
     };
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 59) {
-            if (resultCode == 10) {
-                stateChanged(1);
-            } else if (resultCode == 11) {
-                stateChanged(0);
-            } else if (resultCode == 100) {
-                clearRecentSearches();
-            } else if (resultCode == 110) {
-                stateChanged(1);
-                clearRecentSearches();
-            } else if (resultCode == 111) {
-                stateChanged(0);
-                clearRecentSearches();
-            }
-        }
-    }
 
     private void stateChanged(int state) {
         if (state == 1) {
@@ -208,9 +201,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     private void clearRecentSearches() {
         Log.d(TAG, "clearRecentSearches: Update RecyclerView Received");
 
-        mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
-        mAdapter.notifyDataSetChanged();
-        mDBAccountList.clear();
+        mPreviousAdapter.notifyItemRangeRemoved(0, mPreviousAccountList.size());
+        mPreviousAdapter.notifyDataSetChanged();
+        mPreviousAccountList.clear();
     }
 
     private void pageSetup() {
@@ -230,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
         //Disabled Button
         disabledBtn = findViewById(R.id.disabledBtn);
-        disabledBtn.setOnClickListener(view -> Functions.popupMsg(this, new SpannableString("State Disabled"), new SpannableString(getString(R.string.stateDisabledInfoMsg))));
+        disabledBtn.setOnClickListener(view -> Functions.popupMsg(this, new SpannableString("State Disabled"), new SpannableString(getString(R.string.state_disabled_info_msg))));
 
         //Set Profile Information
         profilePicGlow = findViewById(R.id.profilePicGlow);
@@ -311,13 +304,13 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     }
 
     private void setupPreviousAccounts() {
-        mRecyclerView = findViewById(R.id.accountNameList);
-        mDBAccountList = Functions.getDBAccounts(this);
-        Collections.reverse(mDBAccountList);
+        mPreviousRecyclerView = findViewById(R.id.accountNameList);
+        mPreviousAccountList = Functions.getDBAccounts(this);
+        Collections.reverse(mPreviousAccountList);
 
-        mAdapter = new AccountListAdapter(getApplicationContext(), mDBAccountList);
+        mPreviousAdapter = new AccountListAdapter(getApplicationContext(), mPreviousAccountList);
 
-        mAdapter.setOnDataChangeListener(accountName -> {
+        mPreviousAdapter.setOnDataChangeListener(accountName -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogCustom);
             builder.setCancelable(true);
             builder.setTitle("Remove '" + accountName + "' from list");
@@ -326,11 +319,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 Functions.removeDBAccountByName(MainActivity.this, accountName);
 
                 int pos = 0;
-                for (Account a : mDBAccountList) {
+                for (Account a : mPreviousAccountList) {
                     if (a.getAccountName().equalsIgnoreCase(accountName)) {
-                        mDBAccountList.remove(a);
-                        mAdapter.notifyItemRemoved(pos);
-                        mAdapter.notifyDataSetChanged();
+                        mPreviousAccountList.remove(a);
+                        mPreviousAdapter.notifyItemRemoved(pos);
+                        mPreviousAdapter.notifyDataSetChanged();
                         break;
                     }
                     pos++;
@@ -345,8 +338,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
             dialog.show();
         });
 
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        mPreviousRecyclerView.setAdapter(mPreviousAdapter);
+        mPreviousRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
     }
 
     private void setupSuggestions() {
@@ -354,108 +347,49 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         suggestionIcon = findViewById(R.id.suggestionIcon);
         mSuggestionsRecyclerView = findViewById(R.id.suggestionAccountList);
 
-        new FetchSuggestions(this).execute();
+        Functions.fetchSuggestionsRequest(this);
 
         findViewById(R.id.suggestionBtn).setOnClickListener(v -> {
+            Drawable unwrappedDrawable = suggestionIcon.getBackground();
+            Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+
             if (!suggestionsOpened) {
-                showSuggestions();
+                if (!mSuggestionAccountList.isEmpty()) {
+                    DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.purple));
+                    suggestionLayout.setVisibility(View.VISIBLE);
+
+                    suggestionsOpened = !suggestionsOpened;
+                } else {
+                    Functions.popupMsg(this, new SpannableString("Network Error!"), new SpannableString(getString(R.string.no_network_msg)));
+                }
             } else {
-                hideSuggestions();
+                DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.white));
+                suggestionLayout.setVisibility(View.GONE);
+                suggestionsOpened = !suggestionsOpened;
             }
-            suggestionsOpened = !suggestionsOpened;
         });
     }
 
-    private static final class FetchSuggestions extends AsyncTask<Void, Void, String> {
-        private final WeakReference<MainActivity> activityReference;
-
-        FetchSuggestions(MainActivity context) {
-            activityReference = new WeakReference<>(context);
-        }
-
+    private final BroadcastReceiver updateSuggestionsUIReceiver = new BroadcastReceiver() {
         @Override
-        protected String doInBackground(Void... params) {
-            HttpURLConnection connection = null;
-            BufferedReader reader;
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "updateSuggestions: Broadcast received");
 
-            Log.d(TAG, "doInBackground: Fetching suggestions from cloud db");
+            boolean error = intent.getBooleanExtra("error", false);
 
-            String urlString = "https://utzvkb8roc.execute-api.eu-west-1.amazonaws.com/prod_v2/suggestions";
-            try {
-                URL url = new URL(urlString);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.connect();
-
-                InputStream stream = connection.getInputStream();
-
-                reader = new BufferedReader(new InputStreamReader(stream));
-
-                try {
-                    JSONObject jsonObject = new JSONObject(Objects.requireNonNull(reader).readLine());
-
-                    JSONArray jsonArray = jsonObject.getJSONArray("body");
-
-                    mSuggestionAccountList.clear();
-
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject suggestion = jsonArray.getJSONObject(i);
-
-                        String suggestionName = suggestion.getString("suggestion_name");
-                        String suggestionImgUrl = suggestion.getString("suggestion_img_url");
-
-                        SuggestionAccount a = new SuggestionAccount(suggestionName, suggestionImgUrl);
-                        mSuggestionAccountList.add(a);
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "doInBackground: Failed to parse Json");
-                } finally {
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "doInBackground: Error connecting to URL: " + urlString);
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
+            if (!error) {
+                SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(getApplicationContext(), mSuggestionAccountList);
+                mSuggestionsRecyclerView.setAdapter(mSuggestionAdapter);
+                mSuggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+            } else {
+                Drawable unwrappedDrawable = suggestionIcon.getBackground();
+                Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+                DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(getApplicationContext(), R.color.orange));
             }
 
-            return "Executed";
+            LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(updateSuggestionsUIReceiver);
         }
-
-        @Override
-        protected void onPostExecute(String result) {
-            MainActivity activity = activityReference.get();
-            if (activity == null || activity.isFinishing()) return;
-
-            SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(activity, mSuggestionAccountList);
-            mSuggestionsRecyclerView.setAdapter(mSuggestionAdapter);
-            mSuggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false));
-        }
-    }
-
-    private void showSuggestions() {
-        Log.d(TAG, "showSuggestions: Opening suggestions menu");
-
-        Drawable unwrappedDrawable = suggestionIcon.getBackground();
-        Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
-        DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.purple));
-
-        suggestionLayout.setVisibility(View.VISIBLE);
-    }
-
-    private void hideSuggestions() {
-        Log.d(TAG, "hideSuggestions: Closing suggestions menu");
-
-        Drawable unwrappedDrawable = suggestionIcon.getBackground();
-        Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
-        DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.white));
-
-        suggestionLayout.setVisibility(View.GONE);
-    }
+    };
 
     @SuppressLint("ClickableViewAccessibility")
     public void setupClearListeners() {

@@ -1,4 +1,4 @@
-package com.wallagram.Connectors;
+package com.wallagram.Workers;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -25,13 +25,13 @@ import java.net.URL;
 import java.util.Objects;
 
 // TODO: 22/03/2021 Change log messages
-public class WorkerSavePost extends Worker {
+public class SavePost extends Worker {
     private static final String TAG = "WORKER_SAVE_POST";
 
     private final String mPostUrl;
     private final String mImageName;
 
-    public WorkerSavePost(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public SavePost(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("Settings", 0);

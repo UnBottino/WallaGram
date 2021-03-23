@@ -29,7 +29,7 @@
 
         android:paddingHorizontal="40dp"
 
-        android:text="@string/durationInfoMsg"
+        android:text="@string/duration_info_msg"
         android:textAlignment="center"
         android:textColor="?attr/colorOnSecondary"
         android:textSize="18sp"

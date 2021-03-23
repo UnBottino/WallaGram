@@ -27,7 +27,7 @@
 
         android:fontFamily="@font/roboto"
         android:paddingHorizontal="40dp"
-        android:text="@string/multiImagePostInfoMsg"
+        android:text="@string/multi_image_post_info_msg"
         android:textAlignment="center"
         android:textColor="?attr/colorOnSecondary"
         android:textSize="18sp"

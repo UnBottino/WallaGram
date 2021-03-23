@@ -360,27 +360,27 @@ public class SettingsActivity extends AppCompatActivity {
         clearRecentBtnSetup();
 
         RelativeLayout stateInfo = findViewById(R.id.stateInfoBtn);
-        stateInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("State"), new SpannableString(getString(R.string.stateInfoMsg))));
+        stateInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("State"), new SpannableString(getString(R.string.state_info_msg))));
 
         RelativeLayout durationInfo = findViewById(R.id.durationInfoBtn);
-        durationInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Duration"), new SpannableString(getString(R.string.durationInfoMsg))));
+        durationInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Duration"), new SpannableString(getString(R.string.duration_info_msg))));
 
         RelativeLayout locationInfo = findViewById(R.id.locationInfoBtn);
-        locationInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Location"), new SpannableString(getString(R.string.locationInfoMsg))));
+        locationInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Location"), new SpannableString(getString(R.string.location_info_msg))));
 
         RelativeLayout multiImagePostInfo = findViewById(R.id.multiPostInfoBtn);
-        multiImagePostInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Multi-image Post"), new SpannableString(getString(R.string.multiImagePostInfoMsg))));
+        multiImagePostInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Multi-image Post"), new SpannableString(getString(R.string.multi_image_post_info_msg))));
 
         RelativeLayout allowVideosInfo = findViewById(R.id.allowVideosInfoBtn);
-        allowVideosInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Allow Video Posts"), new SpannableString(getString(R.string.allowVideosInfoMsg))));
+        allowVideosInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Allow Video Posts"), new SpannableString(getString(R.string.allow_videos_info_msg))));
 
         RelativeLayout saveWallpaperInfo = findViewById(R.id.saveWallpaperInfoBtn);
-        saveWallpaperInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Save Wallpaper"), new SpannableString(getString(R.string.saveWallpaperInfoMsg))));
+        saveWallpaperInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Save Wallpaper"), new SpannableString(getString(R.string.save_wallpaper_info_msg))));
 
         RelativeLayout imageAlignInfo = findViewById(R.id.imageAlignInfoBtn);
-        imageAlignInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Image Align"), new SpannableString(getString(R.string.imageAlignInfoMsg))));
+        imageAlignInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Image Align"), new SpannableString(getString(R.string.image_align_info_msg))));
 
         RelativeLayout clearRecentInfo = findViewById(R.id.clearRecentInfoBtn);
-        clearRecentInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Clear Recent Searches"), new SpannableString(getString(R.string.clearRecentInfoMsg))));
+        clearRecentInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Clear Recent Searches"), new SpannableString(getString(R.string.clear_recent_info_msg))));
     }
 }

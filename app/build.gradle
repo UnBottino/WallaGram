@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    //WorkerFindNewPost
+    //FindNewPost
     implementation 'androidx.work:work-runtime:2.5.0'
 
     //Testing
