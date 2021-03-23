@@ -360,6 +360,7 @@ public class MainActivity extends AppCompatActivity {
 
                     suggestionsOpened = !suggestionsOpened;
                 } else {
+                    DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.orange));
                     Functions.popupMsg(this, new SpannableString("Network Error!"), new SpannableString(getString(R.string.no_network_msg)));
                 }
             } else {
