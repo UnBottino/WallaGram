@@ -24,10 +24,10 @@ import java.net.URL;
 import java.util.Objects;
 
 
-public class FetchSuggestions extends Worker {
+public class FetchSuggestionsWorker extends Worker {
     private static final String TAG = "WORKER_FETCH_SUGGESTIONS";
 
-    public FetchSuggestions(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public FetchSuggestionsWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
     }

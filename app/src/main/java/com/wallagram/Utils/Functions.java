@@ -29,19 +29,15 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 
-import com.wallagram.Workers.FetchSuggestions;
-import com.wallagram.Workers.FindNewPost;
-import com.wallagram.Workers.SavePost;
+import com.wallagram.Workers.FetchSuggestionsWorker;
+import com.wallagram.Workers.FindNewPostWorker;
+import com.wallagram.Workers.SavePostWorker;
 import com.wallagram.Model.PreviousAccount;
 import com.wallagram.R;
 import com.wallagram.Sqlite.SQLiteDatabaseAdapter;
 
-import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -67,13 +63,13 @@ public class Functions {
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        final PeriodicWorkRequest pwr = new PeriodicWorkRequest.Builder(FindNewPost.class, convertedDuration, TimeUnit.MINUTES)
+        final PeriodicWorkRequest pwr = new PeriodicWorkRequest.Builder(FindNewPostWorker.class, convertedDuration, TimeUnit.MINUTES)
                 .addTag(WORK_TAG)
                 .setConstraints(constraints)
                 .build();
 
         androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
-        workManager.enqueueUniquePeriodicWork(WORK_TAG, ExistingPeriodicWorkPolicy.REPLACE, pwr);
+        workManager.enqueueUniquePeriodicWork(WORK_TAG, ExistingPeriodicWorkPolicy.KEEP, pwr);
     }
 
     public static void findNewPostSingleRequest(Context context) {
@@ -83,13 +79,13 @@ public class Functions {
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(FindNewPost.class)
+        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(FindNewPostWorker.class)
                 .addTag(WORK_TAG)
                 .setConstraints(constraints)
                 .build();
 
         androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
-        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.REPLACE, owr);
+        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.KEEP, owr);
     }
 
     public static void fetchSuggestionsRequest(Context context) {
@@ -99,13 +95,13 @@ public class Functions {
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(FetchSuggestions.class)
+        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(FetchSuggestionsWorker.class)
                 .addTag(WORK_TAG)
                 .setConstraints(constraints)
                 .build();
 
         androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
-        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.REPLACE, owr);
+        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.KEEP, owr);
     }
 
     public static void savePostRequest(Context context) {
@@ -115,16 +111,15 @@ public class Functions {
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(SavePost.class)
+        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(SavePostWorker.class)
                 .addTag(WORK_TAG)
                 .setConstraints(constraints)
                 .build();
 
         androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
-        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.REPLACE, owr);
+        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.KEEP, owr);
     }
 
-    // TODO: 22/03/2021 Check if function is necessary
     public static boolean isNetworkAvailable(Context context) {
         Log.d(TAG, "isNetworkAvailable: Checking device network status");
 
@@ -233,33 +228,5 @@ public class Functions {
                 .setContentText(text);
 
         notificationManager.notify(CHANNEL_ID, 421, notificationBuilder.build());
-    }
-
-    public static void debugNotification(Context context, String title) {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT-4:00"));
-        Date currentLocalTime = cal.getTime();
-        DateFormat date = DateFormat.getTimeInstance();
-        date.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        String localTime = date.format(currentLocalTime);
-
-        Log.d(TAG, "showNotification: Title: " + title + ", Text: " + localTime);
-
-        String CHANNEL_ID = "com.wallagram.nofication";
-        String CHANNEL_NAME = "WallaGram Notification";
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_MIN);
-
-        Objects.requireNonNull(notificationManager).createNotificationChannel(channel);
-
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setPriority(NotificationManager.IMPORTANCE_MIN)
-                .setAutoCancel(true)
-                .setSmallIcon(R.drawable.notification)
-                .setContentTitle(title)
-                .setContentText(localTime);
-
-        notificationManager.notify(CHANNEL_ID, 422, notificationBuilder.build());
     }
 }

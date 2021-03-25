@@ -3,7 +3,7 @@
 
     <!--Home Screen Buttons-->
     <string name="suggestions_icon">Suggestions Icon</string>
-    <string name="no_network_msg">No network connection available</string>
+    <string name="network_msg">No network connection</string>
     <string name="settings_icon">Settings Icon</string>
     <string name="state_disabled_icon">State Disabled Icon</string>
     <string name="state_disabled_info_msg">WallaGram is not periodically updating your wallpapers.\nGo to settings to enable.</string>

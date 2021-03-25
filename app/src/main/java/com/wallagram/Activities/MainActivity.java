@@ -25,6 +25,8 @@ import android.text.SpannableString;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -32,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.wallagram.AdapterCallback;
 import com.wallagram.Adapters.AccountListAdapter;
 import com.wallagram.Adapters.SuggestionListAdapter;
 import com.wallagram.Model.PreviousAccount;
@@ -46,7 +49,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterCallback {
     private static final String TAG = "MAIN_ACTIVITY";
 
     private SharedPreferences sharedPreferences;
@@ -64,6 +67,11 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mSuggestionsRecyclerView;
     public static final List<SuggestionAccount> mSuggestionAccountList = new ArrayList<>();
+
+    private final AdapterCallback mAdapterCallback = this;
+    private Animation shakeAnimation;
+    public RelativeLayout networkMsg;
+    private boolean offline;
 
     public androidx.appcompat.widget.SearchView mSearchBar;
 
@@ -203,6 +211,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void pageSetup() {
+        //Network Message
+        networkMsg = findViewById(R.id.networkMsg);
+        shakeAnimation = AnimationUtils.loadAnimation(this, R.anim.bounce);
+
         //Loading View
         mLoadingView = findViewById(R.id.loadingView);
         mLoadingView.setOnClickListener(v -> {
@@ -224,7 +236,6 @@ public class MainActivity extends AppCompatActivity {
         //Set Profile Information
         profilePicGlow = findViewById(R.id.profilePicGlow);
         mSetProfilePic = findViewById(R.id.setProfilePic);
-
         String setProfilePic = sharedPreferences.getString("setProfilePic", "");
 
         if (!setProfilePic.equalsIgnoreCase("")) {
@@ -304,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
         mPreviousPreviousAccountList = Functions.getDBAccounts(this);
         Collections.reverse(mPreviousPreviousAccountList);
 
-        mPreviousAdapter = new AccountListAdapter(getApplicationContext(), mPreviousPreviousAccountList);
+        mPreviousAdapter = new AccountListAdapter(getApplicationContext(), mPreviousPreviousAccountList, mAdapterCallback);
 
         mPreviousAdapter.setOnDataChangeListener(accountName -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogCustom);
@@ -345,24 +356,25 @@ public class MainActivity extends AppCompatActivity {
 
         Functions.fetchSuggestionsRequest(this);
 
+        Drawable unwrappedDrawable = suggestionIcon.getBackground();
+        Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+
+        if (!Functions.isNetworkAvailable(this)) {
+            DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.orange));
+            showOffline();
+        }
+
         findViewById(R.id.suggestionBtn).setOnClickListener(v -> {
-            Drawable unwrappedDrawable = suggestionIcon.getBackground();
-            Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
-
-            if (!suggestionsOpened) {
-                if (!mSuggestionAccountList.isEmpty()) {
-                    DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.purple));
-                    suggestionLayout.setVisibility(View.VISIBLE);
-
-                    suggestionsOpened = !suggestionsOpened;
-                } else {
-                    DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.orange));
-                    Functions.popupMsg(this, new SpannableString("Network Error!"), new SpannableString(getString(R.string.no_network_msg)));
-                }
-            } else {
+            if (!suggestionsOpened && !mSuggestionAccountList.isEmpty()) {
+                DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.purple));
+                suggestionLayout.setVisibility(View.VISIBLE);
+                suggestionsOpened = !suggestionsOpened;
+            } else if (suggestionsOpened) {
                 DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.white));
                 suggestionLayout.setVisibility(View.GONE);
                 suggestionsOpened = !suggestionsOpened;
+            } else if (offline) {
+                showOffline();
             }
         });
     }
@@ -374,19 +386,42 @@ public class MainActivity extends AppCompatActivity {
 
             boolean error = intent.getBooleanExtra("error", false);
 
+            Drawable unwrappedDrawable = suggestionIcon.getBackground();
+            Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
             if (!error) {
-                SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(getApplicationContext(), mSuggestionAccountList);
+                showOnline();
+                DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(getApplicationContext(), R.color.white));
+
+                SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(getApplicationContext(), mSuggestionAccountList, mAdapterCallback);
                 mSuggestionsRecyclerView.setAdapter(mSuggestionAdapter);
                 mSuggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
             } else {
-                Drawable unwrappedDrawable = suggestionIcon.getBackground();
-                Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
                 DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(getApplicationContext(), R.color.orange));
             }
 
             LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(updateSuggestionsUIReceiver);
         }
     };
+
+    @Override
+    public void showOffline() {
+        if (!offline) {
+            networkMsg.setVisibility(View.VISIBLE);
+            mSearchBar.setEnabled(false);
+            offline = true;
+        } else {
+            networkMsg.startAnimation(shakeAnimation);
+        }
+    }
+
+    @Override
+    public void showOnline() {
+        if (offline) {
+            networkMsg.setVisibility(View.GONE);
+            mSearchBar.setEnabled(true);
+            offline = false;
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     public void setupClearListeners() {

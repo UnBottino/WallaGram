@@ -33,7 +33,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Objects;
 
-public class FindNewPost extends Worker {
+public class FindNewPostWorker extends Worker {
     private static final String TAG = "WORKER_FIND_NEW_POST";
 
     private final SharedPreferences sharedPreferences;
@@ -49,7 +49,7 @@ public class FindNewPost extends Worker {
 
     private String errorMsg = null;
 
-    public FindNewPost(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public FindNewPostWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
         sharedPreferences = getApplicationContext().getSharedPreferences("Settings", 0);
@@ -64,8 +64,6 @@ public class FindNewPost extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Functions.debugNotification(getApplicationContext(), "Timestamp");
-
         HttpURLConnection connection = null;
         BufferedReader reader = null;
 

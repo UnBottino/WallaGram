@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 import com.wallagram.Activities.MainActivity;
+import com.wallagram.AdapterCallback;
 import com.wallagram.Model.SuggestionAccount;
 import com.wallagram.R;
 import com.wallagram.Utils.Functions;
@@ -28,6 +29,8 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
     private final LayoutInflater mInflater;
 
     private final Context mContext;
+
+    private final AdapterCallback mAdapterCallback;
 
     @NonNull
     @Override
@@ -64,9 +67,10 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
                 } else {
                     Functions.findNewPostSingleRequest(mContext);
                 }
+                mAdapterCallback.showOnline();
             } else {
                 Log.d(TAG, "No Network Connection");
-                Functions.showNotification(mContext, "Search Failure", "No network connection found");
+                mAdapterCallback.showOffline();
             }
         });
     }
@@ -76,11 +80,11 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
         return mSuggestionAccountList.size();
     }
 
-    public SuggestionListAdapter(Context context, List<SuggestionAccount> accountList) {
+    public SuggestionListAdapter(Context context, List<SuggestionAccount> accountList, AdapterCallback callback) {
         mInflater = LayoutInflater.from(context);
-        this.mSuggestionAccountList = accountList;
-
         mContext = context;
+        this.mSuggestionAccountList = accountList;
+        this.mAdapterCallback = callback;
     }
 
     static class SuggestionListItemHolder extends RecyclerView.ViewHolder {

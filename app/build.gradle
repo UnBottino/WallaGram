@@ -28,8 +28,9 @@ android {
 }
 
 dependencies {
-    //FindNewPost
+    //FindNewPostWorker
     implementation 'androidx.work:work-runtime:2.5.0'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
 
     //Testing
     testImplementation 'junit:junit:4.13.2'

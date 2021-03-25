@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.wallagram.Activities.MainActivity;
+import com.wallagram.AdapterCallback;
 import com.wallagram.Model.PreviousAccount;
 import com.wallagram.R;
 import com.squareup.picasso.Picasso;
@@ -30,6 +31,8 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
     private final LayoutInflater mInflater;
 
     private final Context mContext;
+
+    final AdapterCallback mAdapterCallback;
 
     @NonNull
     @Override
@@ -67,9 +70,10 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
                     } else {
                         Functions.findNewPostSingleRequest(mContext);
                     }
+                    mAdapterCallback.showOnline();
                 } else {
                     Log.d(TAG, "No Network Connection");
-                    Functions.showNotification(mContext, "Search Failure", "No network connection found");
+                    mAdapterCallback.showOffline();
                 }
             }
         });
@@ -92,11 +96,12 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
         return mPreviousAccountList.size();
     }
 
-    public AccountListAdapter(Context context, List<PreviousAccount> previousAccountList) {
+    public AccountListAdapter(Context context, List<PreviousAccount> previousAccountList, AdapterCallback callback) {
         mInflater = LayoutInflater.from(context);
-        this.mPreviousAccountList = previousAccountList;
 
         mContext = context;
+        this.mPreviousAccountList = previousAccountList;
+        this.mAdapterCallback = callback;
     }
 
     static class AccountListItemHolder extends RecyclerView.ViewHolder {

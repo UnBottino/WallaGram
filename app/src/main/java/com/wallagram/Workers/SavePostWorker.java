@@ -25,13 +25,13 @@ import java.net.URL;
 import java.util.Objects;
 
 // TODO: 22/03/2021 Change log messages
-public class SavePost extends Worker {
+public class SavePostWorker extends Worker {
     private static final String TAG = "WORKER_SAVE_POST";
 
     private final String mPostUrl;
     private final String mImageName;
 
-    public SavePost(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public SavePostWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("Settings", 0);
