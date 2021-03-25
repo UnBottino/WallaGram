@@ -1,6 +1,6 @@
 package com.wallagram.Adapters;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
@@ -25,12 +25,10 @@ import java.util.List;
 public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.AccountListItemHolder> {
     private static final String TAG = "ACCOUNT_LIST_ADAPTER";
 
-    public boolean isClickable = true;
-
     private final List<PreviousAccount> mPreviousAccountList;
     private final LayoutInflater mInflater;
 
-    private final Context mContext;
+    private final Activity mContext;
 
     final AdapterCallback mAdapterCallback;
 
@@ -53,39 +51,35 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
         holder.accountNameView.setText(mAccountName);
 
         holder.itemView.setOnClickListener(v -> {
-            if (isClickable) {
-                Log.d(TAG, "RecyclerView item clicked: (" + mAccountName + ")");
+            Log.d(TAG, "RecyclerView item clicked: (" + mAccountName + ")");
 
-                if (Functions.isNetworkAvailable(mContext)) {
-                    MainActivity.mLoadingView.setVisibility(View.VISIBLE);
+            mAdapterCallback.hideSoftKeyboard();
 
-                    SharedPreferences sharedPreferences = mContext.getSharedPreferences("Settings", 0);
-                    SharedPreferences.Editor mEditor = sharedPreferences.edit();
-                    mEditor.putString("searchName", mAccountName);
-                    mEditor.apply();
+            if (Functions.isNetworkAvailable(mContext)) {
+                MainActivity.mLoadingView.setVisibility(View.VISIBLE);
 
-                    //Activate Alarm
-                    if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
-                        Functions.findNewPostPeriodicRequest(mContext);
-                    } else {
-                        Functions.findNewPostSingleRequest(mContext);
-                    }
-                    mAdapterCallback.showOnline();
+                SharedPreferences sharedPreferences = mContext.getSharedPreferences("Settings", 0);
+                SharedPreferences.Editor mEditor = sharedPreferences.edit();
+                mEditor.putString("searchName", mAccountName);
+                mEditor.apply();
+
+                //Activate Alarm
+                if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
+                    Functions.findNewPostPeriodicRequest(mContext);
                 } else {
-                    Log.d(TAG, "No Network Connection");
-                    mAdapterCallback.showOffline();
+                    Functions.findNewPostSingleRequest(mContext);
                 }
+                mAdapterCallback.showOnline();
+            } else {
+                Log.d(TAG, "No Network Connection");
+                mAdapterCallback.showOffline();
             }
         });
 
         holder.itemView.setOnLongClickListener(v -> {
             Log.d(TAG, "RecyclerView item long clicked: (" + mAccountName + ")");
-
-            if (isClickable) {
-                if (mOnDataChangeListener != null) {
-                    mOnDataChangeListener.updateAccountList(mAccountName);
-                }
-            }
+            mAdapterCallback.hideSoftKeyboard();
+            mAdapterCallback.showRemoveConfirmation(mAccountName);
 
             return true;
         });
@@ -96,7 +90,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
         return mPreviousAccountList.size();
     }
 
-    public AccountListAdapter(Context context, List<PreviousAccount> previousAccountList, AdapterCallback callback) {
+    public AccountListAdapter(Activity context, List<PreviousAccount> previousAccountList, AdapterCallback callback) {
         mInflater = LayoutInflater.from(context);
 
         mContext = context;
@@ -118,15 +112,5 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
             this.mAdapter = adapter;
         }
-    }
-
-    public interface OnDataChangeListener {
-        void updateAccountList(String accountName);
-    }
-
-    OnDataChangeListener mOnDataChangeListener;
-
-    public void setOnDataChangeListener(OnDataChangeListener onDataChangeListener) {
-        mOnDataChangeListener = onDataChangeListener;
     }
 }

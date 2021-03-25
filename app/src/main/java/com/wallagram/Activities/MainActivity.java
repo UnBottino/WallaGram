@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,8 +24,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -83,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setupUI(findViewById(R.id.mainContainer));
 
         Log.d(TAG, "onCreate: Registering receivers");
         LocalBroadcastManager.getInstance(this).registerReceiver(updateSetAccountUIReceiver, new IntentFilter("update-set-account"));
@@ -222,8 +225,8 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         });
 
         //Settings Button
-        RelativeLayout settingsBtn = findViewById(R.id.settingsBtn);
-        settingsBtn.setOnClickListener(view -> {
+        RelativeLayout mSettingsBtn = findViewById(R.id.settingsBtn);
+        mSettingsBtn.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivityForResult(intent, 59);
@@ -260,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         setupSuggestions();
 
         //Clear Listeners
-        setupClearListeners();
+        //setupClearListeners();
     }
 
     private void setupState() {
@@ -315,41 +318,13 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         mPreviousPreviousAccountList = Functions.getDBAccounts(this);
         Collections.reverse(mPreviousPreviousAccountList);
 
-        mPreviousAdapter = new AccountListAdapter(getApplicationContext(), mPreviousPreviousAccountList, mAdapterCallback);
-
-        mPreviousAdapter.setOnDataChangeListener(accountName -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogCustom);
-            builder.setCancelable(true);
-            builder.setTitle("Remove '" + accountName + "' from list");
-            builder.setMessage("Are you sure?");
-            builder.setPositiveButton("Confirm", (dialog, which) -> {
-                Functions.removeDBAccountByName(MainActivity.this, accountName);
-
-                int pos = 0;
-                for (PreviousAccount a : mPreviousPreviousAccountList) {
-                    if (a.getAccountName().equalsIgnoreCase(accountName)) {
-                        mPreviousPreviousAccountList.remove(a);
-                        mPreviousAdapter.notifyItemRemoved(pos);
-                        mPreviousAdapter.notifyDataSetChanged();
-                        break;
-                    }
-                    pos++;
-                }
-            });
-            builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                //Do nothing
-            });
-
-            AlertDialog dialog = builder.create();
-            Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.show();
-        });
-
+        mPreviousAdapter = new AccountListAdapter(this, mPreviousPreviousAccountList, mAdapterCallback);
         mPreviousRecyclerView.setAdapter(mPreviousAdapter);
         mPreviousRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
     }
 
     private void setupSuggestions() {
+        RelativeLayout mSuggestionsBtn = findViewById(R.id.suggestionBtn);
         suggestionLayout = findViewById(R.id.suggestionsLayout);
         suggestionIcon = findViewById(R.id.suggestionIcon);
         mSuggestionsRecyclerView = findViewById(R.id.suggestionAccountList);
@@ -364,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
             showOffline();
         }
 
-        findViewById(R.id.suggestionBtn).setOnClickListener(v -> {
+        mSuggestionsBtn.setOnClickListener(v -> {
             if (!suggestionsOpened && !mSuggestionAccountList.isEmpty()) {
                 DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.purple));
                 suggestionLayout.setVisibility(View.VISIBLE);
@@ -423,29 +398,56 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    public void setupClearListeners() {
-        RelativeLayout settingsBtn = findViewById(R.id.settingsBtn);
-        ConstraintLayout mainContainer = findViewById(R.id.mainContainer);
+    @Override
+    public void showRemoveConfirmation(String accountName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogCustom);
+        builder.setCancelable(true);
+        builder.setTitle("Remove '" + accountName + "' from list");
+        builder.setMessage("Are you sure?");
+        builder.setPositiveButton("Confirm", (dialog, which) -> {
+            Functions.removeDBAccountByName(MainActivity.this, accountName);
 
-        mainContainer.setOnTouchListener(new clearViewListener());
-        settingsBtn.setOnTouchListener(new clearViewListener());
+            int pos = 0;
+            for (PreviousAccount a : mPreviousPreviousAccountList) {
+                if (a.getAccountName().equalsIgnoreCase(accountName)) {
+                    mPreviousPreviousAccountList.remove(a);
+                    mPreviousAdapter.notifyItemRemoved(pos);
+                    mPreviousAdapter.notifyDataSetChanged();
+                    break;
+                }
+                pos++;
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+            //Do nothing
+        });
+
+        AlertDialog dialog = builder.create();
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
     }
 
-    class clearViewListener implements View.OnTouchListener {
-        @SuppressLint("ClickableViewAccessibility")
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            mSearchBar.setIconified(true);
+    @Override
+    public void hideSoftKeyboard() {
+        mSearchBar.setIconified(true);
+        getWindow().getDecorView().clearFocus();
+    }
 
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    @SuppressLint("ClickableViewAccessibility")
+    public void setupUI(View view) {
+        // Set up touch listener for non-text box views to hide keyboard.
+        if (!(view instanceof EditText)) {
+            view.setOnTouchListener((v, event) -> {
+                hideSoftKeyboard();
+                return false;
+            });
+        }
+        //If a layout container, iterate over children and seed recursion.
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                View innerView = ((ViewGroup) view).getChildAt(i);
+                setupUI(innerView);
             }
-
-            getWindow().getDecorView().clearFocus();
-
-            return false;
         }
     }
 }

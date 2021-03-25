@@ -40,7 +40,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginVertical="10dp"
-                android:background="@drawable/rounded_rectangle"
+                android:background="@drawable/ripple_rounded_rectangle"
 
                 android:checked="true"
 
@@ -56,7 +56,7 @@
                 android:layout_height="60dp"
                 android:layout_marginBottom="10dp"
 
-                android:background="@drawable/rounded_rectangle"
+                android:background="@drawable/ripple_rounded_rectangle"
                 tools:context=".Activities.MainActivity">
 
                 <TextView
@@ -78,7 +78,7 @@
                 android:layout_height="60dp"
                 android:layout_marginBottom="10dp"
 
-                android:background="@drawable/rounded_rectangle"
+                android:background="@drawable/ripple_rounded_rectangle"
                 tools:context=".Activities.MainActivity">
 
                 <TextView
@@ -100,7 +100,7 @@
                 android:layout_height="60dp"
                 android:layout_marginBottom="10dp"
 
-                android:background="@drawable/rounded_rectangle"
+                android:background="@drawable/ripple_rounded_rectangle"
                 tools:context=".Activities.MainActivity">
 
                 <TextView
@@ -122,7 +122,7 @@
                 android:layout_height="60dp"
                 android:layout_marginBottom="10dp"
 
-                android:background="@drawable/rounded_rectangle"
+                android:background="@drawable/ripple_rounded_rectangle"
                 tools:context=".Activities.MainActivity">
 
                 <TextView
@@ -143,7 +143,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginBottom="10dp"
-                android:background="@drawable/rounded_rectangle"
+                android:background="@drawable/ripple_rounded_rectangle"
 
                 android:fontFamily="@font/roboto"
                 android:paddingHorizontal="20dp"
@@ -156,7 +156,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginBottom="10dp"
-                android:background="@drawable/rounded_rectangle"
+                android:background="@drawable/ripple_rounded_rectangle"
 
                 android:fontFamily="@font/roboto"
                 android:paddingHorizontal="20dp"
@@ -170,7 +170,7 @@
                 android:layout_height="60dp"
                 android:layout_marginBottom="10dp"
 
-                android:background="@drawable/rounded_rectangle"
+                android:background="@drawable/ripple_rounded_rectangle"
                 tools:context=".Activities.MainActivity">
 
                 <TextView

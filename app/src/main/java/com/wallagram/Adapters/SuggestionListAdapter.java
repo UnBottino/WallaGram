@@ -53,6 +53,8 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
         holder.itemView.setOnClickListener(v -> {
             Log.d(TAG, "Suggestion RecyclerView item clicked: (" + mSuggestionName + ")");
 
+            mAdapterCallback.hideSoftKeyboard();
+
             if (Functions.isNetworkAvailable(mContext)) {
                 MainActivity.mLoadingView.setVisibility(View.VISIBLE);
 

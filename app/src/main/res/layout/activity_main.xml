@@ -6,6 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorPrimary"
+    android:clickable="true"
+    android:focusableInTouchMode="true"
     tools:context=".Activities.MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -159,11 +161,10 @@
 
     <RelativeLayout
         android:id="@+id/searchLayout"
-        style="@style/SearchViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:orientation="vertical"
+        android:clickable="false"
         app:layout_constraintBottom_toTopOf="@+id/accountNameContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -219,26 +220,20 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
             android:layout_centerInParent="true"
-
             android:orientation="vertical">
 
             <View
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-
                 android:layout_gravity="center"
-
                 android:background="@drawable/ic_baseline_people_outline_24"
                 android:backgroundTint="@color/grey" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
                 android:layout_gravity="center"
-
                 android:fontFamily="@font/roboto_light"
                 android:text="@string/empty_recent_searches"
                 android:textColor="@color/grey"
