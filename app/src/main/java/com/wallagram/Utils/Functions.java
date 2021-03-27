@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.InsetDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.text.Layout;
@@ -180,7 +181,9 @@ public class Functions {
         builder.setMessage(msg);
 
         AlertDialog dialog = builder.create();
-        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        ColorDrawable back = new ColorDrawable(Color.TRANSPARENT);
+        InsetDrawable inset = new InsetDrawable(back, 20);
+        dialog.getWindow().setBackgroundDrawable(inset);
         dialog.show();
 
         alertInfoBtn.setOnClickListener(v -> dialog.cancel());
@@ -192,7 +195,7 @@ public class Functions {
         display.getMetrics(metrics);
         final int screenWidth = metrics.widthPixels;
         final int screenHeight = metrics.heightPixels;
-        
+
         Log.d(TAG, "getScreenSize: Screen Width: " + screenWidth);
         Log.d(TAG, "getScreenSize: Screen Height: " + screenHeight);
 
