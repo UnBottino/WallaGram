@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
@@ -27,9 +28,8 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
 
     private final List<SuggestionAccount> mSuggestionAccountList;
     private final LayoutInflater mInflater;
-
     private final Context mContext;
-
+    private SharedPreferences mSharedPreferences;
     private final AdapterCallback mAdapterCallback;
 
     @NonNull
@@ -43,6 +43,9 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
     public void onBindViewHolder(final SuggestionListItemHolder holder, int position) {
         final String mSuggestionName = mSuggestionAccountList.get(position).getSuggestionName();
         final String mSuggestionImgUrl = mSuggestionAccountList.get(position).getSuggestionImgUrl();
+
+        int deviceWidth = mSharedPreferences.getInt("screenWidth", 0);
+        holder.suggestionItemContainer.getLayoutParams().width = (int) ((deviceWidth - 125) / 2.8);
 
         Picasso.get()
                 .load(Uri.parse(mSuggestionImgUrl))
@@ -58,13 +61,13 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
             if (Functions.isNetworkAvailable(mContext)) {
                 MainActivity.mLoadingView.setVisibility(View.VISIBLE);
 
-                SharedPreferences sharedPreferences = mContext.getSharedPreferences("Settings", 0);
-                SharedPreferences.Editor mEditor = sharedPreferences.edit();
+                mSharedPreferences = mContext.getSharedPreferences("Settings", 0);
+                SharedPreferences.Editor mEditor = mSharedPreferences.edit();
                 mEditor.putString("searchName", mSuggestionName);
                 mEditor.apply();
 
                 //Activate Alarm
-                if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
+                if (mSharedPreferences.getInt("state", 1) == 1 && !mSharedPreferences.getBoolean("repeatingWorker", false)) {
                     Functions.findNewPostPeriodicRequest(mContext);
                 } else {
                     Functions.findNewPostSingleRequest(mContext);
@@ -83,24 +86,24 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
     }
 
     public SuggestionListAdapter(Context context, List<SuggestionAccount> accountList, AdapterCallback callback) {
-        mInflater = LayoutInflater.from(context);
-        mContext = context;
+        this.mInflater = LayoutInflater.from(context);
+        this.mContext = context;
+        this.mSharedPreferences = mContext.getSharedPreferences("Settings", Context.MODE_PRIVATE);
         this.mSuggestionAccountList = accountList;
         this.mAdapterCallback = callback;
     }
 
     static class SuggestionListItemHolder extends RecyclerView.ViewHolder {
+        final ConstraintLayout suggestionItemContainer;
         final TextView accountNameView;
         final ImageView profilePicView;
-
         final SuggestionListAdapter mAdapter;
 
         SuggestionListItemHolder(View itemView, SuggestionListAdapter adapter) {
             super(itemView);
-
-            accountNameView = itemView.findViewById(R.id.accountName);
-            profilePicView = itemView.findViewById(R.id.profilePic);
-
+            this.suggestionItemContainer = itemView.findViewById(R.id.suggestionItemContainer);
+            this.accountNameView = itemView.findViewById(R.id.accountName);
+            this.profilePicView = itemView.findViewById(R.id.profilePic);
             this.mAdapter = adapter;
         }
     }

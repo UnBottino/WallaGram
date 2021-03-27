@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -99,8 +97,9 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         pageSetup();
 
         //Activate Alarm
-        // TODO: 23/03/2021 Wrap with IF()
-        Functions.findNewPostPeriodicRequest(this);
+        if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
+            Functions.findNewPostPeriodicRequest(this);
+        }
     }
 
     @Override
@@ -238,6 +237,17 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
 
         //Set Profile Information
         profilePicGlow = findViewById(R.id.profilePicGlow);
+
+        //Auto-size set profile pic
+        int screenHeight = sharedPreferences.getInt("screenHeight", 0);
+        int screenWidth = sharedPreferences.getInt("screenWidth", 0);
+        float ratio = ((float) screenHeight / (float) screenWidth);
+
+        ConstraintLayout.LayoutParams lp = (ConstraintLayout.LayoutParams) profilePicGlow.getLayoutParams();
+        lp.matchConstraintPercentHeight = (float) (0.15);
+        lp.matchConstraintPercentWidth = (float) (ratio * 0.15);
+        profilePicGlow.setLayoutParams(lp);
+
         mSetProfilePic = findViewById(R.id.setProfilePic);
         String setProfilePic = sharedPreferences.getString("setProfilePic", "");
 
@@ -248,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         }
 
         mSetAccountName = findViewById(R.id.SetAccountName);
-        mSetAccountName.setText(sharedPreferences.getString("setAccountName", "No PreviousAccount Set"));
+        mSetAccountName.setText(sharedPreferences.getString("setAccountName", "No Account Set"));
 
         //State Color
         setupState();
@@ -391,11 +401,9 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
 
     @Override
     public void showOnline() {
-        if (offline) {
-            networkMsg.setVisibility(View.GONE);
-            mSearchBar.setEnabled(true);
-            offline = false;
-        }
+        networkMsg.setVisibility(View.GONE);
+        mSearchBar.setEnabled(true);
+        offline = false;
     }
 
     @Override

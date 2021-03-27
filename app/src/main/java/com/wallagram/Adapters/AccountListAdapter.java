@@ -27,9 +27,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
     private final List<PreviousAccount> mPreviousAccountList;
     private final LayoutInflater mInflater;
-
     private final Activity mContext;
-
     final AdapterCallback mAdapterCallback;
 
     @NonNull
@@ -46,9 +44,9 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
         Picasso.get()
                 .load(Uri.parse(mProfilePicURL))
-                .into(holder.profilePicView);
+                .into(holder.mProfilePicView);
 
-        holder.accountNameView.setText(mAccountName);
+        holder.mAccountNameView.setText(mAccountName);
 
         holder.itemView.setOnClickListener(v -> {
             Log.d(TAG, "RecyclerView item clicked: (" + mAccountName + ")");
@@ -91,25 +89,21 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
     }
 
     public AccountListAdapter(Activity context, List<PreviousAccount> previousAccountList, AdapterCallback callback) {
-        mInflater = LayoutInflater.from(context);
-
-        mContext = context;
+        this.mInflater = LayoutInflater.from(context);
+        this.mContext = context;
         this.mPreviousAccountList = previousAccountList;
         this.mAdapterCallback = callback;
     }
 
     static class AccountListItemHolder extends RecyclerView.ViewHolder {
-        final TextView accountNameView;
-        final ImageView profilePicView;
-
+        final TextView mAccountNameView;
+        final ImageView mProfilePicView;
         final AccountListAdapter mAdapter;
 
         AccountListItemHolder(View itemView, AccountListAdapter adapter) {
             super(itemView);
-
-            accountNameView = itemView.findViewById(R.id.accountName);
-            profilePicView = itemView.findViewById(R.id.profilePic);
-
+            this.mAccountNameView = itemView.findViewById(R.id.accountName);
+            this.mProfilePicView = itemView.findViewById(R.id.profilePic);
             this.mAdapter = adapter;
         }
     }

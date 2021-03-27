@@ -120,8 +120,8 @@ public class FindNewPostWorker extends Worker {
                         try {
                             edgeObject = edgesArray.getJSONObject(postNumber);
                         } catch (Exception e) {
-                            Log.d(TAG, "PreviousAccount is private");
-                            errorMsg = "Private PreviousAccount\n(" + mSearchName + ")";
+                            Log.d(TAG, "Account is private");
+                            errorMsg = "Private account\n(" + mSearchName + ")";
                             break;
                         }
 
