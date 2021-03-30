@@ -70,7 +70,7 @@ public class Functions {
                 .build();
 
         androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
-        workManager.enqueueUniquePeriodicWork(WORK_TAG, ExistingPeriodicWorkPolicy.KEEP, pwr);
+        workManager.enqueueUniquePeriodicWork(WORK_TAG, ExistingPeriodicWorkPolicy.REPLACE, pwr);
     }
 
     public static void findNewPostSingleRequest(Context context) {
@@ -86,7 +86,7 @@ public class Functions {
                 .build();
 
         androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
-        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.KEEP, owr);
+        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.REPLACE, owr);
     }
 
     public static void fetchSuggestionsRequest(Context context) {
@@ -102,7 +102,7 @@ public class Functions {
                 .build();
 
         androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
-        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.KEEP, owr);
+        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.REPLACE, owr);
     }
 
     public static void savePostRequest(Context context) {
@@ -118,7 +118,7 @@ public class Functions {
                 .build();
 
         androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
-        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.KEEP, owr);
+        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.REPLACE, owr);
     }
 
     public static boolean isNetworkAvailable(Context context) {
@@ -183,7 +183,7 @@ public class Functions {
         AlertDialog dialog = builder.create();
         ColorDrawable back = new ColorDrawable(Color.TRANSPARENT);
         InsetDrawable inset = new InsetDrawable(back, 20);
-        dialog.getWindow().setBackgroundDrawable(inset);
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(inset);
         dialog.show();
 
         alertInfoBtn.setOnClickListener(v -> dialog.cancel());

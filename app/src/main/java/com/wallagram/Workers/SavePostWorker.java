@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.Objects;
 
-// TODO: 22/03/2021 Change log messages
 public class SavePostWorker extends Worker {
     private static final String TAG = "WORKER_SAVE_POST";
 

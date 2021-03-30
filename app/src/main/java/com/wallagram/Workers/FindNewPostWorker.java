@@ -9,11 +9,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
@@ -31,43 +29,47 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Objects;
 
 public class FindNewPostWorker extends Worker {
     private static final String TAG = "WORKER_FIND_NEW_POST";
 
-    private final SharedPreferences sharedPreferences;
-    private final SharedPreferences.Editor editor;
+    private final SharedPreferences mSharedPreferences;
+    private final SharedPreferences.Editor mEditor;
 
     private final String mSearchName;
-    private String mProfileUrl;
+    private final boolean mAllowVideos;
+    private final int mPreferredChild;
 
-    private JSONObject nodeObject;
-    private final boolean videoCheckDisabled;
+    private boolean mIsPrivate;
+    private String mProfilePicUrl;
+    private int mPostCount;
+
+    private JSONObject mTimelineMedia;
+    private JSONObject mPostNode;
+    private JSONArray mChildEdgesArray;
+    private JSONObject mChildNode;
+
     private String mPostUrl;
     private String mImageName;
 
-    private String errorMsg = null;
+    private boolean mSuccess;
 
     public FindNewPostWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
+        mSharedPreferences = getApplicationContext().getSharedPreferences("Settings", 0);
+        mEditor = mSharedPreferences.edit();
+        mEditor.apply();
 
-        sharedPreferences = getApplicationContext().getSharedPreferences("Settings", 0);
-        editor = sharedPreferences.edit();
-        editor.apply();
-
-        mSearchName = sharedPreferences.getString("searchName", "");
-        videoCheckDisabled = sharedPreferences.getBoolean("allowVideos", false);
+        mSearchName = mSharedPreferences.getString("searchName", "");
+        mAllowVideos = mSharedPreferences.getBoolean("allowVideos", false);
+        mPreferredChild = mSharedPreferences.getInt("multiImage", 1) - 1;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
     @NonNull
     @Override
     public Result doWork() {
         HttpURLConnection connection = null;
         BufferedReader reader = null;
-
-        //Connect and get response
         try {
             Log.d(TAG, "Building account url and connecting");
             String urlString = "https://www.instagram.com/" + mSearchName + "/channel/?__a=1";
@@ -78,143 +80,118 @@ public class FindNewPostWorker extends Worker {
 
             InputStream stream = connection.getInputStream();
             reader = new BufferedReader(new InputStreamReader(stream));
+
+            Log.d(TAG, "Reading Json Response");
+            JSONObject responseObject = new JSONObject(reader.readLine());
+
+            processResponse(responseObject);
         } catch (Exception e) {
-            Log.d(TAG, "PreviousAccount Not Found");
-            errorMsg = "PreviousAccount Not Found\n(" + mSearchName + ")";
-            Objects.requireNonNull(connection).disconnect();
-        }
-
-        if (errorMsg == null) {
+            Log.d(TAG, "Account Not Found");
+            endError("Account Not Found\n(" + mSearchName + ")");
+        } finally {
             try {
-                Log.d(TAG, "Reading Json Response");
-                JSONObject jsonObject = new JSONObject(Objects.requireNonNull(reader).readLine());
-                reader.close();
-                connection.disconnect();
-
-                Log.d(TAG, "Parsing Json response");
-                JSONObject graphqlObject = jsonObject.getJSONObject("graphql");
-                JSONObject userObject = graphqlObject.getJSONObject("user");
-
-                //Get profile pic
-                mProfileUrl = userObject.getString("profile_pic_url_hd");
-
-                JSONObject timelineMediaObject = userObject.getJSONObject("edge_owner_to_timeline_media");
-
-                //Check for 'no post' account
-                int postCount = timelineMediaObject.getInt("count");
-                Log.d(TAG, "Post Count: " + postCount);
-                if (postCount == 0)
-                    errorMsg = "No Posts Yet\n(" + mSearchName + ")";
-
-                //Get usable wallpaper
-                if (errorMsg == null) {
-                    JSONArray edgesArray = timelineMediaObject.getJSONArray("edges");
-
-                    //Loop through posts
-                    for (int postNumber = 0; postNumber < 12; postNumber++) {
-                        Log.d(TAG, "Looking at post: " + postNumber);
-
-                        JSONObject edgeObject;
-
-                        //Check for private account
-                        try {
-                            edgeObject = edgesArray.getJSONObject(postNumber);
-                        } catch (Exception e) {
-                            Log.d(TAG, "Account is private");
-                            errorMsg = "Private account\n(" + mSearchName + ")";
-                            break;
-                        }
-
-                        nodeObject = edgeObject.getJSONObject("node");
-
-                        //Check for post children
-                        JSONObject childrenObject = null;
-                        try {
-                            childrenObject = nodeObject.getJSONObject("edge_sidecar_to_children");
-                        } catch (Exception e) {
-                            Log.d(TAG, "Post has NO children");
-                        }
-
-                        if (childrenObject != null) {
-                            Log.d(TAG, "Children found");
-                            JSONArray childEdgesArray = childrenObject.getJSONArray("edges");
-
-                            //Check if preferred child is usable
-                            try {
-                                int preferredChildNumber = sharedPreferences.getInt("multiImage", 1) - 1;
-                                JSONObject childEdgeObject = childEdgesArray.getJSONObject(preferredChildNumber);
-                                JSONObject childNodeObject = childEdgeObject.getJSONObject("node");
-
-                                if (childNodeObject.get("is_video").toString().equalsIgnoreCase("false") || videoCheckDisabled) {
-                                    Log.d(TAG, "Preferred child found");
-                                    mPostUrl = childNodeObject.get("display_url").toString();
-                                    break;
-                                }
-                            } catch (Exception e) {
-                                Log.d(TAG, "Preferred child not found");
-                            }
-
-                            //Loop through all children if preferred has problem
-                            if (loopChildren(childEdgesArray)) {
-                                break;
-                            }
-                        } else {
-                            //Check if post is usable if no children
-                            if (nodeObject.get("is_video").toString().equalsIgnoreCase("false") || videoCheckDisabled) {
-                                Log.d(TAG, "Image found");
-                                mPostUrl = nodeObject.get("display_url").toString();
-                                break;
-                            }
-                        }
-
-                        //Check if 12 most recent posts has been checked
-                        if (postNumber == 11)
-                            errorMsg = "No Recent Image Posts\n(" + mSearchName + ")";
-                    }
-
-                    if (errorMsg == null)
-                        mImageName = nodeObject.get("id").toString();
+                if (reader != null) {
+                    reader.close();
                 }
-            } catch (JSONException | IOException e) {
-                Log.e(TAG, "Error parsing response: " + e.getMessage());
-                errorMsg = "Unexpected Error";
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (connection != null) {
+                connection.disconnect();
             }
         }
 
-        if (errorMsg != null) {
-            //Show error message
-            editor.putString("setAccountName", errorMsg);
-            editor.putString("setProfilePic", "");
-            editor.putBoolean("repeatingWorker", false);
-            editor.commit();
-
-            WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("findNewPost");
-            sendUpdateUIBroadcast(true);
-        } else {
-            //Show new current account info
-            editor.putString("setAccountName", mSearchName);
-            editor.putString("setProfilePic", mProfileUrl);
-            editor.putString("setPostURL", mPostUrl);
-            editor.putString("setImageName", mImageName);
-            editor.putBoolean("repeatingWorker", true);
-            editor.commit();
-
-            setWallpaper();
-        }
-
-        return Result.success();
+        return (mSuccess ? Result.success() : Result.failure());
     }
 
-    public boolean loopChildren(JSONArray childEdgesArray) {
-        Log.d(TAG, "loopChildren: Looping Children");
-        for (int childNumber = 0; childNumber <= childEdgesArray.length(); childNumber++) {
-            try {
-                JSONObject childEdgeObject = childEdgesArray.getJSONObject(childNumber);
+    private void processResponse(JSONObject responseObject) {
+        try {
+            getData(responseObject);
 
-                JSONObject childNodeObject = childEdgeObject.getJSONObject("node");
-                if (childNodeObject.get("is_video").toString().equalsIgnoreCase("false") || videoCheckDisabled) {
+            if (mIsPrivate) {
+                endError("Private account\n(" + mSearchName + ")");
+            } else if (mPostCount == 0) {
+                endError("No Posts Yet\n(" + mSearchName + ")");
+            } else {
+                //Loop through posts
+                for (int postNumber = 0; postNumber < 12; postNumber++) {
+                    Log.d(TAG, "Looking at post: " + postNumber);
+                    mPostNode = mTimelineMedia.getJSONArray("edges").getJSONObject(postNumber).getJSONObject("node");
+
+                    if (getPostChildren()) {
+                        Log.d(TAG, "Children found");
+                        if (checkPreferableChild()) {
+                            endSuccess();
+                            return;
+                        } else if (loopPostChildren()) {
+                            endSuccess();
+                            return;
+                        }
+                    } else {
+                        if (mPostNode.get("is_video").toString().equalsIgnoreCase("false") || mAllowVideos) {
+                            Log.d(TAG, "Image found");
+                            mPostUrl = mPostNode.get("display_url").toString();
+                            endSuccess();
+                            return;
+                        }
+                    }
+                }
+
+                //Looped 12 posts and found no image
+                endError("No Recent Image Posts\n(" + mSearchName + ")");
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "Error parsing response: " + e.getMessage());
+            endError("Unexpected Error");
+        }
+    }
+
+    private void getData(JSONObject jsonObject) throws JSONException {
+        Log.d(TAG, "Parsing Json response");
+        JSONObject userObject = jsonObject.getJSONObject("graphql").getJSONObject("user");
+
+        mIsPrivate = userObject.getBoolean("is_private");
+        mProfilePicUrl = userObject.getString("profile_pic_url_hd");
+        mTimelineMedia = userObject.getJSONObject("edge_owner_to_timeline_media");
+
+        mPostCount = mTimelineMedia.getInt("count");
+    }
+
+    private boolean getPostChildren() {
+        try {
+            mChildEdgesArray = mPostNode.getJSONObject("edge_sidecar_to_children").getJSONArray("edges");
+            return true;
+        } catch (Exception e) {
+            Log.d(TAG, "Post has NO children");
+            return false;
+        }
+    }
+
+    private boolean checkPreferableChild() {
+        try {
+            mChildNode = mChildEdgesArray.getJSONObject(mPreferredChild).getJSONObject("node");
+
+            if (mChildNode.get("is_video").toString().equalsIgnoreCase("false") || mAllowVideos) {
+                Log.d(TAG, "Preferred child found");
+                mPostUrl = mChildNode.get("display_url").toString();
+                return true;
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Preferred child not found");
+        }
+
+        return false;
+    }
+
+    private boolean loopPostChildren() {
+        Log.d(TAG, "loopChildren: Looping Children");
+        for (int childNumber = 0; childNumber <= mChildEdgesArray.length(); childNumber++) {
+            try {
+                mChildNode = mChildEdgesArray.getJSONObject(childNumber).getJSONObject("node");
+
+                if (mChildNode.get("is_video").toString().equalsIgnoreCase("false") || mAllowVideos) {
                     Log.d(TAG, "loopChildren: Image found in child : " + childNumber);
-                    mPostUrl = childNodeObject.get("display_url").toString();
+                    mPostUrl = mChildNode.get("display_url").toString();
                     return true;
                 }
             } catch (Exception e) {
@@ -225,41 +202,70 @@ public class FindNewPostWorker extends Worker {
         return false;
     }
 
-    private void setWallpaper() {
-        boolean success = true;
-        URL url;
+    private void endSuccess() {
         try {
-            Log.d(TAG, "setWallpaper: Setting Wallpaper");
-            url = new URL(mPostUrl);
+            mImageName = mPostNode.get("id").toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        //Show new current account info
+        mEditor.putString("setAccountName", mSearchName);
+        mEditor.putString("setProfilePic", mProfilePicUrl);
+        mEditor.putString("setPostURL", mPostUrl);
+        mEditor.putString("setImageName", mImageName);
+        mEditor.putBoolean("repeatingWorker", true);
+        mEditor.commit();
+
+        setWallpaper();
+
+        mSuccess = true;
+    }
+
+    private void endError(String errorMsg) {
+        //Show error message
+        mEditor.putString("setAccountName", errorMsg);
+        mEditor.putString("setProfilePic", "");
+        mEditor.putBoolean("repeatingWorker", false);
+        mEditor.commit();
+
+        WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("findNewPost");
+        sendUpdateUIBroadcast(true);
+
+        mSuccess = false;
+    }
+
+    private void setWallpaper() {
+        Log.d(TAG, "setWallpaper: Setting Wallpaper");
+
+        try {
+            URL url = new URL(mPostUrl);
             Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
             WallpaperManager wallpaperManager = WallpaperManager.getInstance(getApplicationContext());
 
-            int screenWidth = sharedPreferences.getInt("screenWidth", 0);
-            int screenHeight = sharedPreferences.getInt("screenHeight", 0);
-
-            int imageAlign = sharedPreferences.getInt("align", 1);
+            int screenWidth = mSharedPreferences.getInt("screenWidth", 0);
+            int screenHeight = mSharedPreferences.getInt("screenHeight", 0);
+            int imageAlign = mSharedPreferences.getInt("align", 1);
 
             Bitmap bm = scaleCrop(bitmap, imageAlign, screenHeight, screenWidth);
 
-            if (sharedPreferences.getInt("location", 0) == 0) {
+            if (mSharedPreferences.getInt("location", 0) == 0) {
                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_SYSTEM);
-            } else if (sharedPreferences.getInt("location", 0) == 1) {
+            } else if (mSharedPreferences.getInt("location", 0) == 1) {
                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_LOCK);
             } else {
                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_SYSTEM);
                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_LOCK);
             }
-        } catch (IOException e) {
-            Log.e(TAG, "setWallpaper:  " + e.getMessage());
-            success = false;
-        }
 
-        if (success) {
-            if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
+            if (mSharedPreferences.getInt("saveWallpaper", 0) == 1) {
                 Functions.savePostRequest(getApplicationContext());
             }
 
             sendUpdateUIBroadcast(false);
+        } catch (IOException e) {
+            Log.e(TAG, "setWallpaper:  ", e);
+            sendUpdateUIBroadcast(true);
         }
     }
 
