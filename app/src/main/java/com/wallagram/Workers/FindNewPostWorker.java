@@ -229,7 +229,7 @@ public class FindNewPostWorker extends Worker {
         mEditor.putBoolean("repeatingWorker", false);
         mEditor.commit();
 
-        WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("findNewPost");
+        WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("findNewPost: Periodic");
         sendUpdateUIBroadcast(true);
 
         mSuccess = false;

@@ -100,7 +100,7 @@ public class SettingsActivity extends AppCompatActivity {
                 editor.apply();
 
                 Log.d(TAG, "stateBtnSetup: State value updated to: Off");
-                WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("findNewPost");
+                WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("findNewPost: Periodic");
 
                 Intent intent = new Intent();
                 if (clearRecentChange) {
