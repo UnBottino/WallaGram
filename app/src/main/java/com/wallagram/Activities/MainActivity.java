@@ -271,9 +271,6 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
 
         //Suggestions
         setupSuggestions();
-
-        //Clear Listeners
-        //setupClearListeners();
     }
 
     private void setupState() {

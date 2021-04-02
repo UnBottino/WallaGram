@@ -23,9 +23,10 @@
     </style>
 
     <style name="checkedNumber">
-        <item name="android:layout_width">75dp</item>
-        <item name="android:layout_height">75dp</item>
-        <item name="android:layout_margin">10dp</item>
+        <item name="android:layout_width">70dp</item>
+        <item name="android:layout_height">70dp</item>
+        <item name="android:layout_marginVertical">10dp</item>
+        <item name="android:layout_marginHorizontal">20dp</item>
         <item name="android:background">@drawable/multi_btn</item>
         <item name="android:fontFamily">@font/roboto</item>
         <item name="android:gravity">center</item>
@@ -59,20 +60,20 @@
     </style>
 
     <style name="NumpadBtn">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginHorizontal">5dp</item>
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
         <item name="android:clickable">true</item>
         <item name="android:fontFamily">@font/roboto</item>
-        <item name="android:paddingHorizontal">40dp</item>
-        <item name="android:paddingVertical">20dp</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textSize">24sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="layout_constraintWidth_percent">.333</item>
+        <item name="layout_constraintHeight_percent">.25</item>
     </style>
 
     <style name="ApplyButton">
-        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">50dp</item>
         <item name="android:layout_margin">20dp</item>
         <item name="android:alpha">0.5</item>

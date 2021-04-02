@@ -240,14 +240,14 @@ public class FindNewPostWorker extends Worker {
 
         try {
             URL url = new URL(mPostUrl);
-            Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+            Bitmap postImage = BitmapFactory.decodeStream(url.openConnection().getInputStream());
             WallpaperManager wallpaperManager = WallpaperManager.getInstance(getApplicationContext());
 
             int screenWidth = mSharedPreferences.getInt("screenWidth", 0);
             int screenHeight = mSharedPreferences.getInt("screenHeight", 0);
             int imageAlign = mSharedPreferences.getInt("align", 1);
 
-            Bitmap bm = scaleCrop(bitmap, imageAlign, screenHeight, screenWidth);
+            Bitmap bm = scaleCrop(postImage, imageAlign, screenHeight, screenWidth);
 
             if (mSharedPreferences.getInt("location", 0) == 0) {
                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_SYSTEM);
@@ -269,22 +269,22 @@ public class FindNewPostWorker extends Worker {
         }
     }
 
-    private Bitmap scaleCrop(Bitmap source, int imageAlign, int newHeight, int newWidth) {
-        Log.d(TAG, "scaleCrop: Scaling image to Height: " + newHeight + ", to Width: " + newWidth + " and aligned: " + imageAlign);
+    private Bitmap scaleCrop(Bitmap postImage, int imageAlign, int screenHeight, int screenWidth) {
+        Log.d(TAG, "scaleCrop: Scaling image to Height: " + screenHeight + ", to Width: " + screenWidth + " and aligned: " + imageAlign);
 
-        int sourceWidth = source.getWidth();
-        int sourceHeight = source.getHeight();
+        int postWidth = postImage.getWidth();
+        int postHeight = postImage.getHeight();
 
         // Compute the scaling factors to fit the new height and width, respectively.
         // To cover the final image, the final scaling will be the bigger
         // of these two.
-        float xScale = (float) newWidth / sourceWidth;
-        float yScale = (float) newHeight / sourceHeight;
+        float xScale = (float) screenWidth / postWidth;
+        float yScale = (float) screenHeight / postHeight;
         float scale = Math.max(xScale, yScale);
 
         // Now get the size of the source bitmap when scaled
-        float scaledWidth = scale * sourceWidth;
-        float scaledHeight = scale * sourceHeight;
+        float scaledWidth = scale * postWidth;
+        float scaledHeight = scale * postHeight;
 
         // Let's find out the upper left coordinates if the scaled bitmap
         // should be centered in the new size give by the parameters
@@ -297,25 +297,25 @@ public class FindNewPostWorker extends Worker {
                 top = 0;
                 break;
             case 2:
-                left = (newWidth - scaledWidth);
-                top = (newHeight - scaledHeight);
+                left = (screenWidth - scaledWidth);
+                top = (screenHeight - scaledHeight);
                 break;
             default:
-                left = (newWidth - scaledWidth) / 2;
-                top = (newHeight - scaledHeight) / 2;
+                left = (screenWidth - scaledWidth) / 2;
+                top = (screenHeight - scaledHeight) / 2;
                 break;
         }
 
         // The target rectangle for the new, scaled version of the source bitmap will now
         // be
-        Rect srcRect = new Rect(0, 0, sourceWidth, sourceHeight);
+        Rect srcRect = new Rect(0, 0, postWidth, postHeight);
         RectF targetRect = new RectF(left, top, left + scaledWidth, top + scaledHeight);
 
         // Finally, we create a new bitmap of the specified size and draw our new,
         // scaled bitmap onto it.
-        Bitmap dest = Bitmap.createBitmap(newWidth, newHeight, source.getConfig());
+        Bitmap dest = Bitmap.createBitmap(screenWidth, screenHeight, postImage.getConfig());
         Canvas canvas = new Canvas(dest);
-        canvas.drawBitmap(source, srcRect, targetRect, null);
+        canvas.drawBitmap(postImage, srcRect, targetRect, null);
 
         return dest;
     }
