@@ -82,8 +82,7 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        setupUI(findViewById(R.id.mainContainer));
+        setupHideKeyboardUI(findViewById(R.id.mainContainer));
 
         Log.d(TAG, "onCreate: Registering receivers");
         LocalBroadcastManager.getInstance(this).registerReceiver(updateSetAccountUIReceiver, new IntentFilter("update-set-account"));
@@ -439,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    public void setupUI(View view) {
+    public void setupHideKeyboardUI(View view) {
         // Set up touch listener for non-text box views to hide keyboard.
         if (!(view instanceof EditText)) {
             view.setOnTouchListener((v, event) -> {
@@ -451,7 +450,7 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         if (view instanceof ViewGroup) {
             for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
                 View innerView = ((ViewGroup) view).getChildAt(i);
-                setupUI(innerView);
+                setupHideKeyboardUI(innerView);
             }
         }
     }

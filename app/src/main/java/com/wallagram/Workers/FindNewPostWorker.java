@@ -246,11 +246,20 @@ public class FindNewPostWorker extends Worker {
             Bitmap postImage = BitmapFactory.decodeStream(url.openConnection().getInputStream());
             WallpaperManager wallpaperManager = WallpaperManager.getInstance(getApplicationContext());
 
+            int desiredW = wallpaperManager.getDesiredMinimumWidth();
+            int desiredH = wallpaperManager.getDesiredMinimumHeight();
+
+            System.out.println("dw: " + desiredW);
+            System.out.println("dh: " + desiredH);
+
             int screenWidth = mSharedPreferences.getInt("screenWidth", 0);
             int screenHeight = mSharedPreferences.getInt("screenHeight", 0);
             int imageAlign = mSharedPreferences.getInt("align", 1);
 
-            Bitmap bm = scaleCrop(postImage, imageAlign, screenHeight, screenWidth);
+            System.out.println("sw: " + screenWidth);
+            System.out.println("sh: " + screenHeight);
+
+            Bitmap bm = scaleCrop(postImage, imageAlign, desiredH, screenWidth);
 
             if (mSharedPreferences.getInt("location", 0) == 0) {
                 wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_SYSTEM);
