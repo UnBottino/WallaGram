@@ -8,7 +8,7 @@
     <string name="state_disabled_icon">State Disabled Icon</string>
     <string name="state_disabled_info_msg">WallaGram is not periodically updating your wallpapers.\nGo to settings to enable.</string>
 
-    <!--Set PreviousAccount Info-->
+    <!--Set Account Info-->
     <string name="profile_picture">profile_picture</string>
     <string name="no_account_set">No Account Set</string>
 
@@ -44,7 +44,7 @@
     <string name="duration_info_msg">Allows you to set how often WallaGram searches for a new wallpaper</string>
     <string name="location_info_msg">Allows you to set which wallpaper WallaGram updates\n(Home Screen / Lock Screen)</string>
     <string name="multi_image_post_info_msg">Allows you to place a priority on which image in a multi-image post is selected for your new wallpaper</string>
-    <string name="allow_videos_info_msg">When active, if your selected previousAccount\'s most recent post is a video, the first frame will be set as your new wallpaper</string>
+    <string name="allow_videos_info_msg">When active, if your selected account\'s most recent post is a video, the first frame will be set as your new wallpaper</string>
     <string name="save_wallpaper_info_msg">When active, WallaGram saves new posts into an album in your gallery</string>
     <string name="image_align_info_msg">As posts do not have a uniform size, WallaGram needs to crop each post to fit your screen. Image Align allows you to set a preference for the positioning</string>
     <string name="clear_recent_info_msg">Allows you to clear all accounts from the\nRecent Searches List</string>
