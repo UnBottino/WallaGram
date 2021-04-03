@@ -114,7 +114,10 @@ public class FindNewPostWorker extends Worker {
                 endError("No Posts Yet\n(" + mSearchName + ")");
             } else {
                 //Loop through posts
-                for (int postNumber = 0; postNumber < 12; postNumber++) {
+                int searchLimit = 12;
+                if (mPostCount < 12) searchLimit = mPostCount;
+
+                for (int postNumber = 0; postNumber < searchLimit; postNumber++) {
                     Log.d(TAG, "Looking at post: " + postNumber);
                     mPostNode = mTimelineMedia.getJSONArray("edges").getJSONObject(postNumber).getJSONObject("node");
 
