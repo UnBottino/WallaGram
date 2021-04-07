@@ -38,6 +38,7 @@ public class FindNewPostWorker extends Worker {
 
     private final String mSearchName;
     private final boolean mAllowVideos;
+    private final int mPostPref;
     private final int mPreferredChild;
 
     private boolean mIsPrivate;
@@ -62,6 +63,7 @@ public class FindNewPostWorker extends Worker {
 
         mSearchName = mSharedPreferences.getString("searchName", "");
         mAllowVideos = mSharedPreferences.getBoolean("allowVideos", false);
+        mPostPref = mSharedPreferences.getInt("postPref", 1) - 1;
         mPreferredChild = mSharedPreferences.getInt("multiImage", 1) - 1;
     }
 
@@ -113,30 +115,20 @@ public class FindNewPostWorker extends Worker {
             } else if (mPostCount == 0) {
                 endError("No Posts Yet\n(" + mSearchName + ")");
             } else {
+                if (searchPost(mPostPref)) {
+                    Log.d(TAG, "Preferred post found");
+                    endSuccess();
+                    return;
+                }
+
                 //Loop through posts
                 int searchLimit = 12;
                 if (mPostCount < 12) searchLimit = mPostCount;
 
                 for (int postNumber = 0; postNumber < searchLimit; postNumber++) {
-                    Log.d(TAG, "Looking at post: " + postNumber);
-                    mPostNode = mTimelineMedia.getJSONArray("edges").getJSONObject(postNumber).getJSONObject("node");
-
-                    if (getPostChildren()) {
-                        Log.d(TAG, "Children found");
-                        if (checkPreferableChild()) {
-                            endSuccess();
-                            return;
-                        } else if (loopPostChildren()) {
-                            endSuccess();
-                            return;
-                        }
-                    } else {
-                        if (mPostNode.get("is_video").toString().equalsIgnoreCase("false") || mAllowVideos) {
-                            Log.d(TAG, "Image found");
-                            mPostUrl = mPostNode.get("display_url").toString();
-                            endSuccess();
-                            return;
-                        }
+                    if (searchPost(postNumber)) {
+                        endSuccess();
+                        return;
                     }
                 }
 
@@ -158,6 +150,31 @@ public class FindNewPostWorker extends Worker {
         mTimelineMedia = userObject.getJSONObject("edge_owner_to_timeline_media");
 
         mPostCount = mTimelineMedia.getInt("count");
+    }
+
+    private boolean searchPost(int postNumber) {
+        Log.d(TAG, "Looking at post: " + postNumber);
+        try {
+            mPostNode = mTimelineMedia.getJSONArray("edges").getJSONObject(postNumber).getJSONObject("node");
+
+            if (getPostChildren()) {
+                Log.d(TAG, "Children found");
+                if (checkPreferableChild()) {
+                    return true;
+                } else if (loopPostChildren()) {
+                    return true;
+                }
+            } else {
+                if (mPostNode.get("is_video").toString().equalsIgnoreCase("false") || mAllowVideos) {
+                    Log.d(TAG, "Image found");
+                    mPostUrl = mPostNode.get("display_url").toString();
+                    return true;
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private boolean getPostChildren() {
@@ -240,25 +257,25 @@ public class FindNewPostWorker extends Worker {
 
     private void setWallpaper() {
         Log.d(TAG, "setWallpaper: Setting Wallpaper");
+        int screenWidth = mSharedPreferences.getInt("screenWidth", 0);
+        int imageAlign = mSharedPreferences.getInt("align", 1);
 
         try {
             URL url = new URL(mPostUrl);
             Bitmap postImage = BitmapFactory.decodeStream(url.openConnection().getInputStream());
             WallpaperManager wallpaperManager = WallpaperManager.getInstance(getApplicationContext());
 
-            int screenWidth = mSharedPreferences.getInt("screenWidth", 0);
-            int screenHeight = mSharedPreferences.getInt("screenHeight", 0);
-            int imageAlign = mSharedPreferences.getInt("align", 1);
+            final int desiredH = wallpaperManager.getDesiredMinimumHeight();
 
-            Bitmap bm = scaleCrop(postImage, imageAlign, screenHeight, screenWidth);
+            Bitmap bm = scaleCrop(postImage, imageAlign, desiredH, screenWidth);
 
             if (mSharedPreferences.getInt("location", 0) == 0) {
-                wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_SYSTEM);
+                wallpaperManager.setBitmap(bm, null, false, WallpaperManager.FLAG_SYSTEM);
             } else if (mSharedPreferences.getInt("location", 0) == 1) {
-                wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_LOCK);
+                wallpaperManager.setBitmap(bm, null, false, WallpaperManager.FLAG_LOCK);
             } else {
-                wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_SYSTEM);
-                wallpaperManager.setBitmap(bm, null, true, WallpaperManager.FLAG_LOCK);
+                wallpaperManager.setBitmap(bm, null, false, WallpaperManager.FLAG_SYSTEM);
+                wallpaperManager.setBitmap(bm, null, false, WallpaperManager.FLAG_LOCK);
             }
 
             if (mSharedPreferences.getInt("saveWallpaper", 0) == 1) {

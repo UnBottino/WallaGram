@@ -120,6 +120,28 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/postPref"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginBottom="10dp"
+
+                    android:background="@drawable/ripple_rounded_rectangle"
+                    tools:context=".Activities.MainActivity">
+
+                    <TextView
+                        style="@style/SettingsListItemText"
+                        android:layout_alignParentStart="true"
+                        android:text="@string/setting_post_pref" />
+
+                    <TextView
+                        android:id="@+id/postPrefValue"
+                        style="@style/SettingsListItemText"
+                        android:layout_alignParentEnd="true"
+                        android:text="@string/setting_post_pref_default" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
                     android:id="@+id/multiImage"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
@@ -205,6 +227,10 @@
 
                 <include
                     android:id="@+id/imageAlignInfoBtn"
+                    layout="@layout/info_btn" />
+
+                <include
+                    android:id="@+id/postPrefInfoBtn"
                     layout="@layout/info_btn" />
 
                 <include

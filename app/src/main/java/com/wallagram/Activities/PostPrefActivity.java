@@ -1,9 +1,5 @@
 package com.wallagram.Activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,13 +7,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.CheckedTextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.wallagram.R;
 import com.wallagram.Utils.Functions;
 
 import java.util.Objects;
 
-public class MultiImageActivity extends AppCompatActivity {
-    private static final String TAG = "MULTI_IMAGE_ACTIVITY";
+public class PostPrefActivity extends AppCompatActivity {
+    private static final String TAG = "POST_PREF_ACTIVITY";
 
     private SharedPreferences sharedpreferences;
 
@@ -27,7 +27,7 @@ public class MultiImageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_multi_image);
+        setContentView(R.layout.activity_post_pref);
 
         applyBtn = findViewById(R.id.applyBtn);
 
@@ -59,6 +59,8 @@ public class MultiImageActivity extends AppCompatActivity {
         CheckedTextView btn8 = findViewById(R.id.btn8);
         CheckedTextView btn9 = findViewById(R.id.btn9);
         CheckedTextView btn10 = findViewById(R.id.btn10);
+        CheckedTextView btn11 = findViewById(R.id.btn11);
+        CheckedTextView btn12 = findViewById(R.id.btn12);
 
         btn1.setOnClickListener(v -> {
             uncheckAll();
@@ -120,16 +122,28 @@ public class MultiImageActivity extends AppCompatActivity {
             checkChange();
         });
 
+        btn11.setOnClickListener(v -> {
+            uncheckAll();
+            btn11.setChecked(true);
+            checkChange();
+        });
+
+        btn12.setOnClickListener(v -> {
+            uncheckAll();
+            btn12.setChecked(true);
+            checkChange();
+        });
+
         applyBtn.setOnClickListener(v -> {
             Log.d(TAG, "buttonSetup: Setting multi image pref to: " + findChecked());
 
             SharedPreferences.Editor editor = sharedpreferences.edit();
 
-            editor.putInt("multiImage", findChecked());
+            editor.putInt("postPref", findChecked());
             editor.apply();
 
             Intent intent = new Intent();
-            setResult(222, intent);
+            setResult(333, intent);
 
             finish();
         });
@@ -147,7 +161,7 @@ public class MultiImageActivity extends AppCompatActivity {
     }
 
     private void initCheck() {
-        setChecked = String.valueOf(sharedpreferences.getInt("multiImage", 1));
+        setChecked = String.valueOf(sharedpreferences.getInt("postPref", 1));
 
         ConstraintLayout constraintLayout = findViewById(R.id.btnContainer);
 

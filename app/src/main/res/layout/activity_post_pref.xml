@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorPrimary"
-    tools:context=".Activities.MultiImageActivity">
+    tools:context=".Activities.PostPrefActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -18,14 +18,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="Multi-Image Posts" />
+        app:title="Post Preference" />
 
     <TextView
         android:id="@+id/postPrefInfo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:fontFamily="@font/roboto"
-        android:text="@string/multi_image_post_info_msg"
+        android:text="@string/post_pref_info_msg"
         android:textAlignment="center"
         android:textColor="?attr/colorOnSecondary"
         android:textSize="18sp"
@@ -36,11 +36,11 @@
         app:layout_constraintWidth_percent=".85" />
 
     <include
-        layout="@layout/multi_btn_10"
+        layout="@layout/multi_btn_12"
         android:id="@+id/btnContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintHeight_percent=".55"
+        app:layout_constraintHeight_percent=".65"
         android:gravity="center"
         app:layout_constraintBottom_toTopOf="@+id/applyBtn"
         app:layout_constraintEnd_toEndOf="parent"

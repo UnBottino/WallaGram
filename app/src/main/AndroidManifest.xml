@@ -57,6 +57,9 @@
         <activity
             android:name=".Activities.MultiImageActivity"
             android:theme="@style/Theme.WallaGram" />
+        <activity
+            android:name=".Activities.PostPrefActivity"
+            android:theme="@style/Theme.WallaGram" />
 
         <meta-data
             android:name="preloaded_fonts"

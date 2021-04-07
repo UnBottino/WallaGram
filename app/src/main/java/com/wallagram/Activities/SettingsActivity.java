@@ -63,6 +63,10 @@ public class SettingsActivity extends AppCompatActivity {
                     Log.d(TAG, "onActivityResult: Multi-Image update returned");
                     multiPostBtnSetup();
                     break;
+                case 333:
+                    Log.d(TAG, "onActivityResult: Post pref update returned");
+                    postPrefBtnSetup();
+                    break;
             }
         }
     }
@@ -225,6 +229,35 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
+    private void postPrefBtnSetup() {
+        RelativeLayout postPref = findViewById(R.id.postPref);
+
+        //init value
+        int setPostPref = sharedPreferences.getInt("postPref", 1);
+        TextView postPrefValue = findViewById(R.id.postPrefValue);
+
+        switch (setPostPref) {
+            case 1:
+                postPrefValue.setText(setPostPref + "st");
+                break;
+            case 2:
+                postPrefValue.setText(setPostPref + "nd");
+                break;
+            case 3:
+                postPrefValue.setText(setPostPref + "rd");
+                break;
+            default:
+                postPrefValue.setText(setPostPref + "th");
+                break;
+        }
+
+        postPref.setOnClickListener(v -> {
+            Intent intent = new Intent(SettingsActivity.this, PostPrefActivity.class);
+            startActivityForResult(intent, 800);
+        });
+    }
+
+    @SuppressLint("SetTextI18n")
     private void multiPostBtnSetup() {
         RelativeLayout multiPost = findViewById(R.id.multiImage);
 
@@ -353,6 +386,7 @@ public class SettingsActivity extends AppCompatActivity {
         stateBtnSetup();
         durationBtnSetup();
         locationBtnSetup();
+        postPrefBtnSetup();
         multiPostBtnSetup();
         allowVideosBtnSetup();
         saveWallpaperBtnSetup();
@@ -367,6 +401,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         RelativeLayout locationInfo = findViewById(R.id.locationInfoBtn);
         locationInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Location"), new SpannableString(getString(R.string.location_info_msg))));
+
+        RelativeLayout postPrefInfo = findViewById(R.id.postPrefInfoBtn);
+        postPrefInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Post Preference"), new SpannableString(getString(R.string.post_pref_info_msg))));
 
         RelativeLayout multiImagePostInfo = findViewById(R.id.multiPostInfoBtn);
         multiImagePostInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Multi-image Post"), new SpannableString(getString(R.string.multi_image_post_info_msg))));

@@ -1,12 +1,13 @@
-<shape
+<vector
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
+    android:width="55dp"
+    android:height="55dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
 
-    <solid android:color="?attr/colorPrimary"/>
-    <corners android:radius="360dp"/>
-    <stroke android:width="10dp" android:color="?attr/colorPrimaryVariant"/>
+    <path
+        android:strokeColor="?attr/colorPrimaryVariant"
+        android:strokeWidth="5"
+        android:pathData="M3 16a13 13 0 1 1 0 0.0001"/>
 
-    <item android:textAlignment="center"/>
-    <item android:gravity="center"/>
-
-</shape>
+</vector>
