@@ -38,15 +38,17 @@
             </intent-filter>
         </receiver>
 
-        <activity
-            android:name=".Activities.MainActivity"
-            android:theme="@style/Theme.WallaGram"
-            android:windowSoftInputMode="adjustPan">
+        <activity android:name=".Activities.SplashActivity" android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".Activities.MainActivity"
+            android:theme="@style/Theme.WallaGram"
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".Activities.SettingsActivity"
             android:theme="@style/Theme.WallaGram"
