@@ -14,7 +14,7 @@
 
     <!--Recent Accounts RecyclerView-->
     <string name="account_name">account_name</string>
-    <string name="empty_recent_searches">No Recent Searches</string>
+    <string name="empty_previous_searches">No Previous Searches</string>
 
     <!--Loading Screen-->
     <string name="loading">Loading…</string>
@@ -52,8 +52,20 @@
     <string name="image_align_info_msg">As posts do not have a uniform size, WallaGram needs to crop each post to fit your screen. Image Align allows you to set a preference for the positioning</string>
     <string name="clear_recent_info_msg">Allows you to clear all accounts from the\nRecent Searches List</string>
 
+    <!--Alert Dialog Defaults-->
+    <string name="dialog_title">Title</string>
+    <string name="dialog_msg">Message</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_confirm">Confirm</string>
+
     <!--Info message Confirm-->
     <string name="info_msg_confirm">Got it</string>
+
+    <!--Previous searches message-->
+    <string name="clear_previous">Clear Previous Searches</string>
+
+    <!--Warning message-->
+    <string name="warning_msg">Are you sure?</string>
 
     <!--Location Values-->
     <string name="home_screen">Home Screen</string>

@@ -1,22 +1,22 @@
 package com.wallagram.Activities;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
 import com.wallagram.R;
 import com.wallagram.Utils.Functions;
-
-import java.util.Objects;
 
 public class DurationActivity extends AppCompatActivity {
     private final String TAG = "DURATION_ACTIVITY";
@@ -33,12 +33,22 @@ public class DurationActivity extends AppCompatActivity {
     private TextView hoursBtn;
     private androidx.appcompat.widget.AppCompatButton applyBtn;
 
+    private @ColorInt
+    int colorSurface;
+    private @ColorInt
+    int colorOnSurface;
+    private @ColorInt
+    int colorPrimary;
+    private @ColorInt
+    int colorOnPrimary;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_duration);
 
         toolbarSetup();
+        colorSetup();
 
         bigNum = findViewById(R.id.bigNum);
         daysBtn = findViewById(R.id.days);
@@ -53,6 +63,19 @@ public class DurationActivity extends AppCompatActivity {
         buttonSetup();
     }
 
+    private void colorSetup() {
+        TypedValue typedValue = new TypedValue();
+        Resources.Theme theme = getTheme();
+        theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
+        colorPrimary = typedValue.data;
+        theme.resolveAttribute(R.attr.colorOnPrimary, typedValue, true);
+        colorOnPrimary = typedValue.data;
+        theme.resolveAttribute(R.attr.colorSurface, typedValue, true);
+        colorSurface = typedValue.data;
+        theme.resolveAttribute(R.attr.colorOnSurface, typedValue, true);
+        colorOnSurface = typedValue.data;
+    }
+
     private void initChoices() {
         setDuration = sharedPreferences.getInt("duration", 1);
         setMetric = sharedPreferences.getString("metric", "Hours");
@@ -62,16 +85,20 @@ public class DurationActivity extends AppCompatActivity {
         bigNum.setText(String.valueOf(setDuration));
 
         if (setMetric.equalsIgnoreCase("Hours")) {
-            hoursBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
+            hoursBtn.setBackgroundTintList(ColorStateList.valueOf(colorPrimary));
+            hoursBtn.setTextColor(colorOnPrimary);
         } else {
-            daysBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
+            daysBtn.setBackgroundTintList(ColorStateList.valueOf(colorPrimary));
+            daysBtn.setTextColor(colorOnPrimary);
         }
     }
 
     private void metricSetup() {
         daysBtn.setOnClickListener(v -> {
-            hoursBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.pitch_black)));
-            daysBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
+            hoursBtn.setBackgroundTintList(ColorStateList.valueOf(colorSurface));
+            hoursBtn.setTextColor(colorOnSurface);
+            daysBtn.setBackgroundTintList(ColorStateList.valueOf(colorPrimary));
+            daysBtn.setTextColor(colorOnPrimary);
 
             mMetric = "Days";
 
@@ -79,8 +106,10 @@ public class DurationActivity extends AppCompatActivity {
         });
 
         hoursBtn.setOnClickListener(v -> {
-            hoursBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.purple)));
-            daysBtn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.pitch_black)));
+            hoursBtn.setBackgroundTintList(ColorStateList.valueOf(colorPrimary));
+            hoursBtn.setTextColor(colorOnPrimary);
+            daysBtn.setBackgroundTintList(ColorStateList.valueOf(colorSurface));
+            daysBtn.setTextColor(colorOnSurface);
 
             mMetric = "Hours";
 
@@ -134,7 +163,7 @@ public class DurationActivity extends AppCompatActivity {
 
             if (update) {
                 bigNum.setText(mDuration);
-                bigNum.setTextColor(ContextCompat.getColor(this, R.color.white));
+                bigNum.setAlpha((float) 1);
             }
 
             checkChange();
@@ -154,9 +183,9 @@ public class DurationActivity extends AppCompatActivity {
         btnClear.setOnClickListener(v -> {
             mDuration = "";
             bigNum.setText(String.valueOf(setDuration));
-            bigNum.setTextColor(ContextCompat.getColor(this, R.color.light_grey));
+            bigNum.setAlpha((float) 0.5);
 
-            Functions.disableApply(applyBtn);
+            checkChange();
         });
 
         applyBtn.setOnClickListener(v -> {
@@ -202,8 +231,10 @@ public class DurationActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="?attr/colorSecondary">
+    android:color="?attr/colorSurface">
     <item>
         <shape android:shape="rectangle">
-
-            <solid android:color="?attr/colorPrimaryVariant" />
+            <solid android:color="?attr/colorSurface" />
             <corners android:radius="10dp" />
         </shape>
     </item>

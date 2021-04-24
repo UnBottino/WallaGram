@@ -1,5 +1,6 @@
 package com.wallagram.Activities;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -16,18 +17,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -60,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
     private TextView mSetAccountName;
     private RelativeLayout disabledBtn;
 
-    private LinearLayout suggestionLayout;
     private ImageView suggestionIcon;
     private boolean suggestionsOpened = false;
 
@@ -75,15 +81,27 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
     public androidx.appcompat.widget.SearchView mSearchBar;
 
     public RecyclerView mPreviousRecyclerView;
+    public LinearLayout emptyPrevious;
     private AccountListAdapter mPreviousAdapter;
     public List<PreviousAccount> mPreviousPreviousAccountList = new ArrayList<>();
+
+    private @ColorInt
+    int colorError;
+    private @ColorInt
+    int colorPrimary;
+    private @ColorInt
+    int colorPrimaryVariant;
+    private @ColorInt
+    int colorOnPrimary;
+    private @ColorInt
+    int colorSurface;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setupUI(findViewById(R.id.mainContainer));
+        setupHideKeyboard(findViewById(R.id.mainContainer));
 
         Log.d(TAG, "onCreate: Registering receivers");
         LocalBroadcastManager.getInstance(this).registerReceiver(updateSetAccountUIReceiver, new IntentFilter("update-set-account"));
@@ -183,6 +201,10 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
                         .into(mSetProfilePic);
 
                 Log.d(TAG, "onReceive: Setting Current Display Name");
+
+                if (emptyPrevious.getVisibility() == View.VISIBLE) {
+                    emptyPrevious.setVisibility(View.GONE);
+                }
             }
 
             mSetAccountName.setText(setAccountName);
@@ -194,12 +216,12 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         if (state == 1) {
             Log.d(TAG, "stateChanged: State enabled: Updating set account visuals");
             profilePicGlow.setBackground(ContextCompat.getDrawable(this, R.drawable.purple_round_glow));
-            mSetAccountName.setTextColor(ContextCompat.getColor(this, R.color.purple));
-            disabledBtn.setVisibility(View.GONE);
+            mSetAccountName.setTextColor(colorPrimary);
+            disabledBtn.setVisibility(View.INVISIBLE);
         } else if (state == 0) {
             Log.d(TAG, "stateChanged: State disabled: Updating set account visuals");
             profilePicGlow.setBackground(ContextCompat.getDrawable(this, R.drawable.orange_round_glow));
-            mSetAccountName.setTextColor(ContextCompat.getColor(this, R.color.orange));
+            mSetAccountName.setTextColor(colorError);
             disabledBtn.setVisibility(View.VISIBLE);
         }
     }
@@ -210,9 +232,13 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         mPreviousAdapter.notifyItemRangeRemoved(0, mPreviousPreviousAccountList.size());
         mPreviousAdapter.notifyDataSetChanged();
         mPreviousPreviousAccountList.clear();
+
+        emptyPrevious.setVisibility(View.VISIBLE);
     }
 
     private void pageSetup() {
+        getColors();
+
         //Network Message
         networkMsg = findViewById(R.id.networkMsg);
         shakeAnimation = AnimationUtils.loadAnimation(this, R.anim.bounce);
@@ -257,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
                     .into(mSetProfilePic);
         }
 
-        mSetAccountName = findViewById(R.id.SetAccountName);
+        mSetAccountName = findViewById(R.id.setAccountName);
         mSetAccountName.setText(sharedPreferences.getString("setAccountName", "No Account Set"));
 
         //State Color
@@ -281,12 +307,22 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void setupSearchBar() {
         mSearchBar = findViewById(R.id.searchBar);
-        EditText searchEditText = mSearchBar.findViewById(androidx.appcompat.R.id.search_src_text);
-        searchEditText.setHintTextColor(ContextCompat.getColor(this, R.color.dark_white));
+        ImageView searchClose = mSearchBar.findViewById(androidx.appcompat.R.id.search_close_btn);
+        searchClose.setColorFilter(colorOnPrimary, PorterDuff.Mode.SRC_ATOP);
 
-        mSearchBar.setOnClickListener(v -> mSearchBar.setIconified(false));
+        mSearchBar.setOnTouchListener((view, motionEvent) -> {
+            mSearchBar.setIconified(false);
+            mSearchBar.setBackgroundResource(R.drawable.search_bar_light);
+            return true;
+        });
+
+        mSearchBar.setOnCloseListener(() -> {
+            mSearchBar.setBackgroundResource(R.drawable.search_bar);
+            return false;
+        });
 
         mSearchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -301,6 +337,7 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
 
                 mSearchBar.setQuery("", false);
                 mSearchBar.setIconified(true);
+                mSearchBar.setBackgroundResource(R.drawable.search_bar);
                 mSearchBar.clearFocus();
 
                 //Activate Alarm
@@ -322,17 +359,39 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
 
     private void setupPreviousAccounts() {
         mPreviousRecyclerView = findViewById(R.id.accountNameList);
+        emptyPrevious = findViewById(R.id.emptyPrevious);
+
         mPreviousPreviousAccountList = Functions.getDBAccounts(this);
         Collections.reverse(mPreviousPreviousAccountList);
+
+        /*mPreviousPreviousAccountList != null*/
+
+        if (!mPreviousPreviousAccountList.isEmpty()) {
+            emptyPrevious.setVisibility(View.GONE);
+        }
 
         mPreviousAdapter = new AccountListAdapter(this, mPreviousPreviousAccountList, mAdapterCallback);
         mPreviousRecyclerView.setAdapter(mPreviousAdapter);
         mPreviousRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
     }
 
+    private void getColors() {
+        TypedValue typedValue = new TypedValue();
+        Resources.Theme theme = getTheme();
+        theme.resolveAttribute(R.attr.colorError, typedValue, true);
+        colorError = typedValue.data;
+        theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
+        colorPrimary = typedValue.data;
+        theme.resolveAttribute(R.attr.colorPrimaryVariant, typedValue, true);
+        colorPrimaryVariant = typedValue.data;
+        theme.resolveAttribute(R.attr.colorOnPrimary, typedValue, true);
+        colorOnPrimary = typedValue.data;
+        theme.resolveAttribute(R.attr.colorSurface, typedValue, true);
+        colorSurface = typedValue.data;
+    }
+
     private void setupSuggestions() {
         RelativeLayout mSuggestionsBtn = findViewById(R.id.suggestionBtn);
-        suggestionLayout = findViewById(R.id.suggestionsLayout);
         suggestionIcon = findViewById(R.id.suggestionIcon);
         mSuggestionsRecyclerView = findViewById(R.id.suggestionAccountList);
 
@@ -342,18 +401,20 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
 
         if (!Functions.isNetworkAvailable(this)) {
-            DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.orange));
+            DrawableCompat.setTint(wrappedDrawable, colorError);
             showOffline();
         }
 
         mSuggestionsBtn.setOnClickListener(v -> {
             if (!suggestionsOpened && !mSuggestionAccountList.isEmpty()) {
-                DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.purple));
-                suggestionLayout.setVisibility(View.VISIBLE);
+                mSuggestionsBtn.setBackgroundTintList(ColorStateList.valueOf(colorPrimaryVariant));
+                DrawableCompat.setTint(wrappedDrawable, colorSurface);
+                mSuggestionsRecyclerView.setVisibility(View.VISIBLE);
                 suggestionsOpened = !suggestionsOpened;
             } else if (suggestionsOpened) {
-                DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.white));
-                suggestionLayout.setVisibility(View.GONE);
+                mSuggestionsBtn.setBackgroundTintList(ColorStateList.valueOf(colorSurface));
+                DrawableCompat.setTint(wrappedDrawable, colorPrimary);
+                mSuggestionsRecyclerView.setVisibility(View.GONE);
                 suggestionsOpened = !suggestionsOpened;
             } else if (offline) {
                 showOffline();
@@ -372,13 +433,13 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
             Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
             if (!error) {
                 showOnline();
-                DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(getApplicationContext(), R.color.white));
+                DrawableCompat.setTint(wrappedDrawable, colorPrimary);
 
                 SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(getApplicationContext(), mSuggestionAccountList, mAdapterCallback);
                 mSuggestionsRecyclerView.setAdapter(mSuggestionAdapter);
                 mSuggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
             } else {
-                DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(getApplicationContext(), R.color.orange));
+                DrawableCompat.setTint(wrappedDrawable, colorError);
             }
 
             LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(updateSuggestionsUIReceiver);
@@ -405,11 +466,33 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
 
     @Override
     public void showRemoveConfirmation(String accountName) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogCustom);
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setCancelable(true);
-        builder.setTitle("Remove '" + accountName + "' from list");
-        builder.setMessage("Are you sure?");
-        builder.setPositiveButton("Confirm", (dialog, which) -> {
+
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_warning, null);
+        builder.setView(dialogView);
+        TextView infoTitle = dialogView.findViewById(R.id.infoTitle);
+        TextView infoMsg = dialogView.findViewById(R.id.infoMsg);
+
+        SpannableStringBuilder removePreviousString = new SpannableStringBuilder();
+        removePreviousString.append("Remove");
+        SpannableString coloredAccountName = new SpannableString(" '" + accountName + "' ");
+        coloredAccountName.setSpan(new ForegroundColorSpan(colorPrimary), 0, accountName.length() + 3, 0);
+        removePreviousString.append(coloredAccountName);
+        removePreviousString.append("from previous searches");
+
+        infoTitle.setText(removePreviousString, TextView.BufferType.SPANNABLE);
+        infoMsg.setText(R.string.warning_msg);
+
+        AlertDialog dialog = builder.create();
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+
+        TextView cancelBtn = dialogView.findViewById(R.id.cancelBtn);
+        TextView confirmBtn = dialogView.findViewById(R.id.confirmBtn);
+
+        confirmBtn.setOnClickListener(view -> {
             Functions.removeDBAccountByName(MainActivity.this, accountName);
 
             int pos = 0;
@@ -422,37 +505,37 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
                 }
                 pos++;
             }
-        });
-        builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-            //Do nothing
+
+            dialog.cancel();
         });
 
-        AlertDialog dialog = builder.create();
-        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.show();
+        cancelBtn.setOnClickListener(view -> dialog.cancel());
     }
 
     @Override
     public void hideSoftKeyboard() {
         mSearchBar.setIconified(true);
+        mSearchBar.setBackgroundResource(R.drawable.search_bar);
         getWindow().getDecorView().clearFocus();
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    public void setupUI(View view) {
-        // Set up touch listener for non-text box views to hide keyboard.
-        if (!(view instanceof EditText)) {
+    public void setupHideKeyboard(View view) {
+        setOnTouchHideKeyboard(view);
+
+        for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+            View innerView = ((ViewGroup) view).getChildAt(i);
+            setOnTouchHideKeyboard(innerView);
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    public void setOnTouchHideKeyboard(View view) {
+        if (!(view instanceof SearchView)) {
             view.setOnTouchListener((v, event) -> {
                 hideSoftKeyboard();
                 return false;
             });
-        }
-        //If a layout container, iterate over children and seed recursion.
-        if (view instanceof ViewGroup) {
-            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
-                View innerView = ((ViewGroup) view).getChildAt(i);
-                setupUI(innerView);
-            }
         }
     }
 }

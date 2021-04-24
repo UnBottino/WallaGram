@@ -1,67 +1,133 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.WallaGram" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.WallaGram" parent="Theme.AppCompat">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/pitch_black</item>
-        <item name="colorPrimaryVariant">@color/dark_black</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimary">@color/purple</item>
+        <item name="colorPrimaryVariant">@color/light_purple</item>
+        <item name="colorOnPrimary">@color/light_black</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/purple</item>
-        <item name="colorSecondaryVariant">@color/dark_black</item>
+        <item name="colorSecondary">@color/blue</item>
+        <item name="colorSecondaryVariant">@color/light_blue</item>
         <item name="colorOnSecondary">@color/white</item>
-
+        <!--Activity Background-->
+        <item name="android:colorBackground">@color/dark_black</item>
+        <item name="colorSurface">@color/light_black</item>
+        <item name="colorOnSurface">@color/dark_white</item>
+        <item name="colorError">@color/orange</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?android:colorBackground</item>
+        <item name="android:windowLightStatusBar">false</item>
 
-        <item name="android:textColorPrimary">?attr/colorOnPrimary</item>
-        <item name="android:textColorHint">?attr/colorOnPrimary</item>
-        <item name="android:editTextColor">?attr/colorOnPrimary</item>
+        <!--Text-->
+        <item name="android:textColor">@color/dark_white</item>
+        <item name="android:editTextColor">@color/dark_white</item>
+        <item name="android:textColorHint">@color/dark_white</item>
+        <item name="android:fontFamily">@font/roboto</item>
 
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
+    <!--Search-->
+    <style name="SearchViewStyle">
+        <item name="android:theme">@style/SearchViewTheme</item>
+        <item name="queryBackground">?colorPrimaryVariant</item>
+        <item name="searchHintIcon">@null</item>
+        <item name="android:inputType">text</item>
+        <item name="android:elevation">1dp</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">45dp</item>
+        <item name="android:background">@drawable/search_bar</item>
+    </style>
+
+    <style name="SearchViewTheme" parent="Theme.WallaGram">
+        <item name="android:editTextColor">?colorOnPrimary</item>
+        <item name="android:textColorSecondary">?colorOnSurface</item>
+        <item name="android:textColor">?colorOnPrimary</item>
+        <item name="android:textColorHint">?colorOnPrimary</item>
+        <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
+    </style>
+
+    <style name="cursorColor" parent="Widget.AppCompat.AutoCompleteTextView">
+        <item name="android:textCursorDrawable">@drawable/cursor</item>
+    </style>
+
+    <!--Main Buttons-->
+    <style name="IconButtonStyle" parent="Theme.WallaGram">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:elevation">1dp</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:background">@drawable/ripple_rounded_rectangle</item>
+        <item name="layout_constraintTop_toTopOf">parent</item>
+        <item name="layout_constraintStart_toStartOf">parent</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
+        <item name="layout_constraintBottom_toBottomOf">parent</item>
+    </style>
+
+    <!--Page Info-->
+    <style name="PageInfo" parent="Theme.WallaGram">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">18sp</item>
+        <item name="layout_constraintWidth_percent">.85</item>
+
+        <item name="layout_constraintStart_toStartOf">parent</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
+        <item name="layout_constraintTop_toBottomOf">@+id/toolbar</item>
+    </style>
+
     <style name="checkedNumber">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/multi_btn</item>
-        <item name="android:fontFamily">@font/roboto</item>
         <item name="android:gravity">center</item>
         <item name="android:textAlignment">center</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textSize">18sp</item>
     </style>
 
-    <style name="AlertDialogCustom" parent="Theme.MaterialComponents.Dialog.Alert">
-        <!-- Used for the buttons -->
-        <item name="colorAccent">@color/purple</item>
-        <item name="android:fontFamily">@font/roboto</item>
-        <!-- Used for the background -->
-        <item name="android:background">@drawable/rounded_alert_dialog</item>
+    <!--Settings-->
+    <style name="SettingsListItem" parent="Theme.WallaGram">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:theme">@style/SettingsListSwitch</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:elevation">1dp</item>
+        <item name="android:layout_marginHorizontal">2dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:paddingHorizontal">12dp</item>
+        <item name="android:background">@drawable/settings_item</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="SettingsListItemText" parent="Theme.WallaGram">
-        <item name="fontFamily">@font/roboto</item>
+    <style name="SettingsListSwitch" parent="Theme.WallaGram">
+        <item name="colorControlActivated">?colorPrimary</item>
+        <item name="colorSwitchThumbNormal">?colorOnSurface</item>
+        <item name="android:colorForeground">?colorOnSurface</item>
+    </style>
+
+    <style name="SettingsListItemName" parent="Theme.WallaGram">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerInParent">true</item>
-        <item name="android:paddingHorizontal">20dp</item>
         <item name="android:textSize">20sp</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:layout_alignParentStart">true</item>
     </style>
 
-    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView.ActionBar">
-        <item name="searchIcon">@drawable/ic_baseline_search_24</item>
-        <item name="closeIcon">@drawable/ic_baseline_close_24</item>
-        <item name="android:fontFamily">@font/roboto</item>
+    <style name="SettingsListItemValue" parent="Theme.WallaGram">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:layout_alignParentEnd">true</item>
     </style>
 
     <style name="NumpadBtn">
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
         <item name="android:clickable">true</item>
-        <item name="android:fontFamily">@font/roboto</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textSize">24sp</item>
         <item name="android:gravity">center</item>
         <item name="android:layout_width">0dp</item>
@@ -70,14 +136,44 @@
         <item name="layout_constraintHeight_percent">.25</item>
     </style>
 
-    <style name="ApplyButton">
+    <style name="ApplyButton" parent="Theme.WallaGram">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">50dp</item>
-        <item name="android:layout_margin">20dp</item>
-        <item name="android:alpha">0.5</item>
+        <item name="android:layout_marginVertical">20dp</item>
+        <item name="android:alpha">0.24</item>
         <item name="android:background">@drawable/button</item>
-        <item name="fontFamily">@font/roboto</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:backgroundTint">?colorPrimary</item>
         <item name="android:text">Apply</item>
+        <item name="android:textColor">?colorOnPrimary</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <!-- Toolbar -->
+    <style name="ToolbarStyle">
+        <item name="android:theme">@style/ToolbarTheme</item>
+        <item name="android:background">?colorSurface</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="layout_constraintTop_toTopOf">parent</item>
+        <item name="layout_constraintStart_toStartOf">parent</item>
+        <item name="android:elevation">2dp</item>
+        <item name="titleTextAppearance">@style/ToolbarTitleTextAppearance</item>
+    </style>
+
+    <style name="ToolbarTheme">
+        <item name="android:textColorPrimary">@color/dark_white</item>
+        <item name="android:textColorSecondary">@color/dark_white</item>
+    </style>
+
+    <style name="ToolbarTitleTextAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:fontFamily">@font/roboto</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/dark_white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!--Splash Screen-->
+    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
     </style>
 </resources>

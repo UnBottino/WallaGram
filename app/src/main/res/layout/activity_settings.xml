@@ -1,27 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?attr/colorPrimary"
-    android:orientation="vertical"
-    tools:context=".Activities.SettingsActivity">
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="Settings" />
+        style="@style/ToolbarStyle"
+        app:title="Settings"
+        tools:ignore="MissingConstraints" />
 
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintWidth_percent=".95">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -29,7 +27,7 @@
             android:baselineAligned="false"
             android:gravity="center_horizontal"
             android:orientation="horizontal"
-            android:weightSum="13">
+            android:weightSum="12">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -40,166 +38,101 @@
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/state"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_marginVertical="10dp"
-                    android:background="@drawable/ripple_rounded_rectangle"
-
+                    style="@style/SettingsListItem"
                     android:checked="true"
-
-                    android:fontFamily="@font/roboto"
-                    android:paddingHorizontal="20dp"
-                    android:text="@string/setting_state"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20sp" />
+                    android:text="@string/setting_state" />
 
                 <RelativeLayout
                     android:id="@+id/duration"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_marginBottom="10dp"
-
-                    android:background="@drawable/ripple_rounded_rectangle"
-                    tools:context=".Activities.MainActivity">
+                    style="@style/SettingsListItem">
 
                     <TextView
-                        style="@style/SettingsListItemText"
-                        android:layout_alignParentStart="true"
+                        style="@style/SettingsListItemName"
                         android:text="@string/setting_duration" />
 
                     <TextView
                         android:id="@+id/durationValue"
-                        style="@style/SettingsListItemText"
-                        android:layout_alignParentEnd="true"
+                        style="@style/SettingsListItemValue"
                         android:text="@string/setting_duration_default" />
-
                 </RelativeLayout>
 
                 <RelativeLayout
                     android:id="@+id/location"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_marginBottom="10dp"
-
-                    android:background="@drawable/ripple_rounded_rectangle"
-                    tools:context=".Activities.MainActivity">
+                    style="@style/SettingsListItem">
 
                     <TextView
-                        style="@style/SettingsListItemText"
-                        android:layout_alignParentStart="true"
+                        style="@style/SettingsListItemName"
                         android:text="@string/setting_location" />
 
                     <TextView
                         android:id="@+id/locationValue"
-                        style="@style/SettingsListItemText"
-                        android:layout_alignParentEnd="true"
+                        style="@style/SettingsListItemValue"
                         android:text="@string/setting_home_default" />
 
                 </RelativeLayout>
 
                 <RelativeLayout
                     android:id="@+id/imageAlign"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_marginBottom="10dp"
-
-                    android:background="@drawable/ripple_rounded_rectangle"
-                    tools:context=".Activities.MainActivity">
+                    style="@style/SettingsListItem">
 
                     <TextView
-                        style="@style/SettingsListItemText"
-                        android:layout_alignParentStart="true"
+                        style="@style/SettingsListItemName"
                         android:text="@string/setting_image_align" />
 
                     <TextView
                         android:id="@+id/alignValue"
-                        style="@style/SettingsListItemText"
-                        android:layout_alignParentEnd="true"
+                        style="@style/SettingsListItemValue"
                         android:text="@string/setting_image_align_default" />
 
                 </RelativeLayout>
 
                 <RelativeLayout
                     android:id="@+id/postPref"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_marginBottom="10dp"
-
-                    android:background="@drawable/ripple_rounded_rectangle"
-                    tools:context=".Activities.MainActivity">
+                    style="@style/SettingsListItem">
 
                     <TextView
-                        style="@style/SettingsListItemText"
-                        android:layout_alignParentStart="true"
+                        style="@style/SettingsListItemName"
                         android:text="@string/setting_post_pref" />
 
                     <TextView
                         android:id="@+id/postPrefValue"
-                        style="@style/SettingsListItemText"
-                        android:layout_alignParentEnd="true"
+                        style="@style/SettingsListItemValue"
                         android:text="@string/setting_post_pref_default" />
 
                 </RelativeLayout>
 
                 <RelativeLayout
                     android:id="@+id/multiImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_marginBottom="10dp"
-
-                    android:background="@drawable/ripple_rounded_rectangle"
-                    tools:context=".Activities.MainActivity">
+                    style="@style/SettingsListItem">
 
                     <TextView
-                        style="@style/SettingsListItemText"
-                        android:layout_alignParentStart="true"
+                        style="@style/SettingsListItemName"
                         android:text="@string/setting_multi_post" />
 
                     <TextView
                         android:id="@+id/multiImageValue"
-                        style="@style/SettingsListItemText"
-                        android:layout_alignParentEnd="true"
+                        style="@style/SettingsListItemValue"
                         android:text="@string/setting_multi_post_default" />
 
                 </RelativeLayout>
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/allowVideos"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@drawable/ripple_rounded_rectangle"
-
-                    android:fontFamily="@font/roboto"
-                    android:paddingHorizontal="20dp"
-                    android:text="@string/setting_allow_videos"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20sp" />
+                    style="@style/SettingsListItem"
+                    android:text="@string/setting_allow_videos" />
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/saveWallpaper"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@drawable/ripple_rounded_rectangle"
-
-                    android:fontFamily="@font/roboto"
-                    android:paddingHorizontal="20dp"
-                    android:text="@string/setting_save_wallpapers"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textSize="20sp" />
+                    style="@style/SettingsListItem"
+                    android:text="@string/setting_save_wallpapers" />
 
                 <RelativeLayout
                     android:id="@+id/clearRecentSearches"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_marginBottom="10dp"
-
-                    android:background="@drawable/ripple_rounded_rectangle"
-                    tools:context=".Activities.MainActivity">
+                    style="@style/SettingsListItem">
 
                     <TextView
-                        style="@style/SettingsListItemText"
+                        style="@style/SettingsListItemName"
+                        android:layout_alignParentStart="false"
                         android:text="@string/setting_clear_recent_searches" />
 
                 </RelativeLayout>
@@ -209,7 +142,6 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 android:layout_weight="2"
                 android:orientation="vertical">
 
@@ -255,4 +187,4 @@
 
     </ScrollView>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

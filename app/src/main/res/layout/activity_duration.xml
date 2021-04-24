@@ -4,49 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorPrimary"
     tools:context=".Activities.DurationActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="Duration" />
+        style="@style/ToolbarStyle"
+        app:title="Duration"
+        tools:ignore="MissingConstraints" />
 
     <TextView
         android:id="@+id/durationInfo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/roboto"
+        style="@style/PageInfo"
         android:text="@string/duration_info_msg"
-        android:textAlignment="center"
-        android:textColor="?attr/colorOnSecondary"
-        android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/bigNum"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:layout_constraintWidth_percent=".85" />
+        tools:ignore="MissingConstraints" />
 
     <TextView
         android:id="@+id/bigNum"
         android:layout_width="0dp"
+        android:alpha="0.5"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="40dp"
         android:background="@drawable/rounded_rectangle"
-        android:fontFamily="@font/roboto"
         android:gravity="center"
         android:maxLength="3"
-        android:text="@string/big_number_default"
         android:textAlignment="center"
-        android:textColor="@color/light_grey"
         android:textSize="40sp"
         app:layout_constraintBottom_toTopOf="@+id/metrics"
         app:layout_constraintEnd_toEndOf="parent"
@@ -70,12 +51,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@drawable/button"
-            android:backgroundTint="@color/pitch_black"
-            android:fontFamily="@font/roboto"
             android:gravity="center"
             android:paddingHorizontal="25dp"
             android:text="@string/days_btn"
-            android:textColor="?attr/colorOnPrimary"
             android:textSize="20sp"
             app:layout_constraintEnd_toStartOf="@id/hours"
             app:layout_constraintStart_toStartOf="parent"
@@ -86,12 +64,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@drawable/button"
-            android:backgroundTint="@color/pitch_black"
-            android:fontFamily="@font/roboto"
             android:gravity="center"
             android:paddingHorizontal="25dp"
             android:text="@string/hours_btn"
-            android:textColor="?attr/colorOnPrimary"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/days"
@@ -117,9 +92,7 @@
         android:id="@+id/applyBtn"
         style="@style/ApplyButton"
         android:enabled="false"
-
         app:layout_constraintBottom_toBottomOf="parent"
-
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintWidth_percent=".9" />

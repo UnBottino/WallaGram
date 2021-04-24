@@ -4,57 +4,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorPrimary"
     tools:context=".Activities.MultiImageActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        style="@style/ToolbarStyle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:title="Multi-Image Posts" />
 
     <TextView
         android:id="@+id/postPrefInfo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/roboto"
+        style="@style/PageInfo"
         android:text="@string/multi_image_post_info_msg"
-        android:textAlignment="center"
-        android:textColor="?attr/colorOnSecondary"
-        android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@id/btnContainer"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintWidth_percent=".85" />
+        tools:ignore="MissingConstraints" />
 
     <include
-        layout="@layout/multi_btn_10"
         android:id="@+id/btnContainer"
+        layout="@layout/multi_btn_10"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintHeight_percent=".55"
         android:gravity="center"
         app:layout_constraintBottom_toTopOf="@+id/applyBtn"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent=".55"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/postPrefInfo"
-        app:layout_constraintWidth_percent=".65"/>
+        app:layout_constraintWidth_percent=".65" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/applyBtn"
         style="@style/ApplyButton"
         android:enabled="false"
-
         app:layout_constraintBottom_toBottomOf="parent"
-
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintWidth_percent=".9" />

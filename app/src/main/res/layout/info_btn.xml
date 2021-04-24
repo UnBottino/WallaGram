@@ -1,16 +1,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="60dp"
-    android:layout_marginBottom="10dp"
-
-    android:background="@drawable/ripple_rounded_rectangle"
-    tools:context=".Activities.MainActivity">
+    android:layout_marginHorizontal="2dp"
+    android:layout_marginBottom="12dp"
+    android:elevation="1dp"
+    android:background="@drawable/ripple_rounded_rectangle">
 
     <View
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_centerInParent="true"
-        android:background="@drawable/ic_baseline_info_24" />
-
+        android:background="@drawable/ic_baseline_info_24"
+        android:backgroundTint="?colorPrimaryVariant"/>
 </RelativeLayout>

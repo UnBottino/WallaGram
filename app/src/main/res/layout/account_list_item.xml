@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="10dp"
+    android:layout_marginBottom="12dp"
     android:background="@drawable/previous_rectangle"
+    android:elevation="1dp"
     android:theme="@style/Theme.WallaGram"
     tools:context=".Activities.MainActivity">
 
@@ -22,7 +23,6 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="15dp"
-            android:elevation="12dp"
             app:cardCornerRadius="40dp">
 
             <ImageView
@@ -41,7 +41,6 @@
             android:layout_margin="15dp"
             android:fontFamily="@font/roboto_light"
             android:text="@string/account_name"
-            android:textColor="?attr/colorOnPrimary"
             android:textSize="20sp" />
 
     </LinearLayout>

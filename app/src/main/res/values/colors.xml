@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="white">#FFFFFF</color>
-    <color name="dark_white">#999999</color>
-    <color name="purple">#9C3AD1</color>
+    <color name="dark_white">#F8F8F8</color>
+
+    <color name="purple">#AD6DFB</color>
+    <color name="dark_purple">#1F1A24</color>
+    <color name="light_purple">#BEA1E3</color>
+
+    <color name="blue">#88A1FC</color>
+    <color name="light_blue">#C3D0FD</color>
+    <color name="white_blue">#F6F8FF</color>
+
+    <color name="pink">#FC88EE</color>
+
     <color name="light_grey">#555555</color>
     <color name="grey">#3B3B3B</color>
-    <color name="light_black">#202020</color>
-    <color name="dark_black">#181818</color>
+
+    <color name="light_black">#1D1D1D</color>
+    <color name="dark_black">#121212</color>
     <color name="pitch_black">#000000</color>
 
     <color name="orange">#BB7700</color>

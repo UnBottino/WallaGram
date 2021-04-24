@@ -17,6 +17,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -339,19 +341,29 @@ public class SettingsActivity extends AppCompatActivity {
         RelativeLayout clearRecent = findViewById(R.id.clearRecentSearches);
 
         clearRecent.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogCustom);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setCancelable(true);
-            builder.setTitle("Clear Recent Searches");
-            builder.setMessage("Are you sure?");
-            builder.setPositiveButton("Confirm", (dialog, which) -> {
+
+            LayoutInflater inflater = getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.dialog_warning, null);
+            builder.setView(dialogView);
+            TextView infoTitle = dialogView.findViewById(R.id.infoTitle);
+            TextView infoMsg = dialogView.findViewById(R.id.infoMsg);
+
+            infoTitle.setText(R.string.clear_previous);
+            infoMsg.setText(R.string.warning_msg);
+
+            AlertDialog dialog = builder.create();
+            Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.show();
+
+            TextView cancelBtn = dialogView.findViewById(R.id.cancelBtn);
+            TextView confirmBtn = dialogView.findViewById(R.id.confirmBtn);
+
+            confirmBtn.setOnClickListener(view -> {
                 clearRecentChange = true;
 
                 Functions.removeDBAccounts(this);
-
-                /*mAdapter.notifyItemRangeRemoved(0, mDBAccountList.size());
-                mAdapter.notifyDataSetChanged();
-
-                mDBAccountList.clear();*/
 
                 Intent intent = new Intent();
                 if (stateChange == 1) {
@@ -361,24 +373,19 @@ public class SettingsActivity extends AppCompatActivity {
                 } else {
                     setResult(100, intent);
                 }
-            });
-            builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                //Do nothing
+
+                dialog.cancel();
             });
 
-            AlertDialog dialog = builder.create();
-            Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.show();
+            cancelBtn.setOnClickListener(view -> dialog.cancel());
         });
     }
 
     private void toolbarSetup() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 

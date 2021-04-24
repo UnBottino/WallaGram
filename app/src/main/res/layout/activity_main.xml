@@ -5,7 +5,6 @@
     android:id="@+id/mainContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorPrimary"
     android:clickable="true"
     android:focusableInTouchMode="true"
     tools:context=".Activities.MainActivity">
@@ -13,15 +12,10 @@
     <!--SuggestionsBtn-->
     <RelativeLayout
         android:id="@+id/suggestionBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        style="@style/IconButtonStyle"
         app:layout_constraintHorizontal_bias="0.05"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.02">
+        app:layout_constraintVertical_bias="0.02"
+        tools:ignore="MissingConstraints">
 
         <ImageView
             android:id="@+id/suggestionIcon"
@@ -29,48 +23,25 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:background="@drawable/ic_baseline_emoji_objects_24"
+            android:backgroundTint="?colorPrimary"
             android:contentDescription="@string/suggestions_icon" />
     </RelativeLayout>
 
     <!--SettingsBtn-->
     <RelativeLayout
         android:id="@+id/settingsBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.95"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.02">
+        style="@style/IconButtonStyle"
+        app:layout_constraintHorizontal_bias=".95"
+        app:layout_constraintVertical_bias="0.02"
+        tools:ignore="MissingConstraints">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:background="@drawable/ic_baseline_settings_24"
+            android:backgroundTint="?colorPrimary"
             android:contentDescription="@string/settings_icon" />
-    </RelativeLayout>
-
-    <!--DisableBtn-->
-    <RelativeLayout
-        android:id="@+id/disabledBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="25dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/setNameContainer"
-        app:layout_constraintEnd_toEndOf="@+id/settingsBtn"
-        app:layout_constraintTop_toTopOf="@+id/setNameContainer">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:background="@drawable/ic_baseline_update_disabled_24"
-            android:backgroundTint="@color/orange"
-            android:contentDescription="@string/state_disabled_icon" />
     </RelativeLayout>
 
     <!--Profile Pic-->
@@ -90,7 +61,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="?attr/colorPrimaryVariant"
+            app:cardBackgroundColor="?colorSurface"
             app:cardCornerRadius="360dp">
 
             <ImageView
@@ -98,58 +69,62 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/frown_straight"
+                android:backgroundTint="?colorPrimary"
                 android:contentDescription="@string/profile_picture"
                 android:scaleType="centerCrop" />
 
         </androidx.cardview.widget.CardView>
     </RelativeLayout>
 
-    <!--Account Name-->
-    <RelativeLayout
-        android:id="@+id/setNameContainer"
-        android:layout_width="250dp"
+    <TextView
+        android:id="@+id/setAccountName"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="5dp"
+        android:fontFamily="@font/roboto_medium_italic"
+        android:padding="18dp"
+        android:text="@string/no_account_set"
+        android:textAlignment="center"
+        android:textColor="?colorPrimary"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="@+id/disabledBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/disabledBtn" />
+
+    <!--DisableBtn-->
+    <RelativeLayout
+        android:id="@+id/disabledBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/setAccountName"
+        android:background="@drawable/ripple_rounded_rectangle"
+        android:elevation="1dp"
+        android:padding="8dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/searchBar"
+        app:layout_constraintStart_toEndOf="@id/setAccountName"
         app:layout_constraintTop_toBottomOf="@+id/profilePicGlow">
 
-        <TextView
-            android:id="@+id/SetAccountName"
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:fontFamily="@font/roboto_medium_italic"
-            android:text="@string/no_account_set"
-            android:textAlignment="center"
-            android:textColor="?attr/colorSecondary"
-            android:textSize="22sp" />
+            android:background="@drawable/ic_baseline_update_disabled_24"
+            android:backgroundTint="@color/orange"
+            android:contentDescription="@string/state_disabled_icon" />
     </RelativeLayout>
 
     <!--Search-->
-    <RelativeLayout
-        android:id="@+id/searchLayout"
-        android:layout_width="0dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="20dp"
-        android:clickable="false"
-        app:layout_constraintBottom_toTopOf="@+id/suggestionsLayout"
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchBar"
+        style="@style/SearchViewStyle"
+        android:elevation="1dp"
+        android:paddingHorizontal="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/setNameContainer"
-        app:layout_constraintWidth_percent=".9">
-
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/searchBar"
-            style="@style/SearchViewStyle"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/search_bar"
-            android:inputType="text"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            app:queryHint=" Set New Account" />
-    </RelativeLayout>
+        app:layout_constraintTop_toBottomOf="@+id/setAccountName"
+        app:layout_constraintWidth_percent=".95"
+        app:queryHint=" Set New Account" />
 
     <!--Network message-->
     <RelativeLayout
@@ -157,13 +132,14 @@
         android:layout_width="0dp"
         android:layout_height="45dp"
         android:background="@drawable/search_bar"
-        android:backgroundTint="?attr/colorOnPrimary"
+        android:backgroundTint="?colorOnSurface"
+        android:elevation="1dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/searchLayout"
-        app:layout_constraintEnd_toEndOf="@+id/searchLayout"
-        app:layout_constraintStart_toStartOf="@+id/searchLayout"
-        app:layout_constraintTop_toTopOf="@+id/searchLayout"
-        app:layout_constraintWidth_percent=".9">
+        app:layout_constraintBottom_toBottomOf="@+id/searchBar"
+        app:layout_constraintEnd_toEndOf="@+id/searchBar"
+        app:layout_constraintStart_toStartOf="@+id/searchBar"
+        app:layout_constraintTop_toTopOf="@+id/searchBar"
+        app:layout_constraintWidth_percent=".95">
 
         <TextView
             android:layout_width="wrap_content"
@@ -171,48 +147,45 @@
             android:layout_centerInParent="true"
             android:fontFamily="@font/roboto_bold"
             android:text="@string/network_msg"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="?colorSurface"
             android:textSize="15sp" />
     </RelativeLayout>
 
     <!--Suggestions-->
-    <LinearLayout
-        android:id="@+id/suggestionsLayout"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/suggestionAccountList"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/accountNameContainer"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@+id/previousContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchLayout"
-        app:layout_constraintWidth_percent=".9">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/suggestionAccountList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:itemCount="5"
-            tools:listitem="@layout/suggestion_account_list_item" />
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/searchBar"
+        app:layout_constraintWidth_percent=".95"
+        tools:itemCount="5"
+        tools:listitem="@layout/suggestion_account_list_item" />
 
     <!--Previous-->
     <RelativeLayout
-        android:id="@+id/accountNameContainer"
+        android:id="@+id/previousContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginVertical="20dp"
-        android:background="@drawable/rounded_rectangle"
-        android:orientation="vertical"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/previous_container"
+        android:elevation="1dp"
+        android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/suggestionsLayout"
-        app:layout_constraintWidth_percent=".9">
+        app:layout_constraintTop_toBottomOf="@id/suggestionAccountList"
+        app:layout_constraintWidth_percent=".95">
 
         <LinearLayout
+            android:id="@+id/emptyPrevious"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -223,15 +196,15 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:background="@drawable/ic_baseline_people_outline_24"
-                android:backgroundTint="@color/grey" />
+                android:backgroundTint="?colorPrimary" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:fontFamily="@font/roboto_light"
-                android:text="@string/empty_recent_searches"
-                android:textColor="@color/grey"
+                android:text="@string/empty_previous_searches"
+                android:textColor="?colorPrimary"
                 android:textSize="20sp" />
         </LinearLayout>
 
@@ -240,7 +213,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            tools:itemCount="6"
+            tools:itemCount="10"
             tools:listitem="@layout/account_list_item" />
     </RelativeLayout>
 
@@ -248,6 +221,6 @@
     <include
         android:id="@+id/loadingView"
         layout="@layout/loading"
-        android:visibility="invisible" />
+        android:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
