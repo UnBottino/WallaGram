@@ -2,6 +2,7 @@ package com.wallagram.Activities;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -19,6 +20,8 @@ import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -33,6 +36,9 @@ public class SettingsActivity extends AppCompatActivity {
     private static final String TAG = "SETTINGS_ACTIVITY";
 
     private int stateChange = -1;
+    private String setLocation;
+    private String setImageAlign;
+    private String setTheme;
     private boolean clearRecentChange = false;
 
     private SharedPreferences sharedPreferences;
@@ -144,89 +150,88 @@ public class SettingsActivity extends AppCompatActivity {
     private void locationBtnSetup() {
         RelativeLayout location = findViewById(R.id.location);
         TextView locationValue = findViewById(R.id.locationValue);
+        String[] options = {"Home Screen", "Lock Screen", "Both"};
 
-        //init value
-        switch (sharedPreferences.getInt("location", 0)) {
-            case 0:
-                locationValue.setText(R.string.home_screen);
-                break;
-            case 1:
-                locationValue.setText(R.string.lock_screen);
-                break;
-            case 2:
-                locationValue.setText(R.string.both_screens);
-                break;
-        }
+        setLocation = sharedPreferences.getString("setLocation", options[0]);
+        locationValue.setText(setLocation);
 
         location.setOnClickListener(v -> {
-            editor.putBoolean("settingsUpdated", true);
+            View.OnClickListener locationRadioClick = view -> {
+                RadioButton rb = (RadioButton) view;
 
-            switch (locationValue.getText().toString()) {
-                case "Home Screen":
-                    Log.d(TAG, "locationBtnSetup: Location set to 'Lock'");
-                    locationValue.setText(R.string.lock_screen);
-                    editor.putInt("location", 1);
-                    editor.apply();
-                    break;
-                case "Lock Screen":
-                    Log.d(TAG, "locationBtnSetup: Location set to 'Both'");
-                    locationValue.setText(R.string.both_screens);
-                    editor.putInt("location", 2);
-                    editor.apply();
-                    break;
-                case "Both":
-                    Log.d(TAG, "locationBtnSetup: Location set to 'Home'");
-                    locationValue.setText(R.string.home_screen);
-                    editor.putInt("location", 0);
-                    editor.apply();
-                    break;
-            }
+                String chosenOption = null;
+
+                switch (rb.getText().toString()) {
+                    case "Home Screen":
+                        Log.d(TAG, "locationBtnSetup: Location set to 'Home Screen'");
+                        chosenOption = options[0];
+                        break;
+                    case "Lock Screen":
+                        Log.d(TAG, "locationBtnSetup: Location set to 'Lock Screen'");
+                        chosenOption = options[1];
+                        break;
+                    case "Both":
+                        Log.d(TAG, "locationBtnSetup: Location set to 'Both'");
+                        chosenOption = options[2];
+                        break;
+                    default:
+                        Log.e(TAG, "imageAlignBtnSetup: Image align error");
+                        break;
+                }
+
+                if (chosenOption != null) {
+                    editor.putString("setLocation", chosenOption);
+                    editor.commit();
+                    locationValue.setText(chosenOption);
+                    rb.toggle();
+                }
+            };
+
+            radioDialog("Location", options, locationRadioClick, setLocation);
         });
     }
 
     private void imageAlignBtnSetup() {
         RelativeLayout imageAlign = findViewById(R.id.imageAlign);
         TextView alignValue = findViewById(R.id.alignValue);
+        String[] options = {"Left", "Centre", "Right"};
 
-        //init value
-        switch (sharedPreferences.getInt("align", 1)) {
-            case 0:
-                alignValue.setText(R.string.left_align);
-                break;
-            case 1:
-                alignValue.setText(R.string.centre_align);
-                break;
-            case 2:
-                alignValue.setText(R.string.right_align);
-                break;
-        }
+        setImageAlign = sharedPreferences.getString("setImageAlign", options[1]);
+        alignValue.setText(setImageAlign);
 
         imageAlign.setOnClickListener(v -> {
-            editor.putBoolean("settingsUpdated", true);
+            View.OnClickListener alignRadioClick = view -> {
+                RadioButton rb = (RadioButton) view;
 
-            switch (alignValue.getText().toString()) {
-                case "Left":
-                    Log.d(TAG, "imageAlignBtnSetup: ImageAlign set to 'Centre'");
-                    alignValue.setText(R.string.centre_align);
-                    editor.putInt("align", 1);
-                    editor.apply();
-                    break;
-                case "Centre":
-                    Log.d(TAG, "imageAlignBtnSetup: ImageAlign set to 'Right'");
-                    alignValue.setText(R.string.right_align);
-                    editor.putInt("align", 2);
-                    editor.apply();
-                    break;
-                case "Right":
-                    Log.d(TAG, "imageAlignBtnSetup: ImageAlign set to 'Left'");
-                    alignValue.setText(R.string.left_align);
-                    editor.putInt("align", 0);
-                    editor.apply();
-                    break;
-                default:
-                    Log.e(TAG, "imageAlignBtnSetup: Image align error");
-                    break;
-            }
+                String chosenOption = null;
+
+                switch (rb.getText().toString()) {
+                    case "Left":
+                        Log.d(TAG, "imageAlignBtnSetup: ImageAlign set to 'Left'");
+                        chosenOption = options[0];
+                        break;
+                    case "Centre":
+                        Log.d(TAG, "imageAlignBtnSetup: ImageAlign set to 'Centre'");
+                        chosenOption = options[1];
+                        break;
+                    case "Right":
+                        Log.d(TAG, "imageAlignBtnSetup: ImageAlign set to 'Right'");
+                        chosenOption = options[2];
+                        break;
+                    default:
+                        Log.e(TAG, "imageAlignBtnSetup: Image align error");
+                        break;
+                }
+
+                if (chosenOption != null) {
+                    editor.putString("setImageAlign", chosenOption);
+                    editor.commit();
+                    alignValue.setText(chosenOption);
+                    rb.toggle();
+                }
+            };
+
+            radioDialog("Image Align", options, alignRadioClick, setImageAlign);
         });
     }
 
@@ -337,6 +342,53 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
+    private void themeBtnSetup() {
+        RelativeLayout theme = findViewById(R.id.theme);
+        TextView themeValue = findViewById(R.id.themeValue);
+        String[] options = {"System Default", "Light", "Dark"};
+        setTheme = sharedPreferences.getString("setTheme", options[0]);
+
+        themeValue.setText(setTheme);
+
+        theme.setOnClickListener(v -> {
+            View.OnClickListener radioClick = view -> {
+                RadioButton rb = (RadioButton) view;
+
+                String chosenOption = null;
+
+                switch (rb.getText().toString()) {
+                    case "System Default":
+                        Log.d(TAG, "themeBtnSetup: Theme set to 'System Default'");
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                        chosenOption = options[0];
+                        break;
+                    case "Light":
+                        Log.d(TAG, "themeBtnSetup: Theme set to 'Light'");
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                        chosenOption = options[1];
+                        break;
+                    case "Dark":
+                        Log.d(TAG, "themeBtnSetup: Theme set to 'Dark'");
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                        chosenOption = options[2];
+                        break;
+                    default:
+                        Log.e(TAG, "themeBtnSetup: Theme setting error");
+                        break;
+                }
+
+                if (chosenOption != null) {
+                    editor.putString("setTheme", chosenOption);
+                    editor.commit();
+                    themeValue.setText(chosenOption);
+                    rb.toggle();
+                }
+            };
+
+            radioDialog("Theme", options, radioClick, setTheme);
+        });
+    }
+
     private void clearRecentBtnSetup() {
         RelativeLayout clearRecent = findViewById(R.id.clearRecentSearches);
 
@@ -398,6 +450,7 @@ public class SettingsActivity extends AppCompatActivity {
         allowVideosBtnSetup();
         saveWallpaperBtnSetup();
         imageAlignBtnSetup();
+        themeBtnSetup();
         clearRecentBtnSetup();
 
         RelativeLayout stateInfo = findViewById(R.id.stateInfoBtn);
@@ -419,12 +472,43 @@ public class SettingsActivity extends AppCompatActivity {
         allowVideosInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Allow Video Posts"), new SpannableString(getString(R.string.allow_videos_info_msg))));
 
         RelativeLayout saveWallpaperInfo = findViewById(R.id.saveWallpaperInfoBtn);
-        saveWallpaperInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Save Wallpaper"), new SpannableString(getString(R.string.save_wallpaper_info_msg))));
+        saveWallpaperInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Save Wallpapers"), new SpannableString(getString(R.string.save_wallpaper_info_msg))));
 
         RelativeLayout imageAlignInfo = findViewById(R.id.imageAlignInfoBtn);
         imageAlignInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Image Align"), new SpannableString(getString(R.string.image_align_info_msg))));
 
+        RelativeLayout themeInfo = findViewById(R.id.themeInfoBtn);
+        themeInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Theme"), new SpannableString(getString(R.string.theme_info_msg))));
+
         RelativeLayout clearRecentInfo = findViewById(R.id.clearRecentInfoBtn);
         clearRecentInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Clear Recent Searches"), new SpannableString(getString(R.string.clear_recent_info_msg))));
+    }
+
+    private void radioDialog(String title, String[] options, View.OnClickListener radioClick, String setValue) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_options, null);
+        builder.setView(dialogView);
+
+        TextView infoTitle = dialogView.findViewById(R.id.title);
+        infoTitle.setText(title);
+
+        RadioGroup radioGroup = dialogView.findViewById(R.id.radioGroup);
+        for (int i = 0; i < radioGroup.getChildCount(); i++) {
+            View radioButton = radioGroup.getChildAt(i);
+            if (radioButton instanceof RadioButton) {
+                ((RadioButton) radioButton).setText(options[i]);
+                ((RadioButton) radioButton).setOnClickListener(radioClick);
+
+                if (setValue.equalsIgnoreCase(((RadioButton) radioButton).getText().toString())) {
+                    ((RadioButton) radioButton).toggle();
+                }
+            }
+        }
+
+        AlertDialog dialog = builder.create();
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
     }
 }

@@ -127,6 +127,21 @@
                     android:text="@string/setting_save_wallpapers" />
 
                 <RelativeLayout
+                    android:id="@+id/theme"
+                    style="@style/SettingsListItem">
+
+                    <TextView
+                        style="@style/SettingsListItemName"
+                        android:text="@string/setting_theme" />
+
+                    <TextView
+                        android:id="@+id/themeValue"
+                        style="@style/SettingsListItemValue"
+                        android:text="@string/setting_theme_default" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
                     android:id="@+id/clearRecentSearches"
                     style="@style/SettingsListItem">
 
@@ -175,6 +190,10 @@
 
                 <include
                     android:id="@+id/saveWallpaperInfoBtn"
+                    layout="@layout/info_btn" />
+
+                <include
+                    android:id="@+id/themeInfoBtn"
                     layout="@layout/info_btn" />
 
                 <include

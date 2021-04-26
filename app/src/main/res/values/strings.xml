@@ -39,6 +39,8 @@
     <string name="setting_allow_videos">Allow Video Posts:</string>
     <string name="setting_image_align">Image Align:</string>
     <string name="setting_image_align_default">Centre</string>
+    <string name="setting_theme">Theme:</string>
+    <string name="setting_theme_default">System Default</string>
     <string name="setting_clear_recent_searches">Clear Recent Searches</string>
 
     <!--SettingsActivity Info-->
@@ -50,11 +52,13 @@
     <string name="allow_videos_info_msg">When active, if your selected account\'s most recent post is a video, the first frame will be set as your new wallpaper</string>
     <string name="save_wallpaper_info_msg">When active, WallaGram saves new posts into an album in your gallery</string>
     <string name="image_align_info_msg">As posts do not have a uniform size, WallaGram needs to crop each post to fit your screen. Image Align allows you to set a preference for the positioning</string>
+    <string name="theme_info_msg">Allows you to switch between light and dark mode</string>
     <string name="clear_recent_info_msg">Allows you to clear all accounts from the\nRecent Searches List</string>
 
     <!--Alert Dialog Defaults-->
     <string name="dialog_title">Title</string>
     <string name="dialog_msg">Message</string>
+    <string name="radio_option">Option</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_confirm">Confirm</string>
 

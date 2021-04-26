@@ -433,11 +433,9 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
             Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
             if (!error) {
                 showOnline();
-                DrawableCompat.setTint(wrappedDrawable, colorPrimary);
-
-                SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(getApplicationContext(), mSuggestionAccountList, mAdapterCallback);
+                SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(getBaseContext(), mSuggestionAccountList, mAdapterCallback);
                 mSuggestionsRecyclerView.setAdapter(mSuggestionAdapter);
-                mSuggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+                mSuggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(getBaseContext(), LinearLayoutManager.HORIZONTAL, false));
             } else {
                 DrawableCompat.setTint(wrappedDrawable, colorError);
             }

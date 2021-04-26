@@ -125,6 +125,19 @@
         <item name="android:layout_alignParentEnd">true</item>
     </style>
 
+    <style name="SettingsRadioButton" parent="Theme.WallaGram">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:theme">@style/RadioButtonTheme</item>
+    </style>
+
+    <style name="RadioButtonTheme" parent="Theme.WallaGram">
+        <item name="colorControlNormal">?colorOnSurface</item>
+        <item name="colorControlActivated">?colorPrimary</item>
+    </style>
+
     <style name="NumpadBtn">
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
         <item name="android:clickable">true</item>
