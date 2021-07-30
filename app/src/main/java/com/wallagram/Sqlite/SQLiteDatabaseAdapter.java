@@ -33,6 +33,18 @@ public class SQLiteDatabaseAdapter {
         db.close();
     }
 
+    public void updateProfilePicURL(String accountName, String newProfilePicURL) {
+        Log.d(TAG, "updateAccount: Updating previousAccount profilePicURL (" + accountName + ")");
+
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put("profile_pic_url", newProfilePicURL);
+
+        db.update(SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES, cv, "account_name = ?", new String[]{accountName});
+        db.close();
+    }
+
     public List<PreviousAccount> getAllAccounts() {
         Log.d(TAG, "getAllAccounts");
 

@@ -3,14 +3,14 @@ plugins {
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
 
     defaultConfig {
         applicationId "com.wallagram"
         minSdkVersion 26
-        targetSdkVersion 29
-        versionCode 11
-        versionName '3.0'
+        targetSdkVersion 30
+        versionCode 12
+        versionName '3.1'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -29,7 +29,7 @@ android {
 
 dependencies {
     //FindNewPostWorker
-    implementation 'androidx.work:work-runtime:2.5.0'
+    implementation 'androidx.work:work-runtime:2.6.0-alpha02'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
 
     //Testing

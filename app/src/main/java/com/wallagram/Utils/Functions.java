@@ -29,6 +29,7 @@ import androidx.work.PeriodicWorkRequest;
 
 import com.wallagram.Workers.FetchSuggestionsWorker;
 import com.wallagram.Workers.FindNewPostWorker;
+import com.wallagram.Workers.RefreshProfilePicsWorker;
 import com.wallagram.Workers.SavePostWorker;
 import com.wallagram.Model.PreviousAccount;
 import com.wallagram.R;
@@ -42,6 +43,22 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class Functions {
     private static final String TAG = "FUNCTIONS";
+
+    public static void refreshImagesSingleRequest(Context context) {
+        String WORK_TAG = "refreshImages: Single";
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(RefreshProfilePicsWorker.class)
+                .addTag(WORK_TAG)
+                .setConstraints(constraints)
+                .build();
+
+        androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
+        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.REPLACE, owr);
+    }
 
     public static void findNewPostPeriodicRequest(Context context) {
         String WORK_TAG = "findNewPost: Periodic";
@@ -129,6 +146,11 @@ public class Functions {
     public static List<PreviousAccount> getDBAccounts(Context context) {
         SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
         return db.getAllAccounts();
+    }
+
+    public static void updateProfilePicURL(Context context, String accountName, String newProfilePicURL) {
+        SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
+        db.updateProfilePicURL(accountName, newProfilePicURL);
     }
 
     public static void removeDBAccounts(Context context) {

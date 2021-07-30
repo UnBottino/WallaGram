@@ -114,10 +114,16 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         //General page setup
         pageSetup();
 
+        refreshImages();
+
         //Activate Alarm
         if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
             Functions.findNewPostPeriodicRequest(this);
         }
+    }
+
+    public void refreshImages(){
+        Functions.refreshImagesSingleRequest(getApplicationContext());
     }
 
     @Override

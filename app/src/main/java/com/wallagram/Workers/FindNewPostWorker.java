@@ -53,6 +53,7 @@ public class FindNewPostWorker extends Worker {
     private String mPostUrl;
     private String mImageName;
 
+    private int urlErrorCount = 0;
     private boolean mSuccess;
 
     public FindNewPostWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -70,11 +71,22 @@ public class FindNewPostWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+
+        getUrlResponse();
+
+        return (mSuccess ? Result.success() : Result.failure());
+    }
+
+    private void getUrlResponse() {
+        boolean error = false;
+
         HttpURLConnection connection = null;
         BufferedReader reader = null;
         try {
             Log.d(TAG, "Building account url and connecting");
             String urlString = "https://www.instagram.com/" + mSearchName + "/channel/?__a=1";
+
+            System.out.println(urlString);
 
             URL url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
@@ -88,8 +100,7 @@ public class FindNewPostWorker extends Worker {
 
             processResponse(responseObject);
         } catch (Exception e) {
-            Log.d(TAG, "Account Not Found");
-            endError("Account Not Found\n(" + mSearchName + ")");
+            error = true;
         } finally {
             try {
                 if (reader != null) {
@@ -103,7 +114,16 @@ public class FindNewPostWorker extends Worker {
             }
         }
 
-        return (mSuccess ? Result.success() : Result.failure());
+        if (error) {
+            if (urlErrorCount < 3) {
+                urlErrorCount++;
+                System.out.println("NOT FOUND: " + urlErrorCount);
+                getUrlResponse();
+            } else {
+                Log.d(TAG, "Account Not Found");
+                endError("Account Not Found\n(" + mSearchName + ")");
+            }
+        }
     }
 
     private void processResponse(JSONObject responseObject) {
@@ -225,6 +245,7 @@ public class FindNewPostWorker extends Worker {
     private void endSuccess() {
         try {
             mImageName = mPostNode.get("id").toString();
+            System.out.println(mImageName);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -257,8 +278,9 @@ public class FindNewPostWorker extends Worker {
 
     private void setWallpaper() {
         Log.d(TAG, "setWallpaper: Setting Wallpaper");
+        String[] options = {"Home Screen", "Lock Screen", "Both"};
         int screenWidth = mSharedPreferences.getInt("screenWidth", 0);
-        int imageAlign = mSharedPreferences.getInt("align", 1);
+        String setImageAlign = mSharedPreferences.getString("setImageAlign", "Centre");
 
         try {
             URL url = new URL(mPostUrl);
@@ -267,11 +289,11 @@ public class FindNewPostWorker extends Worker {
 
             final int desiredH = wallpaperManager.getDesiredMinimumHeight();
 
-            Bitmap bm = scaleCrop(postImage, imageAlign, desiredH, screenWidth);
+            Bitmap bm = scaleCrop(postImage, setImageAlign, desiredH, screenWidth);
 
-            if (mSharedPreferences.getInt("location", 0) == 0) {
+            if (mSharedPreferences.getString("setLocation", options[0]).equalsIgnoreCase(options[0])) {
                 wallpaperManager.setBitmap(bm, null, false, WallpaperManager.FLAG_SYSTEM);
-            } else if (mSharedPreferences.getInt("location", 0) == 1) {
+            } else if (mSharedPreferences.getString("setLocation", options[0]).equalsIgnoreCase(options[1])) {
                 wallpaperManager.setBitmap(bm, null, false, WallpaperManager.FLAG_LOCK);
             } else {
                 wallpaperManager.setBitmap(bm, null, false, WallpaperManager.FLAG_SYSTEM);
@@ -289,7 +311,7 @@ public class FindNewPostWorker extends Worker {
         }
     }
 
-    private Bitmap scaleCrop(Bitmap postImage, int imageAlign, int screenHeight, int screenWidth) {
+    private Bitmap scaleCrop(Bitmap postImage, String imageAlign, int screenHeight, int screenWidth) {
         Log.d(TAG, "scaleCrop: Scaling image to Height: " + screenHeight + ", to Width: " + screenWidth + " and aligned: " + imageAlign);
 
         int postWidth = postImage.getWidth();
@@ -312,11 +334,11 @@ public class FindNewPostWorker extends Worker {
         float top;
 
         switch (imageAlign) {
-            case 0:
+            case "Left":
                 left = 0;
                 top = 0;
                 break;
-            case 2:
+            case "Right":
                 left = (screenWidth - scaledWidth);
                 top = (screenHeight - scaledHeight);
                 break;
