@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activities.PreviewActivity">
+
+    <ImageView
+        android:id="@+id/postPreview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:srcCompat="@drawable/frown_straight"/>
+
+    <!--RefreshBtn-->
+    <RelativeLayout
+        android:id="@+id/refreshBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/ripple_rounded_rectangle"
+        android:elevation="1dp"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/refreshIcon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_centerInParent="true"
+            android:backgroundTint="?colorPrimary"
+            android:background="@drawable/ic_baseline_refresh_24" />
+    </RelativeLayout>
+</RelativeLayout>

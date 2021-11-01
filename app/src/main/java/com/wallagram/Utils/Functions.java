@@ -29,6 +29,7 @@ import androidx.work.PeriodicWorkRequest;
 
 import com.wallagram.Workers.FetchSuggestionsWorker;
 import com.wallagram.Workers.FindNewPostWorker;
+import com.wallagram.Workers.FindNewRedditPostWorker;
 import com.wallagram.Workers.RefreshProfilePicsWorker;
 import com.wallagram.Workers.SavePostWorker;
 import com.wallagram.Model.PreviousAccount;
@@ -43,6 +44,49 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class Functions {
     private static final String TAG = "FUNCTIONS";
+
+    public static void findNewRedditPostSingleRequest(Context context) {
+        String WORK_TAG = "findNewRedditPost: Single";
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        final OneTimeWorkRequest owr = new OneTimeWorkRequest.Builder(FindNewRedditPostWorker.class)
+                .addTag(WORK_TAG)
+                .setConstraints(constraints)
+                .build();
+
+        androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
+        workManager.enqueueUniqueWork(WORK_TAG, ExistingWorkPolicy.REPLACE, owr);
+    }
+
+    public static void findNewRedditPostPeriodicRequest(Context context) {
+        String WORK_TAG = "findNewRedditPost: Periodic";
+
+        SharedPreferences sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        String metric = sharedPreferences.getString("metric", "hours");
+
+        int convertedDuration;
+
+        if (metric.equalsIgnoreCase("hours")) {
+            convertedDuration = sharedPreferences.getInt("duration", 1) * 60;
+        } else {
+            convertedDuration = sharedPreferences.getInt("duration", 1) * 60 * 24;
+        }
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        final PeriodicWorkRequest pwr = new PeriodicWorkRequest.Builder(FindNewRedditPostWorker.class, convertedDuration, TimeUnit.MINUTES)
+                .addTag(WORK_TAG)
+                .setConstraints(constraints)
+                .build();
+
+        androidx.work.WorkManager workManager = androidx.work.WorkManager.getInstance(context);
+        workManager.enqueueUniquePeriodicWork(WORK_TAG, ExistingPeriodicWorkPolicy.REPLACE, pwr);
+    }
 
     public static void refreshImagesSingleRequest(Context context) {
         String WORK_TAG = "refreshImages: Single";
@@ -148,9 +192,14 @@ public class Functions {
         return db.getAllAccounts();
     }
 
-    public static void updateProfilePicURL(Context context, String accountName, String newProfilePicURL) {
+    public static List<PreviousAccount> getDBInstaAccounts(Context context) {
         SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
-        db.updateProfilePicURL(accountName, newProfilePicURL);
+        return db.getAllInstaAccounts();
+    }
+
+    public static void updateProfilePicURL(Context context, String accountType, String accountName, String newProfilePicURL) {
+        SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
+        db.updateProfilePicURL(accountType, accountName, newProfilePicURL);
     }
 
     public static void removeDBAccounts(Context context) {
@@ -160,11 +209,11 @@ public class Functions {
         db.deleteAll();
     }
 
-    public static void removeDBAccountByName(Context context, String accountName) {
+    public static void removeDBAccount(Context context, String accountType, String accountName) {
         Log.d(TAG, "removeDBAccountByName: Removing " + accountName + "'s information from DB");
 
         SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(context);
-        db.deleteAccount(accountName);
+        db.deleteAccount(accountType, accountName);
     }
 
     public static void requestPermission(Activity activity) {

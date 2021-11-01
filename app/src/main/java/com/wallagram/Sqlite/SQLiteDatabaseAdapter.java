@@ -26,6 +26,7 @@ public class SQLiteDatabaseAdapter {
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         ContentValues values = new ContentValues();
+        values.put("account_type", previousAccount.getAccountType());
         values.put("account_name", previousAccount.getAccountName());
         values.put("profile_pic_url", previousAccount.getProfilePicURL());
 
@@ -33,7 +34,7 @@ public class SQLiteDatabaseAdapter {
         db.close();
     }
 
-    public void updateProfilePicURL(String accountName, String newProfilePicURL) {
+    public void updateProfilePicURL(String accountType, String accountName, String newProfilePicURL) {
         Log.d(TAG, "updateAccount: Updating previousAccount profilePicURL (" + accountName + ")");
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -41,7 +42,7 @@ public class SQLiteDatabaseAdapter {
         ContentValues cv = new ContentValues();
         cv.put("profile_pic_url", newProfilePicURL);
 
-        db.update(SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES, cv, "account_name = ?", new String[]{accountName});
+        db.update(SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES, cv, "account_type = ? AND account_name = ?", new String[]{accountType, accountName});
         db.close();
     }
 
@@ -57,7 +58,31 @@ public class SQLiteDatabaseAdapter {
             cursor.moveToNext();
             for (int i = 0; i < cursor.getCount(); i++) {
                 PreviousAccount previousAccount = new PreviousAccount(cursor.getString(0),
-                        cursor.getString(1));
+                        cursor.getString(1), cursor.getString(2));
+                previousAccountList.add(previousAccount);
+                cursor.moveToNext();
+            }
+            cursor.close();
+            db.close();
+            return previousAccountList;
+        }
+
+        return null;
+    }
+
+    public List<PreviousAccount> getAllInstaAccounts() {
+        Log.d(TAG, "getAllInstaAccounts");
+
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String query = SQLiteQueries.getAllInstaAccounts();
+        Cursor cursor = db.rawQuery(query, null);
+        List<PreviousAccount> previousAccountList = new ArrayList<>();
+
+        if (cursor != null) {
+            cursor.moveToNext();
+            for (int i = 0; i < cursor.getCount(); i++) {
+                PreviousAccount previousAccount = new PreviousAccount(cursor.getString(0),
+                        cursor.getString(1), cursor.getString(2));
                 previousAccountList.add(previousAccount);
                 cursor.moveToNext();
             }
@@ -75,7 +100,7 @@ public class SQLiteDatabaseAdapter {
         boolean exists = false;
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String query = SQLiteQueries.getAccountNameByName(previousAccount.getAccountName());
+        String query = SQLiteQueries.getAccountByTypeAndName(previousAccount.getAccountType(), previousAccount.getAccountName());
         Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.getCount() > 0)
@@ -86,11 +111,11 @@ public class SQLiteDatabaseAdapter {
         return exists;
     }
 
-    public void deleteAccount(String name) {
-        Log.d(TAG, "deleteAccount: Deleting account from DB (" + name + ")");
+    public void deleteAccount(String accountType, String accountName) {
+        Log.d(TAG, "deleteAccount: Deleting account from DB (" + accountName + "(" + accountType + "))");
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        db.delete(SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES, "account_name" + "='" + name + "'", null);
+        db.delete(SQLiteDatabaseHelper.TABLE_ACCOUNT_NAMES, "account_type = '" + accountType + "' AND account_name" + "='" + accountName + "'", null);
         db.close();
     }
 
@@ -103,7 +128,7 @@ public class SQLiteDatabaseAdapter {
     }
 
     static class SQLiteDatabaseHelper extends SQLiteOpenHelper {
-        private static final int DATABASE_VERSION = 24;
+        private static final int DATABASE_VERSION = 25;
         private static final String DATABASE_NAME = "WallaGram";
         private static final String TABLE_ACCOUNT_NAMES = "walla_accounts";
 

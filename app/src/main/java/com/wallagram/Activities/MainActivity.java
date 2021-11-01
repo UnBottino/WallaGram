@@ -10,6 +10,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.WorkManager;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -96,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
     private @ColorInt
     int colorSurface;
 
+    private String mMode;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,13 +119,15 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
 
         refreshImages();
 
-        //Activate Alarm
+        /*
+        Activate Alarm
         if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
             Functions.findNewPostPeriodicRequest(this);
         }
+        */
     }
 
-    public void refreshImages(){
+    public void refreshImages() {
         Functions.refreshImagesSingleRequest(getApplicationContext());
     }
 
@@ -172,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
                 Log.d(TAG, "onReceive: Setting Error Display Name");
             } else {
                 SQLiteDatabaseAdapter db = new SQLiteDatabaseAdapter(getApplicationContext());
-                PreviousAccount previousAccount = new PreviousAccount(setAccountName, setProfilePic);
+                PreviousAccount previousAccount = new PreviousAccount(mMode, setAccountName, setProfilePic);
 
                 if (!db.checkIfAccountExists(previousAccount)) {
                     db.addAccount(previousAccount);
@@ -181,12 +186,12 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
                     mPreviousAdapter.notifyItemInserted(0);
                     mPreviousAdapter.notifyDataSetChanged();
                 } else {
-                    Log.d(TAG, "onReceive: PreviousAccount name already in db (" + setAccountName + ")");
+                    Log.d(TAG, "onReceive: PreviousAccount already in db (" + setAccountName + ")");
 
                     for (PreviousAccount a : mPreviousPreviousAccountList) {
-                        if (a.getAccountName().equalsIgnoreCase(previousAccount.getAccountName())) {
+                        if (a.getAccountName().equalsIgnoreCase(previousAccount.getAccountName()) && a.getAccountType().equalsIgnoreCase(previousAccount.getAccountType())) {
                             //Not using update because of the ordering in recyclerView
-                            db.deleteAccount(a.getAccountName());
+                            db.deleteAccount(a.getAccountType(), a.getAccountName());
                             db.addAccount(previousAccount);
 
                             mPreviousPreviousAccountList.remove(a);
@@ -263,6 +268,14 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
             startActivityForResult(intent, 59);
         });
 
+        //Preview Button
+        RelativeLayout mPreviewBtn = findViewById(R.id.previewBtn);
+        mPreviewBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, PreviewActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        });
+
         //Disabled Button
         disabledBtn = findViewById(R.id.disabledBtn);
         disabledBtn.setOnClickListener(view -> Functions.popupMsg(this, new SpannableString("State Disabled"), new SpannableString(getString(R.string.state_disabled_info_msg))));
@@ -302,7 +315,10 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         setupPreviousAccounts();
 
         //Suggestions
-        setupSuggestions();
+        //setupSuggestions();
+
+        //Reddit mode
+        setupReddit();
     }
 
     private void setupState() {
@@ -346,11 +362,22 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
                 mSearchBar.setBackgroundResource(R.drawable.search_bar);
                 mSearchBar.clearFocus();
 
-                //Activate Alarm
-                if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
-                    Functions.findNewPostPeriodicRequest(getApplicationContext());
-                } else {
-                    Functions.findNewPostSingleRequest(getApplicationContext());
+                mMode = sharedPreferences.getString("setMode", "Insta");
+
+                if (mMode.equalsIgnoreCase("Insta")) {
+                    //Activate Alarm
+                    if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
+                        Functions.findNewPostPeriodicRequest(getApplicationContext());
+                    } else {
+                        Functions.findNewPostSingleRequest(getApplicationContext());
+                    }
+                } else if (mMode.equalsIgnoreCase("Reddit")) {
+                    //Activate Alarm
+                    if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
+                        Functions.findNewRedditPostPeriodicRequest(getApplicationContext());
+                    } else {
+                        Functions.findNewRedditPostSingleRequest(getApplicationContext());
+                    }
                 }
 
                 return false;
@@ -369,8 +396,6 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
 
         mPreviousPreviousAccountList = Functions.getDBAccounts(this);
         Collections.reverse(mPreviousPreviousAccountList);
-
-        /*mPreviousPreviousAccountList != null*/
 
         if (!mPreviousPreviousAccountList.isEmpty()) {
             emptyPrevious.setVisibility(View.GONE);
@@ -428,6 +453,42 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         });
     }
 
+    private void setupReddit() {
+        RelativeLayout modeBtn = findViewById(R.id.modeBtn);
+        ImageView modeIcon = (ImageView) modeBtn.getChildAt(0);
+        modeIcon.setImageTintList(ColorStateList.valueOf(colorPrimary));
+
+        mMode = sharedPreferences.getString("setMode", "Insta");
+
+        if (mMode.equalsIgnoreCase("Insta")) {
+            modeIcon.setImageResource(R.drawable.insta_icon);
+        } else {
+            modeIcon.setImageResource(R.drawable.reddit_icon);
+        }
+
+        modeBtn.setOnClickListener(v -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+            switch (mMode) {
+                case "Insta":
+                    editor.putString("setMode", "Reddit");
+                    editor.apply();
+                    WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("findNewPost: Periodic");
+                    modeIcon.setImageResource(R.drawable.reddit_icon);
+                    mMode = "Reddit";
+                    break;
+
+                case "Reddit":
+                    editor.putString("setMode", "Insta");
+                    editor.apply();
+                    WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("findNewRedditPost: Periodic");
+                    modeIcon.setImageResource(R.drawable.insta_icon);
+                    mMode = "Insta";
+                    break;
+            }
+        });
+    }
+
     private final BroadcastReceiver updateSuggestionsUIReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -469,7 +530,7 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
     }
 
     @Override
-    public void showRemoveConfirmation(String accountName) {
+    public void showRemoveConfirmation(String accountType, String accountName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setCancelable(true);
 
@@ -481,8 +542,8 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
 
         SpannableStringBuilder removePreviousString = new SpannableStringBuilder();
         removePreviousString.append("Remove");
-        SpannableString coloredAccountName = new SpannableString(" '" + accountName + "' ");
-        coloredAccountName.setSpan(new ForegroundColorSpan(colorPrimary), 0, accountName.length() + 3, 0);
+        SpannableString coloredAccountName = new SpannableString(" '" + accountName + "(" + accountType + ")' ");
+        coloredAccountName.setSpan(new ForegroundColorSpan(colorPrimary), 0, accountType.length() + accountName.length() + 5, 0);
         removePreviousString.append(coloredAccountName);
         removePreviousString.append("from previous searches");
 
@@ -497,7 +558,7 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         TextView confirmBtn = dialogView.findViewById(R.id.confirmBtn);
 
         confirmBtn.setOnClickListener(view -> {
-            Functions.removeDBAccountByName(MainActivity.this, accountName);
+            Functions.removeDBAccount(MainActivity.this, accountType, accountName);
 
             int pos = 0;
             for (PreviousAccount a : mPreviousPreviousAccountList) {

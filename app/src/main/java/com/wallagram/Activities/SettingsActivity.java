@@ -499,7 +499,7 @@ public class SettingsActivity extends AppCompatActivity {
             View radioButton = radioGroup.getChildAt(i);
             if (radioButton instanceof RadioButton) {
                 ((RadioButton) radioButton).setText(options[i]);
-                ((RadioButton) radioButton).setOnClickListener(radioClick);
+                radioButton.setOnClickListener(radioClick);
 
                 if (setValue.equalsIgnoreCase(((RadioButton) radioButton).getText().toString())) {
                     ((RadioButton) radioButton).toggle();

@@ -27,6 +27,7 @@ import java.util.List;
 public class RefreshProfilePicsWorker extends Worker {
     private static final String TAG = "WORKER_REFRESH_IMAGES";
 
+    private String mAccountType;
     private String mAccountName;
     private String mProfilePicUrl;
 
@@ -45,10 +46,10 @@ public class RefreshProfilePicsWorker extends Worker {
         HttpURLConnection connection = null;
         BufferedReader reader = null;
 
-        List<PreviousAccount> previousAccounts = Functions.getDBAccounts(getApplicationContext());
+        List<PreviousAccount> previousAccounts = Functions.getDBInstaAccounts(getApplicationContext());
 
-        int count = 0;
         for (PreviousAccount pa: previousAccounts) {
+            mAccountType = pa.getAccountType();
             mAccountName = pa.getAccountName();
 
             try {
@@ -90,7 +91,7 @@ public class RefreshProfilePicsWorker extends Worker {
 
             mProfilePicUrl = userObject.getString("profile_pic_url_hd");
 
-            Functions.updateProfilePicURL(getApplicationContext(), mAccountName, mProfilePicUrl);
+            Functions.updateProfilePicURL(getApplicationContext(), mAccountType, mAccountName, mProfilePicUrl);
         } catch (JSONException e) {
             Log.e(TAG, "Error parsing response ("+ mAccountName +"): " + e.getMessage());
         }

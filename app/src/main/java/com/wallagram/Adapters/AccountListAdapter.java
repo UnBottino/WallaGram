@@ -39,6 +39,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
     @Override
     public void onBindViewHolder(final AccountListItemHolder holder, int position) {
+        final String mAccountType = mPreviousAccountList.get(position).getAccountType();
         final String mAccountName = mPreviousAccountList.get(position).getAccountName();
         final String mProfilePicURL = mPreviousAccountList.get(position).getProfilePicURL();
 
@@ -61,12 +62,24 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
                 mEditor.putString("searchName", mAccountName);
                 mEditor.apply();
 
-                //Activate Alarm
-                if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
-                    Functions.findNewPostPeriodicRequest(mContext);
-                } else {
-                    Functions.findNewPostSingleRequest(mContext);
+                String mMode = sharedPreferences.getString("setMode", "Insta");
+
+                if(mMode.equalsIgnoreCase("Insta")){
+                    //Activate Alarm
+                    if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
+                        Functions.findNewPostPeriodicRequest(mContext);
+                    } else {
+                        Functions.findNewPostSingleRequest(mContext);
+                    }
+                } else if (mMode.equalsIgnoreCase("Reddit")){
+                    //Activate Alarm
+                    if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
+                        Functions.findNewRedditPostPeriodicRequest(mContext);
+                    } else {
+                        Functions.findNewRedditPostSingleRequest(mContext);
+                    }
                 }
+
                 mAdapterCallback.showOnline();
             } else {
                 Log.d(TAG, "No Network Connection");
@@ -77,7 +90,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
         holder.itemView.setOnLongClickListener(v -> {
             Log.d(TAG, "RecyclerView item long clicked: (" + mAccountName + ")");
             mAdapterCallback.hideSoftKeyboard();
-            mAdapterCallback.showRemoveConfirmation(mAccountName);
+            mAdapterCallback.showRemoveConfirmation(mAccountType, mAccountName);
 
             return true;
         });

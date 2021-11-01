@@ -31,6 +31,8 @@ dependencies {
     //FindNewPostWorker
     implementation 'androidx.work:work-runtime:2.6.0-alpha02'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     //Testing
     testImplementation 'junit:junit:4.13.2'
