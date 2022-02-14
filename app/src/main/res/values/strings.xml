@@ -29,6 +29,8 @@
     <string name="setting_state">State:</string>
     <string name="setting_duration">Duration:</string>
     <string name="setting_duration_default">1 Hour</string>
+    <string name="setting_search_sort">Search sort:</string>
+    <string name="setting_search_sort_default">Random</string>
     <string name="setting_location">Location:</string>
     <string name="setting_home_default">Home</string>
     <string name="setting_post_pref">Post Preference:</string>
@@ -46,6 +48,7 @@
     <!--SettingsActivity Info-->
     <string name="state_info_msg">When active, WallaGram will periodically update your selected wallpaper</string>
     <string name="duration_info_msg">Allows you to set how often WallaGram searches for a new wallpaper</string>
+    <string name="search_sort_info_msg">Allows you to sort the order WallaGram searches for a new wallpaper</string>
     <string name="location_info_msg">Allows you to set which wallpaper WallaGram updates\n(Home Screen / Lock Screen)</string>
     <string name="post_pref_info_msg">Allows you to place a priority on which post is selected for your new wallpaper</string>
     <string name="multi_image_post_info_msg">Allows you to place a priority on which image in a multi-image post is selected for your new wallpaper</string>

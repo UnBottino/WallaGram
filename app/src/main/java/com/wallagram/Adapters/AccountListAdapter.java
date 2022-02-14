@@ -1,6 +1,7 @@
 package com.wallagram.Adapters;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
@@ -54,10 +55,10 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
             mAdapterCallback.hideSoftKeyboard();
 
-            if (Functions.isNetworkAvailable(mContext)) {
+            if (Functions.isNetworkAvailable(mContext.getApplication())) {
                 MainActivity.mLoadingView.setVisibility(View.VISIBLE);
 
-                SharedPreferences sharedPreferences = mContext.getSharedPreferences("Settings", 0);
+                SharedPreferences sharedPreferences = mContext.getSharedPreferences("Settings", Context.MODE_PRIVATE);
                 SharedPreferences.Editor mEditor = sharedPreferences.edit();
                 mEditor.putString("searchName", mAccountName);
                 mEditor.apply();
@@ -66,16 +67,20 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
                 if(mMode.equalsIgnoreCase("Insta")){
                     //Activate Alarm
-                    if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
+                    if (sharedPreferences.getInt("state", 1) == 1 && sharedPreferences.getBoolean("repeatingWorker", false)) {
+                        Log.d(TAG, "onBindViewHolder: periodic");
                         Functions.findNewPostPeriodicRequest(mContext);
                     } else {
+                        Log.d(TAG, "onBindViewHolder: Single");
                         Functions.findNewPostSingleRequest(mContext);
                     }
                 } else if (mMode.equalsIgnoreCase("Reddit")){
                     //Activate Alarm
-                    if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
+                    if (sharedPreferences.getInt("state", 1) == 1 && sharedPreferences.getBoolean("repeatingWorker", false)) {
+                        Log.d(TAG, "onBindViewHolder: periodic");
                         Functions.findNewRedditPostPeriodicRequest(mContext);
                     } else {
+                        Log.d(TAG, "onBindViewHolder: Single");
                         Functions.findNewRedditPostSingleRequest(mContext);
                     }
                 }

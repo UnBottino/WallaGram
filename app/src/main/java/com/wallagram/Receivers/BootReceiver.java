@@ -16,9 +16,26 @@ public class BootReceiver extends BroadcastReceiver {
         if (Intent.ACTION_BOOT_COMPLETED.equals(i.getAction())) {
             SharedPreferences sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
-            if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
-                Log.d(TAG, "onReceive: Activating Alarm");
-                Functions.findNewPostPeriodicRequest(context);
+            String mMode = sharedPreferences.getString("setMode", "Insta");
+
+            if (mMode.equalsIgnoreCase("Insta")) {
+                //Activate Alarm
+                if (sharedPreferences.getInt("state", 1) == 1 && sharedPreferences.getBoolean("repeatingWorker", false)) {
+                    Log.d(TAG, "onBindViewHolder: periodic");
+                    Functions.findNewPostPeriodicRequest(context);
+                } else {
+                    Functions.findNewPostSingleRequest(context);
+                    Log.d(TAG, "onBindViewHolder: Single");
+                }
+            } else if (mMode.equalsIgnoreCase("Reddit")) {
+                //Activate Alarm
+                if (sharedPreferences.getInt("state", 1) == 1 && sharedPreferences.getBoolean("repeatingWorker", false)) {
+                    Log.d(TAG, "onBindViewHolder: periodic");
+                    Functions.findNewRedditPostPeriodicRequest(context);
+                } else {
+                    Log.d(TAG, "onBindViewHolder: Single");
+                    Functions.findNewRedditPostSingleRequest(context);
+                }
             }
         }
     }

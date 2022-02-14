@@ -351,33 +351,42 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
             public boolean onQueryTextSubmit(String query) {
                 Log.d(TAG, "onQueryTextSubmit: Searching for: " + query);
 
-                mLoadingView.setVisibility(View.VISIBLE);
+                if (Functions.isNetworkAvailable(getApplication())) {
+                    mLoadingView.setVisibility(View.VISIBLE);
 
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("searchName", query);
-                editor.apply();
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("searchName", query);
+                    editor.apply();
 
-                mSearchBar.setQuery("", false);
-                mSearchBar.setIconified(true);
-                mSearchBar.setBackgroundResource(R.drawable.search_bar);
-                mSearchBar.clearFocus();
+                    mSearchBar.setQuery("", false);
+                    mSearchBar.setIconified(true);
+                    mSearchBar.setBackgroundResource(R.drawable.search_bar);
+                    mSearchBar.clearFocus();
 
-                mMode = sharedPreferences.getString("setMode", "Insta");
+                    mMode = sharedPreferences.getString("setMode", "Insta");
 
-                if (mMode.equalsIgnoreCase("Insta")) {
-                    //Activate Alarm
-                    if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
-                        Functions.findNewPostPeriodicRequest(getApplicationContext());
-                    } else {
-                        Functions.findNewPostSingleRequest(getApplicationContext());
+                    if (mMode.equalsIgnoreCase("Insta")) {
+                        //Activate Alarm
+                        if (sharedPreferences.getInt("state", 1) == 1 && sharedPreferences.getBoolean("repeatingWorker", false)) {
+                            Log.d(TAG, "onBindViewHolder: periodic");
+                            Functions.findNewPostPeriodicRequest(getApplicationContext());
+                        } else {
+                            Functions.findNewPostSingleRequest(getApplicationContext());
+                            Log.d(TAG, "onBindViewHolder: Single");
+                        }
+                    } else if (mMode.equalsIgnoreCase("Reddit")) {
+                        //Activate Alarm
+                        if (sharedPreferences.getInt("state", 1) == 1 && sharedPreferences.getBoolean("repeatingWorker", false)) {
+                            Log.d(TAG, "onBindViewHolder: periodic");
+                            Functions.findNewRedditPostPeriodicRequest(getApplicationContext());
+                        } else {
+                            Log.d(TAG, "onBindViewHolder: Single");
+                            Functions.findNewRedditPostSingleRequest(getApplicationContext());
+                        }
                     }
-                } else if (mMode.equalsIgnoreCase("Reddit")) {
-                    //Activate Alarm
-                    if (sharedPreferences.getInt("state", 1) == 1 && !sharedPreferences.getBoolean("repeatingWorker", false)) {
-                        Functions.findNewRedditPostPeriodicRequest(getApplicationContext());
-                    } else {
-                        Functions.findNewRedditPostSingleRequest(getApplicationContext());
-                    }
+                } else {
+                    Log.d(TAG, "No Network Connection");
+                    mAdapterCallback.showOffline();
                 }
 
                 return false;
@@ -431,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
         Drawable unwrappedDrawable = suggestionIcon.getBackground();
         Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
 
-        if (!Functions.isNetworkAvailable(this)) {
+        if (!Functions.isNetworkAvailable(getApplication())) {
             DrawableCompat.setTint(wrappedDrawable, colorError);
             showOffline();
         }
@@ -500,9 +509,9 @@ public class MainActivity extends AppCompatActivity implements AdapterCallback {
             Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
             if (!error) {
                 showOnline();
-                SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(getBaseContext(), mSuggestionAccountList, mAdapterCallback);
+                SuggestionListAdapter mSuggestionAdapter = new SuggestionListAdapter(getApplication(), mSuggestionAccountList, mAdapterCallback);
                 mSuggestionsRecyclerView.setAdapter(mSuggestionAdapter);
-                mSuggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(getBaseContext(), LinearLayoutManager.HORIZONTAL, false));
+                mSuggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplication(), LinearLayoutManager.HORIZONTAL, false));
             } else {
                 DrawableCompat.setTint(wrappedDrawable, colorError);
             }

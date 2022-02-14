@@ -1,5 +1,6 @@
 package com.wallagram.Adapters;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -27,6 +28,7 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
     private static final String TAG = "SUGGESTION_LIST_ADAPTER";
 
     private final List<SuggestionAccount> mSuggestionAccountList;
+    private final Application mApplication;
     private final LayoutInflater mInflater;
     private final Context mContext;
     private SharedPreferences mSharedPreferences;
@@ -58,7 +60,7 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
 
             mAdapterCallback.hideSoftKeyboard();
 
-            if (Functions.isNetworkAvailable(mContext)) {
+            if (Functions.isNetworkAvailable(mApplication)) {
                 MainActivity.mLoadingView.setVisibility(View.VISIBLE);
 
                 mSharedPreferences = mContext.getSharedPreferences("Settings", 0);
@@ -85,9 +87,10 @@ public class SuggestionListAdapter extends RecyclerView.Adapter<SuggestionListAd
         return mSuggestionAccountList.size();
     }
 
-    public SuggestionListAdapter(Context context, List<SuggestionAccount> accountList, AdapterCallback callback) {
-        this.mInflater = LayoutInflater.from(context);
-        this.mContext = context;
+    public SuggestionListAdapter(Application application, List<SuggestionAccount> accountList, AdapterCallback callback) {
+        this.mApplication = application;
+        this.mInflater = LayoutInflater.from(application.getBaseContext());
+        this.mContext = application.getBaseContext();
         this.mSharedPreferences = mContext.getSharedPreferences("Settings", Context.MODE_PRIVATE);
         this.mSuggestionAccountList = accountList;
         this.mAdapterCallback = callback;

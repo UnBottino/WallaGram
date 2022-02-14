@@ -57,6 +57,20 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/redditSearchSort"
+                    style="@style/SettingsListItem">
+
+                    <TextView
+                        style="@style/SettingsListItemName"
+                        android:text="@string/setting_search_sort" />
+
+                    <TextView
+                        android:id="@+id/searchSortValue"
+                        style="@style/SettingsListItemValue"
+                        android:text="@string/setting_search_sort_default" />
+                </RelativeLayout>
+
+                <RelativeLayout
                     android:id="@+id/location"
                     style="@style/SettingsListItem">
 
@@ -87,7 +101,7 @@
                 </RelativeLayout>
 
                 <RelativeLayout
-                    android:id="@+id/postPref"
+                    android:id="@+id/instaPostPref"
                     style="@style/SettingsListItem">
 
                     <TextView
@@ -102,7 +116,7 @@
                 </RelativeLayout>
 
                 <RelativeLayout
-                    android:id="@+id/multiImage"
+                    android:id="@+id/instaMultiImage"
                     style="@style/SettingsListItem">
 
                     <TextView
@@ -117,7 +131,7 @@
                 </RelativeLayout>
 
                 <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/allowVideos"
+                    android:id="@+id/instaAllowVideos"
                     style="@style/SettingsListItem"
                     android:text="@string/setting_allow_videos" />
 
@@ -169,6 +183,10 @@
                     layout="@layout/info_btn" />
 
                 <include
+                    android:id="@+id/redditSearchSortInfoBtn"
+                    layout="@layout/info_btn" />
+
+                <include
                     android:id="@+id/locationInfoBtn"
                     layout="@layout/info_btn" />
 
@@ -177,15 +195,15 @@
                     layout="@layout/info_btn" />
 
                 <include
-                    android:id="@+id/postPrefInfoBtn"
+                    android:id="@+id/instaPostPrefInfoBtn"
                     layout="@layout/info_btn" />
 
                 <include
-                    android:id="@+id/multiPostInfoBtn"
+                    android:id="@+id/instaMultiImageInfoBtn"
                     layout="@layout/info_btn" />
 
                 <include
-                    android:id="@+id/allowVideosInfoBtn"
+                    android:id="@+id/instaAllowVideosInfoBtn"
                     layout="@layout/info_btn" />
 
                 <include

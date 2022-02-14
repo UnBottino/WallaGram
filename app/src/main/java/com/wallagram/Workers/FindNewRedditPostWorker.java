@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Random;
 
 public class FindNewRedditPostWorker extends Worker {
     private static final String TAG = "WORKER_FIND_NEW_REDDIT_POST";
@@ -36,10 +37,15 @@ public class FindNewRedditPostWorker extends Worker {
     private final SharedPreferences mSharedPreferences;
     private final SharedPreferences.Editor mEditor;
 
+    private String mSearchUrlString;
+
     private String mProfilePicUrl;
 
     private String mPostUrl;
+
     private final String mSubreddit;
+    private String mSetSearchSort;
+
     private String mID;
     private String mImageName;
 
@@ -52,6 +58,7 @@ public class FindNewRedditPostWorker extends Worker {
         mEditor.apply();
 
         mSubreddit = mSharedPreferences.getString("searchName", "");
+        mSetSearchSort = mSharedPreferences.getString("setSearchSort", "Random");
     }
 
     @NonNull
@@ -65,16 +72,14 @@ public class FindNewRedditPostWorker extends Worker {
     }
 
     private void getUrlResponse() {
-        boolean error = false;
-
         HttpURLConnection connection = null;
-        HttpURLConnection connection2;
         BufferedReader reader = null;
         try {
             Log.d(TAG, "Building account url and connecting");
-            String urlString = "https://www.reddit.com/r/" + mSubreddit + "/random.json";
 
-            URL url = new URL(urlString);
+            selectUrlBySort(mSetSearchSort);
+
+            URL url = new URL(mSearchUrlString);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setInstanceFollowRedirects(false);
@@ -82,21 +87,37 @@ public class FindNewRedditPostWorker extends Worker {
 
             String redirectUrlString = connection.getHeaderField("location");
 
-            URL redirectUrl = new URL(redirectUrlString);
-            connection2 = (HttpURLConnection) redirectUrl.openConnection();
-            connection2.setInstanceFollowRedirects(false);
-            connection2.connect();
+            Log.e(TAG, "getUrlResponse: " + redirectUrlString);
 
-            InputStream stream = connection2.getInputStream();
+            if (redirectUrlString != null) {
+                Log.d(TAG, "getUrlResponse: Redirect link used");
+
+                URL redirectUrl = new URL(redirectUrlString);
+                connection = (HttpURLConnection) redirectUrl.openConnection();
+                connection.setInstanceFollowRedirects(false);
+                connection.connect();
+            }
+
+            InputStream stream = connection.getInputStream();
             reader = new BufferedReader(new InputStreamReader(stream));
 
             Log.d(TAG, "Reading Json Response");
+            JSONObject response;
 
-            JSONArray responseArray = new JSONArray(reader.readLine());
+            String responseString = reader.readLine();
 
-            processResponse(responseArray);
+            try {
+                JSONArray responseArray = new JSONArray(responseString);
+                response = responseArray.getJSONObject(0);
+            } catch (Exception e) {
+                Log.d(TAG, "getUrlResponse: Response is not an array");
+                response = new JSONObject(responseString);
+            }
+
+            processResponse(response, 0);
         } catch (Exception e) {
-            error = true;
+            Log.d(TAG, "Subreddit Not Found");
+            endError("Subreddit Not Found\n(" + mSubreddit + ")");
         } finally {
             try {
                 if (reader != null) {
@@ -109,10 +130,26 @@ public class FindNewRedditPostWorker extends Worker {
                 connection.disconnect();
             }
         }
+    }
 
-        if (error) {
-            Log.d(TAG, "Subreddit Not Found");
-            endError("Subreddit Not Found\n(" + mSubreddit + ")");
+    private void selectUrlBySort(String searchSort) {
+        switch (searchSort) {
+            case "Random":
+                mSearchUrlString = "https://www.reddit.com/r/" + mSubreddit + "/random.json";
+                break;
+            case "New":
+                mSearchUrlString = "https://www.reddit.com/r/" + mSubreddit + "/new.json";
+                break;
+            case "Hot":
+                mSearchUrlString = "https://www.reddit.com/r/" + mSubreddit + "/hot.json";
+                break;
+            case "Top":
+                mSearchUrlString = "https://www.reddit.com/r/" + mSubreddit + "/top.json?t=all";
+                break;
+            default:
+                mSearchUrlString = "https://www.reddit.com/r/" + mSubreddit + "/random.json";
+                Log.e(TAG, "getUrlResponse: Search sort error");
+                break;
         }
     }
 
@@ -139,7 +176,7 @@ public class FindNewRedditPostWorker extends Worker {
             JSONObject dataObject = responseObject.getJSONObject("data");
             mProfilePicUrl = dataObject.getString("icon_img");
 
-            if(mProfilePicUrl.equalsIgnoreCase("")){
+            if (mProfilePicUrl.equalsIgnoreCase("")) {
                 String community_icon = dataObject.getString("community_icon");
 
                 int indexQ = community_icon.indexOf("?");
@@ -170,15 +207,89 @@ public class FindNewRedditPostWorker extends Worker {
         }
     }
 
-    private void processResponse(JSONArray responseArray) {
+    private boolean checkIfGallery(JSONObject childDataObject) throws JSONException {
+        String url = childDataObject.getString("url");
+        return url.contains("gallery");
+    }
+
+    private boolean checkIfVideo(JSONObject childDataObject) {
+        try {
+            return (boolean) childDataObject.get("is_video");
+        } catch (JSONException e) {
+            return false;
+        }
+    }
+
+    private boolean checkIfGif(JSONObject childDataObject) {
+        try {
+            return (boolean) childDataObject.getJSONObject("preview").getJSONObject("reddit_video_preview").get("is_gif");
+        } catch (JSONException e) {
+            return false;
+        }
+    }
+
+    private void processResponse(JSONObject response, int childCount) {
         try {
             Log.d(TAG, "Parsing Json response");
-            JSONObject responseObject = responseArray.getJSONObject(0);
-            JSONObject dataObject = responseObject.getJSONObject("data");
+
+            JSONObject dataObject = response.getJSONObject("data");
             JSONArray childrenArray = dataObject.getJSONArray("children");
-            JSONObject childDataObject = childrenArray.getJSONObject(0).getJSONObject("data");
-            mPostUrl = childDataObject.getString("url");
-            mID = childDataObject.getString("id");
+            JSONObject childDataObject = childrenArray.getJSONObject(childCount).getJSONObject("data");
+
+            if (checkIfGallery(childDataObject)) {
+                processGallery(childDataObject);
+            } else if (checkIfVideo(childDataObject) || checkIfGif(childDataObject)) {
+                processVideo();
+            } else {
+                Log.e(TAG, "processResponse: " + "Picture");
+
+                mPostUrl = childDataObject.getString("url");
+                mID = childDataObject.getString("id");
+
+                System.out.println(mPostUrl);
+
+                String[] extensions = {".jpg", ".png", ".gif", ".jpeg"};
+                for (String s : extensions) {
+                    if (mPostUrl.endsWith(s)) {
+                        endSuccess();
+                        break;
+                    }
+                }
+
+                if (!mSuccess) {
+                    Log.e(TAG, "processResponse: No Success");
+                    processResponse(response, childCount + 1);
+                }
+            }
+
+            if (!mSuccess) {
+                Log.e(TAG, "processResponse: No Success");
+                getUrlResponse();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void processGallery(JSONObject childDataObject) {
+        try {
+            Log.e(TAG, "processGallery: " + "Gallery");
+
+            JSONObject galleryItemsObject = childDataObject.getJSONObject("media_metadata");
+            JSONArray galleryDataArray = childDataObject.getJSONObject("gallery_data").getJSONArray("items");
+
+            int randomNum = new Random().nextInt(galleryDataArray.length());
+            String mediaID = galleryDataArray.getJSONObject(randomNum).getString("media_id");
+
+            JSONObject galleryImageObject = galleryItemsObject.getJSONObject(mediaID);
+
+            String galleryImageURL = galleryImageObject.getJSONObject("s").getString("u");
+            galleryImageURL = galleryImageURL.replace("preview", "i");
+            galleryImageURL = galleryImageURL.substring(0, galleryImageURL.indexOf("?"));
+
+            mPostUrl = galleryImageURL;
+
+            mID = childDataObject.getString("id") + mediaID;
 
             System.out.println(mPostUrl);
 
@@ -189,15 +300,21 @@ public class FindNewRedditPostWorker extends Worker {
                     break;
                 }
             }
-
-            if (!mSuccess)
-                getUrlResponse();
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e(TAG, "processGallery: Error");
         }
     }
 
+    private void processVideo() {
+        Log.e(TAG, "processVideo: " + "video");
+    }
+
+    private void processGif() {
+        Log.e(TAG, "processGif: " + "Gif");
+    }
+
     private void endSuccess() {
+        Log.d(TAG, "endSuccess: " + "Success");
         mImageName = mSubreddit + "-" + mID;
 
         //Show new current account info
@@ -215,6 +332,7 @@ public class FindNewRedditPostWorker extends Worker {
     }
 
     private void endError(String errorMsg) {
+        Log.d(TAG, "endError: Error");
         //Show error message
         mEditor.putString("setAccountName", errorMsg);
         mEditor.putString("setProfilePic", "");

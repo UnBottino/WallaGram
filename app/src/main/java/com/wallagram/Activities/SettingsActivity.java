@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.wallagram.R;
 import com.wallagram.Utils.Functions;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -35,27 +36,72 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 public class SettingsActivity extends AppCompatActivity {
     private static final String TAG = "SETTINGS_ACTIVITY";
 
-    private int stateChange = -1;
-    private String setLocation;
-    private String setImageAlign;
-    private String setTheme;
-    private boolean clearRecentChange = false;
+    private String mMode;
 
-    private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor editor;
+    private int mStateChange = -1;
+    private String mSetLocation;
+    private String mSetSearchSort;
+    private String mSetImageAlign;
+    private String mSetTheme;
+    private boolean mClearRecentChange = false;
+
+    private SharedPreferences mSharedPreferences;
+    private SharedPreferences.Editor mEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
-        editor = sharedPreferences.edit();
-        editor.apply();
+        mSharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        mEditor = mSharedPreferences.edit();
+        mEditor.apply();
 
         toolbarSetup();
 
+        settingTypeSetup();
+
         buttonSetup();
+    }
+
+    private void settingTypeSetup(){
+        mMode = mSharedPreferences.getString("setMode", "Insta");
+
+        View redditSearchSort = findViewById(R.id.redditSearchSort);
+
+        View instaPostPref = findViewById(R.id.instaPostPref);
+        View instaMultiImage = findViewById(R.id.instaMultiImage);
+        View instaAllVideos = findViewById(R.id.instaAllowVideos);
+
+        View redditSearchSortBtn = findViewById(R.id.redditSearchSortInfoBtn);
+
+        View instaPostPrefBtn = findViewById(R.id.instaPostPrefInfoBtn);
+        View instaMultiImageBtn  = findViewById(R.id.instaMultiImageInfoBtn);
+        View instaAllowVideosBtn = findViewById(R.id.instaAllowVideosInfoBtn);
+
+        ArrayList<View> redditSettingList = new ArrayList<>();
+        redditSettingList.add(redditSearchSort);
+        redditSettingList.add(redditSearchSortBtn);
+
+        ArrayList<View> instaSettingList = new ArrayList<>();
+        instaSettingList.add(instaPostPref);
+        instaSettingList.add(instaMultiImage);
+        instaSettingList.add(instaAllVideos);
+        instaSettingList.add(instaPostPrefBtn);
+        instaSettingList.add(instaMultiImageBtn);
+        instaSettingList.add(instaAllowVideosBtn);
+
+        if(!mMode.equalsIgnoreCase("insta")) {
+            for (View v : instaSettingList) {
+                v.setVisibility(View.GONE);
+            }
+        }
+
+        if(!mMode.equalsIgnoreCase("reddit")) {
+            for (View v : redditSettingList) {
+                v.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
@@ -83,39 +129,39 @@ public class SettingsActivity extends AppCompatActivity {
         SwitchCompat state = findViewById(R.id.state);
 
         //init value
-        if (sharedPreferences.getInt("state", 1) == 0) {
+        if (mSharedPreferences.getInt("state", 1) == 0) {
             state.setChecked(false);
         }
 
         state.setOnCheckedChangeListener((compoundButton, isChecked) -> {
             if (isChecked) {
-                stateChange = 1;
+                mStateChange = 1;
 
-                editor.putInt("state", 1);
-                editor.apply();
+                mEditor.putInt("state", 1);
+                mEditor.apply();
 
                 Log.d(TAG, "stateBtnSetup: State value updated to: On");
-                if (!sharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
+                if (!mSharedPreferences.getString("searchName", "").equalsIgnoreCase("")) {
                     Functions.findNewPostPeriodicRequest(getApplicationContext());
                 }
 
                 Intent intent = new Intent();
-                if (clearRecentChange) {
+                if (mClearRecentChange) {
                     setResult(110, intent);
                 } else {
                     setResult(10, intent);
                 }
             } else {
-                stateChange = 0;
+                mStateChange = 0;
 
-                editor.putInt("state", 0);
-                editor.apply();
+                mEditor.putInt("state", 0);
+                mEditor.apply();
 
                 Log.d(TAG, "stateBtnSetup: State value updated to: Off");
                 WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("findNewPost: Periodic");
 
                 Intent intent = new Intent();
-                if (clearRecentChange) {
+                if (mClearRecentChange) {
                     setResult(111, intent);
                 } else {
                     setResult(11, intent);
@@ -128,8 +174,8 @@ public class SettingsActivity extends AppCompatActivity {
         RelativeLayout duration = findViewById(R.id.duration);
 
         //init value
-        int setDuration = sharedPreferences.getInt("duration", 1);
-        String setMetric = sharedPreferences.getString("metric", "Hours");
+        int setDuration = mSharedPreferences.getInt("duration", 1);
+        String setMetric = mSharedPreferences.getString("metric", "Hours");
 
         TextView durationValue = findViewById(R.id.durationValue);
 
@@ -147,15 +193,77 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
+    private void searchSortBtnSetup() {
+        RelativeLayout searchSortBtn = findViewById(R.id.redditSearchSort);
+        String[] redditOptions = {"Random", "New", "Hot", "Top"};
+        String[] instaOptions = {"Random", "New"};
+        String[] options;
+
+        if(mMode.equalsIgnoreCase("insta")){
+            options = instaOptions;
+        }
+        else {
+            options = redditOptions;
+        }
+
+        //init value
+        mSetSearchSort = mSharedPreferences.getString("setSearchSort", options[0]);
+
+        TextView searchSortValue = findViewById(R.id.searchSortValue);
+        searchSortValue.setText(mSetSearchSort);
+
+        searchSortBtn.setOnClickListener(v -> {
+            mSetSearchSort = mSharedPreferences.getString("setSearchSort", options[0]);
+
+            View.OnClickListener searchSortRadioClick = view -> {
+                RadioButton rb = (RadioButton) view;
+                String chosenOption = null;
+
+                switch (rb.getText().toString()) {
+                    case "Random":
+                        Log.d(TAG, "SearchSortBtnSetup: Search sort set to '" + options[0] + "'");
+                        chosenOption = options[0];
+                        break;
+                    case "New":
+                        Log.d(TAG, "SearchSortBtnSetup: Search sort set to '" + options[1] + "'");
+                        chosenOption = options[1];
+                        break;
+                    case "Hot":
+                        Log.d(TAG, "SearchSortBtnSetup: Search sort set to '" + redditOptions[2] + "'");
+                        chosenOption = options[2];
+                        break;
+                    case "Top":
+                        Log.d(TAG, "SearchSortBtnSetup: Search sort set to '" + redditOptions[3] + "'");
+                        chosenOption = options[3];
+                        break;
+                    default:
+                        Log.e(TAG, "SearchSortBtnSetup: Search sort error");
+                        break;
+                }
+
+                if (chosenOption != null) {
+                    mEditor.putString("setSearchSort", chosenOption);
+                    mEditor.commit();
+                    searchSortValue.setText(chosenOption);
+                    rb.toggle();
+                }
+            };
+
+            radioDialog("Search sort", options, searchSortRadioClick, mSetSearchSort);
+        });
+    }
+
     private void locationBtnSetup() {
         RelativeLayout location = findViewById(R.id.location);
         TextView locationValue = findViewById(R.id.locationValue);
         String[] options = {"Home Screen", "Lock Screen", "Both"};
 
-        setLocation = sharedPreferences.getString("setLocation", options[0]);
-        locationValue.setText(setLocation);
+        mSetLocation = mSharedPreferences.getString("setLocation", options[0]);
+        locationValue.setText(mSetLocation);
 
         location.setOnClickListener(v -> {
+            mSetLocation = mSharedPreferences.getString("setLocation", options[0]);
+
             View.OnClickListener locationRadioClick = view -> {
                 RadioButton rb = (RadioButton) view;
 
@@ -180,14 +288,14 @@ public class SettingsActivity extends AppCompatActivity {
                 }
 
                 if (chosenOption != null) {
-                    editor.putString("setLocation", chosenOption);
-                    editor.commit();
+                    mEditor.putString("setLocation", chosenOption);
+                    mEditor.commit();
                     locationValue.setText(chosenOption);
                     rb.toggle();
                 }
             };
 
-            radioDialog("Location", options, locationRadioClick, setLocation);
+            radioDialog("Location", options, locationRadioClick, mSetLocation);
         });
     }
 
@@ -196,10 +304,12 @@ public class SettingsActivity extends AppCompatActivity {
         TextView alignValue = findViewById(R.id.alignValue);
         String[] options = {"Left", "Centre", "Right"};
 
-        setImageAlign = sharedPreferences.getString("setImageAlign", options[1]);
-        alignValue.setText(setImageAlign);
+        mSetImageAlign = mSharedPreferences.getString("setImageAlign", options[1]);
+        alignValue.setText(mSetImageAlign);
 
         imageAlign.setOnClickListener(v -> {
+            mSetImageAlign = mSharedPreferences.getString("setImageAlign", options[1]);
+
             View.OnClickListener alignRadioClick = view -> {
                 RadioButton rb = (RadioButton) view;
 
@@ -224,23 +334,23 @@ public class SettingsActivity extends AppCompatActivity {
                 }
 
                 if (chosenOption != null) {
-                    editor.putString("setImageAlign", chosenOption);
-                    editor.commit();
+                    mEditor.putString("setImageAlign", chosenOption);
+                    mEditor.commit();
                     alignValue.setText(chosenOption);
                     rb.toggle();
                 }
             };
 
-            radioDialog("Image Align", options, alignRadioClick, setImageAlign);
+            radioDialog("Image Align", options, alignRadioClick, mSetImageAlign);
         });
     }
 
     @SuppressLint("SetTextI18n")
     private void postPrefBtnSetup() {
-        RelativeLayout postPref = findViewById(R.id.postPref);
+        RelativeLayout postPref = findViewById(R.id.instaPostPref);
 
         //init value
-        int setPostPref = sharedPreferences.getInt("postPref", 1);
+        int setPostPref = mSharedPreferences.getInt("postPref", 1);
         TextView postPrefValue = findViewById(R.id.postPrefValue);
 
         switch (setPostPref) {
@@ -266,10 +376,10 @@ public class SettingsActivity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     private void multiPostBtnSetup() {
-        RelativeLayout multiPost = findViewById(R.id.multiImage);
+        RelativeLayout multiPost = findViewById(R.id.instaMultiImage);
 
         //init value
-        int setMultiImage = sharedPreferences.getInt("multiImage", 1);
+        int setMultiImage = mSharedPreferences.getInt("multiImage", 1);
         TextView multiImageValue = findViewById(R.id.multiImageValue);
 
         switch (setMultiImage) {
@@ -294,21 +404,21 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void allowVideosBtnSetup() {
-        SwitchCompat allowVideos = findViewById(R.id.allowVideos);
+        SwitchCompat allowVideos = findViewById(R.id.instaAllowVideos);
 
         //init value
-        if (sharedPreferences.getBoolean("allowVideos", false)) {
+        if (mSharedPreferences.getBoolean("allowVideos", false)) {
             allowVideos.setChecked(true);
         }
 
         allowVideos.setOnCheckedChangeListener((compoundButton, isChecked) -> {
             if (isChecked) {
-                editor.putBoolean("allowVideos", true);
-                editor.apply();
+                mEditor.putBoolean("allowVideos", true);
+                mEditor.apply();
                 Log.d(TAG, "allowVideosBtnSetup: Allow videos value updated to: Yes");
             } else {
-                editor.putBoolean("allowVideos", false);
-                editor.apply();
+                mEditor.putBoolean("allowVideos", false);
+                mEditor.apply();
                 Log.d(TAG, "allowVideosBtnSetup: Allow videos value updated to: No");
             }
         });
@@ -318,7 +428,7 @@ public class SettingsActivity extends AppCompatActivity {
         SwitchCompat saveWallpaper = findViewById(R.id.saveWallpaper);
 
         //init value
-        if (sharedPreferences.getInt("saveWallpaper", 0) == 1) {
+        if (mSharedPreferences.getInt("saveWallpaper", 0) == 1) {
             saveWallpaper.setChecked(true);
         }
 
@@ -330,12 +440,12 @@ public class SettingsActivity extends AppCompatActivity {
                 saveWallpaper.setChecked(false);
             } else {
                 if (isChecked) {
-                    editor.putInt("saveWallpaper", 1);
-                    editor.apply();
+                    mEditor.putInt("saveWallpaper", 1);
+                    mEditor.apply();
                     Log.d(TAG, "saveWallpaperBtnSetup: Save Wallpaper value updated to: Yes");
                 } else {
-                    editor.putInt("saveWallpaper", 0);
-                    editor.apply();
+                    mEditor.putInt("saveWallpaper", 0);
+                    mEditor.apply();
                     Log.d(TAG, "saveWallpaperBtnSetup: Save Wallpaper value updated to: No");
                 }
             }
@@ -346,9 +456,9 @@ public class SettingsActivity extends AppCompatActivity {
         RelativeLayout theme = findViewById(R.id.theme);
         TextView themeValue = findViewById(R.id.themeValue);
         String[] options = {"System Default", "Light", "Dark"};
-        setTheme = sharedPreferences.getString("setTheme", options[0]);
+        mSetTheme = mSharedPreferences.getString("setTheme", options[0]);
 
-        themeValue.setText(setTheme);
+        themeValue.setText(mSetTheme);
 
         theme.setOnClickListener(v -> {
             View.OnClickListener radioClick = view -> {
@@ -378,14 +488,14 @@ public class SettingsActivity extends AppCompatActivity {
                 }
 
                 if (chosenOption != null) {
-                    editor.putString("setTheme", chosenOption);
-                    editor.commit();
+                    mEditor.putString("setTheme", chosenOption);
+                    mEditor.commit();
                     themeValue.setText(chosenOption);
                     rb.toggle();
                 }
             };
 
-            radioDialog("Theme", options, radioClick, setTheme);
+            radioDialog("Theme", options, radioClick, mSetTheme);
         });
     }
 
@@ -413,14 +523,14 @@ public class SettingsActivity extends AppCompatActivity {
             TextView confirmBtn = dialogView.findViewById(R.id.confirmBtn);
 
             confirmBtn.setOnClickListener(view -> {
-                clearRecentChange = true;
+                mClearRecentChange = true;
 
                 Functions.removeDBAccounts(this);
 
                 Intent intent = new Intent();
-                if (stateChange == 1) {
+                if (mStateChange == 1) {
                     setResult(110, intent);
-                } else if (stateChange == 0) {
+                } else if (mStateChange == 0) {
                     setResult(111, intent);
                 } else {
                     setResult(100, intent);
@@ -444,10 +554,19 @@ public class SettingsActivity extends AppCompatActivity {
     private void buttonSetup() {
         stateBtnSetup();
         durationBtnSetup();
+
+        if(mMode.equalsIgnoreCase("reddit")) {
+            searchSortBtnSetup();
+        }
+
         locationBtnSetup();
-        postPrefBtnSetup();
-        multiPostBtnSetup();
-        allowVideosBtnSetup();
+
+        if(mMode.equalsIgnoreCase("insta")) {
+            postPrefBtnSetup();
+            multiPostBtnSetup();
+            allowVideosBtnSetup();
+        }
+
         saveWallpaperBtnSetup();
         imageAlignBtnSetup();
         themeBtnSetup();
@@ -459,23 +578,30 @@ public class SettingsActivity extends AppCompatActivity {
         RelativeLayout durationInfo = findViewById(R.id.durationInfoBtn);
         durationInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Duration"), new SpannableString(getString(R.string.duration_info_msg))));
 
+        if(mMode.equalsIgnoreCase("reddit")) {
+            RelativeLayout searchSortInfo = findViewById(R.id.redditSearchSortInfoBtn);
+            searchSortInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Search sort"), new SpannableString(getString(R.string.search_sort_info_msg))));
+        }
+
         RelativeLayout locationInfo = findViewById(R.id.locationInfoBtn);
         locationInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Location"), new SpannableString(getString(R.string.location_info_msg))));
 
-        RelativeLayout postPrefInfo = findViewById(R.id.postPrefInfoBtn);
-        postPrefInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Post Preference"), new SpannableString(getString(R.string.post_pref_info_msg))));
+        RelativeLayout imageAlignInfo = findViewById(R.id.imageAlignInfoBtn);
+        imageAlignInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Image Align"), new SpannableString(getString(R.string.image_align_info_msg))));
 
-        RelativeLayout multiImagePostInfo = findViewById(R.id.multiPostInfoBtn);
-        multiImagePostInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Multi-image Post"), new SpannableString(getString(R.string.multi_image_post_info_msg))));
+        if(mMode.equalsIgnoreCase("insta")) {
+            RelativeLayout postPrefInfo = findViewById(R.id.instaPostPrefInfoBtn);
+            postPrefInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Post Preference"), new SpannableString(getString(R.string.post_pref_info_msg))));
 
-        RelativeLayout allowVideosInfo = findViewById(R.id.allowVideosInfoBtn);
-        allowVideosInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Allow Video Posts"), new SpannableString(getString(R.string.allow_videos_info_msg))));
+            RelativeLayout multiImagePostInfo = findViewById(R.id.instaMultiImageInfoBtn);
+            multiImagePostInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Multi-image Post"), new SpannableString(getString(R.string.multi_image_post_info_msg))));
+
+            RelativeLayout allowVideosInfo = findViewById(R.id.instaAllowVideosInfoBtn);
+            allowVideosInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Allow Video Posts"), new SpannableString(getString(R.string.allow_videos_info_msg))));
+        }
 
         RelativeLayout saveWallpaperInfo = findViewById(R.id.saveWallpaperInfoBtn);
         saveWallpaperInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Save Wallpapers"), new SpannableString(getString(R.string.save_wallpaper_info_msg))));
-
-        RelativeLayout imageAlignInfo = findViewById(R.id.imageAlignInfoBtn);
-        imageAlignInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Image Align"), new SpannableString(getString(R.string.image_align_info_msg))));
 
         RelativeLayout themeInfo = findViewById(R.id.themeInfoBtn);
         themeInfo.setOnClickListener(v -> Functions.popupMsg(this, new SpannableString("Theme"), new SpannableString(getString(R.string.theme_info_msg))));
@@ -488,7 +614,18 @@ public class SettingsActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_options, null);
+        View dialogView;
+
+        if(options.length == 2) {
+            dialogView = inflater.inflate(R.layout.dialog_2_options, null);
+        }
+        else if(options.length == 3) {
+            dialogView = inflater.inflate(R.layout.dialog_3_options, null);
+        }
+        else {
+            dialogView = inflater.inflate(R.layout.dialog_4_options, null);
+        }
+
         builder.setView(dialogView);
 
         TextView infoTitle = dialogView.findViewById(R.id.title);

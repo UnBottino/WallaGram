@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -36,12 +37,8 @@ public class PreviewRedditPostWorker extends Worker {
     private final SharedPreferences mSharedPreferences;
     private final SharedPreferences.Editor mEditor;
 
-    private String mProfilePicUrl;
-
     private String mPostUrl;
     private final String mSubreddit;
-    private String mID;
-    private String mImageName;
 
     private boolean mSuccess;
 
@@ -57,7 +54,6 @@ public class PreviewRedditPostWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-
         getUrlResponse();
 
         return (mSuccess ? Result.success() : Result.failure());
@@ -115,60 +111,6 @@ public class PreviewRedditPostWorker extends Worker {
         }
     }
 
-    private void getSubredditIcon() {
-        boolean error = false;
-
-        HttpURLConnection connection = null;
-        BufferedReader reader = null;
-        try {
-            String urlString = "https://www.reddit.com/r/" + mSubreddit + "/about.json";
-
-            URL url = new URL(urlString);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setInstanceFollowRedirects(false);
-            connection.connect();
-
-            InputStream stream = connection.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(stream));
-
-            Log.d(TAG, "Reading Json Response");
-            Log.d(TAG, "Parsing Json response");
-
-            JSONObject responseObject = new JSONObject(reader.readLine());
-            JSONObject dataObject = responseObject.getJSONObject("data");
-            mProfilePicUrl = dataObject.getString("icon_img");
-
-            if(mProfilePicUrl.equalsIgnoreCase("")){
-                String community_icon = dataObject.getString("community_icon");
-
-                int indexQ = community_icon.indexOf("?");
-                mProfilePicUrl = community_icon.substring(0, indexQ);
-                System.out.println(mProfilePicUrl);
-            }
-
-            System.out.println(mProfilePicUrl);
-        } catch (Exception e) {
-            System.out.println("ERROR");
-            error = true;
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-
-        if (error) {
-            Log.d(TAG, "Subreddit Not Found");
-            endError("Subreddit Not Found\n(" + mSubreddit + ")");
-        }
-    }
-
     private void processResponse(JSONArray responseArray) {
         try {
             Log.d(TAG, "Parsing Json response");
@@ -177,7 +119,6 @@ public class PreviewRedditPostWorker extends Worker {
             JSONArray childrenArray = dataObject.getJSONArray("children");
             JSONObject childDataObject = childrenArray.getJSONObject(0).getJSONObject("data");
             mPostUrl = childDataObject.getString("url");
-            mID = childDataObject.getString("id");
 
             System.out.println(mPostUrl);
 
@@ -199,7 +140,6 @@ public class PreviewRedditPostWorker extends Worker {
     private void endSuccess() {
         mEditor.putString("setPostURL", mPostUrl);
         mEditor.commit();
-
         mSuccess = true;
 
         sendUpdatePreviewBroadcast();
